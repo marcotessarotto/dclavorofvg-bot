@@ -106,3 +106,9 @@ venv.bak/
 migrations/
 
 secrets.py
+
+ultima_newsletter.pdf
+
+secret_readme.txt
+
+db.sqlite3

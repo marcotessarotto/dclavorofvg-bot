@@ -78,7 +78,7 @@ def alarm(context):
     #print(job.special_message)
 
 
-    context.bot.send_document(chat_id=chat_id, document=open('d:/tmp/ultima_newsletter.pdf', 'rb'))
+    context.bot.send_document(chat_id=chat_id, document=open('ultima_newsletter.pdf', 'rb'))
     #context.bot.send_message(job.context, text='Beep!')
 
 
@@ -137,7 +137,7 @@ def parole_chiave_newsletter(update, context):
 
 
 REQUEST_KWARGS={
-    'proxy_url': 'http://localhost:3128/',
+    #'proxy_url': 'http://localhost:3128/',
     # Optional, if you need authentication:
     #'username': 'PROXY_USER',
     #'password': 'PROXY_PASS',

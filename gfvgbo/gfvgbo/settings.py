@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
-#import SECRET_KEY from secrets.py
+#import SECRET_KEY from secrets.py (not included in git source tree)
 from .secrets import *
+
+# how to generate new SECRET_KEY:
+# https://stackoverflow.com/questions/4664724/distributing-django-projects-with-unique-secret-keys/16630719#16630719
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -24,8 +27,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 
-
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -33,8 +34,10 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+#import backoffice.apps.
 
 INSTALLED_APPS = [
+    'backoffice.apps.BackofficeConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,10 +80,15 @@ WSGI_APPLICATION = 'gfvgbo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# DB_NAME etc are defined in secrets.py
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': DB_NAME,
+        'USER': DB_USERNAME,
+        'PASSWORD': DB_PWD,
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
@@ -107,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'it'
 
 TIME_ZONE = 'UTC'
 
