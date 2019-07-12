@@ -93,6 +93,7 @@ def mandami_ultima_newsletter(update, context):
     job2 = context.job_queue.run_once(alarm, due, context=chat_id)
     job2.special_message = 123
     job2.chat_data = {}
+
     job2.chat_data['chat_id'] = chat_id
     job2.chat_data['user'] = update.message.from_user
 
