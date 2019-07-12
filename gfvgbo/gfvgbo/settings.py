@@ -15,6 +15,11 @@ import os
 #import SECRET_KEY from secrets.py (not included in git source tree)
 from .secrets import *
 
+#SECRET_KEY = '......'
+#DB_USERNAME = '...'
+#DB_PWD = '...'
+#DB_NAME = '...'
+
 # how to generate new SECRET_KEY:
 # https://stackoverflow.com/questions/4664724/distributing-django-projects-with-unique-secret-keys/16630719#16630719
 
