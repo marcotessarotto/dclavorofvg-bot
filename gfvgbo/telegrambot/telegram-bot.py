@@ -39,6 +39,7 @@ def condividi_posizione(update, context):
     update.message.reply_text(
         'Ciao {}'.format(update.message.from_user.first_name))
 
+
 def hello(update, context):
     chat_id = update.message.chat_id
 
