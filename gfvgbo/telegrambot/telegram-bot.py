@@ -49,6 +49,10 @@ def hello(update, context):
 
 
 def start(update, context):
+
+    print(context.args) # parametro via start; max 64 caratteri
+    # https://telegram.me/marcotts_bot?start=12345
+
     update.message.reply_text(
         'Ciao {}, benvenuto al servizio GiovaniFVG,\nhai a disposizione i seguenti comandi:\n'.format(update.message.from_user.first_name) + comandi_disponibili)
 
