@@ -33,7 +33,7 @@ django.setup()
 # from django.contrib.auth.models import User
 
 # Your application specific imports
-from gfvgbo.backoffice.models import *
+from gfvgbo.backoffice.models import TelegramUser
 #from backoffice.models import TelegramUser
 
 #from gfvgbo.backoffice.models import TelegramUser

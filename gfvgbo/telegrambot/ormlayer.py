@@ -12,7 +12,7 @@ django.setup()
 # from django.contrib.auth.models import User
 
 # Your application specific imports
-from gfvgbo.backoffice.models import TelegramUser
+from gfvgbo.backoffice.models import TelegramUser, Keyword, create_default_keywords_for_user
 
 #from gfvgbo.backoffice.models import TelegramUser
 
@@ -57,6 +57,10 @@ def orm_add_user(user):
         obj.language_code = user.language_code
         obj.save()
         print("TelegramUser added! " + str(obj))
+
+        # add all keywords for user
+        create_default_keywords_for_user(obj)
+
     else:
         print("TelegramUser found: " + str(query_result[0]))
     # except TelegramUser.DoesNotExist:
