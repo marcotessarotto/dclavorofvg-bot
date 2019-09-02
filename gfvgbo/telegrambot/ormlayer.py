@@ -12,7 +12,7 @@ django.setup()
 # from django.contrib.auth.models import User
 
 # Your application specific imports
-from data.models import TelegramUser
+from gfvgbo.backoffice.models import TelegramUser
 
 #from gfvgbo.backoffice.models import TelegramUser
 
