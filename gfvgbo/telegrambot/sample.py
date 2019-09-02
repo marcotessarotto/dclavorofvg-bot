@@ -8,7 +8,7 @@ import django
 #sys.path.insert(0, os.path.abspath('../../')) # non serve, c'è già
 
 #sys.path.insert(0, os.path.abspath('../backoffice/'))
-# print(sys.path)
+print(sys.path)
 #
 # # print(os.path.abspath('.'))
 #
@@ -33,12 +33,13 @@ django.setup()
 # from django.contrib.auth.models import User
 
 # Your application specific imports
-from data.models import TelegramUser
+from gfvgbo.backoffice.models import *
+#from backoffice.models import TelegramUser
 
 #from gfvgbo.backoffice.models import TelegramUser
 
 
-#from gfvgbo.telegrambot.data.models import *
+#from gfvgbo.telegrambot.backoffice.models import *
 
 #Add user
 # user = User(name="someone", email="someone@example.com")

@@ -17,7 +17,7 @@ from data.models import TelegramUser
 #from gfvgbo.backoffice.models import TelegramUser
 
 
-#from gfvgbo.telegrambot.data.models import *
+#from gfvgbo.telegrambot.backoffice.models import *
 
 #Add user
 # user = User(name="someone", email="someone@example.com")

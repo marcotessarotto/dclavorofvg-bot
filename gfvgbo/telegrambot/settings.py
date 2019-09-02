@@ -3,12 +3,17 @@ from django.conf import settings
 
 from gfvgbo.gfvgbo.secrets import *
 
-# import sys
-# import os
+import sys
+import os
 #
-# print("telegrambot django settings")
-# print(sys.path)
-# print(os.path.abspath('.'))
+print("telegrambot django settings")
+print(sys.path)
+print(os.path.abspath('.'))
+
+# import gfvgbo.backoffice.apps
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(BASE_DIR)
 
 DATABASES = {
                 'default': {
@@ -22,8 +27,8 @@ DATABASES = {
             }
 
 INSTALLED_APPS = [
-    'data.apps.DataConfig',
-    # 'gfvgbo.backoffice.apps.BackofficeConfig'
+    #'backoffice.apps.DataConfig',
+    'gfvgbo.backoffice.apps.BackofficeConfig'
 
 ]
 
@@ -39,7 +44,7 @@ INSTALLED_APPS = [
 #         }
 #     },
 #     INSTALLED_APPS=[
-#         'data.apps.DataConfig',
+#         'backoffice.apps.DataConfig',
 #         #'gfvgbo.backoffice.apps.BackofficeConfig'
 #
 #     ]
