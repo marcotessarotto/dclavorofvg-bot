@@ -1,7 +1,6 @@
 import time
 import datetime
 
-import django
 import telegram
 
 from gfvgbo.telegrambot.ormlayer import orm_add_user, update_user_keyword_settings, orm_get_user
@@ -203,7 +202,7 @@ def inline_keyboard(django_user):
     out = []
     label = ''
 
-    print("keywords for current user " + str(django_user.user_id))
+    print("keywords selected by current user " + str(django_user.user_id))
     for item in django_user.keywords.all():
         print(item.key)
     print("***")
@@ -248,7 +247,7 @@ def choice(update, context):
 
     #django_user = orm_add_user(update.message.from_user)
 
-    scelta, user_id = demix( (update.callback_query.data))
+    scelta, user_id = demix(update.callback_query.data)
 
     django_user = orm_get_user(user_id)
 
@@ -300,7 +299,7 @@ def choice(update, context):
         # category[scelta][1] = ~category[scelta][1]
 
         update.callback_query.edit_message_text(
-            text="Seleziona la categoria:",
+            text="Seleziona le categorie:",
             reply_markup=InlineKeyboardMarkup(inline_keyboard(django_user))
         )
 
