@@ -49,7 +49,7 @@ def orm_add_user(user):
     print(query_result)
 
     try:
-        if query_result.len() == 0:
+        if len(query_result) == 0:
             obj = TelegramUser()
             obj.user_id = user.id
             obj.first_name = user.first_name
