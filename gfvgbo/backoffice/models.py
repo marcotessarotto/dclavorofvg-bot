@@ -69,10 +69,9 @@ def fill_keywords():
     if len(Keyword.objects.all()) == 0:
         for i in DEFAULT_KEYWORDS:
             x = i[0]
-            y = i[1]
+            # y = i[1]
             k = Keyword()
             k.key = x
-            # k.keyword = y
 
             k.save()
 
@@ -99,6 +98,9 @@ def create_default_keywords_for_user(tuser):
 class TelegramUser(models.Model):
     # {'id': 884401291, 'first_name': 'Marco', 'is_bot': False, 'last_name': 'Tessarotto', 'language_code': 'en'}
     user_id = models.BigIntegerField()
+
+    giovanifvg_id = models.BigIntegerField(default=-1)
+
     first_name = models.TextField(max_length=256, blank=True)
     last_name = models.TextField(max_length=256, blank=True)
 

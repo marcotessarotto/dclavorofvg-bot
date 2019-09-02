@@ -43,12 +43,11 @@ def orm_add_user(user):
 
     query_result = TelegramUser.objects.filter(user_id=user.id)
 
-    for item in query_result:
-        print(item)
+    # for item in query_result:
+    #     print(item)
 
     # print(query_result)
 
-    # try:
     if len(query_result) == 0:
         obj = TelegramUser()
         obj.user_id = user.id
@@ -61,11 +60,40 @@ def orm_add_user(user):
         # add all keywords for user
         create_default_keywords_for_user(obj)
 
+        result = obj
     else:
         print("TelegramUser found: " + str(query_result[0]))
-    # except TelegramUser.DoesNotExist:
-    #     print("exception TelegramUser.DoesNotExist")
-    # except RuntimeError:
-    #     print("RuntimeError")
-    # pass
+        result = query_result[0]
 
+    return result
+
+
+def update_user_keyword_settings(django_user, scelta):
+    queryset = django_user.keywords.filter(key=scelta)
+
+    if len(queryset) != 0:
+        k = queryset[0]
+        # remove keyword
+        django_user.keywords.remove(k)
+        django_user.save()
+        k.save()
+    else:
+        # add keyword
+
+        # print("search for keyword " + str(scelta))
+
+        k = Keyword.objects.filter(key=scelta)[0]
+
+        django_user.keywords.add(k)
+        django_user.save()
+        k.save()
+
+        pass
+
+    pass
+
+
+def orm_get_user(user_id):
+    query_result = TelegramUser.objects.filter(user_id=user_id)
+
+    return query_result[0]
