@@ -51,3 +51,15 @@ from data.models import TelegramUser
 # print(first_user.email)
 
 print(TelegramUser.objects.all())
+
+
+query_result = TelegramUser.objects.filter(user_id=12345)
+
+if len(query_result) == 0:
+    obj = TelegramUser()
+    obj.user_id = 12345
+    obj.first_name = "m"
+    obj.last_name = "t"
+    obj.language_code = "en"
+    obj.save()
+    print("TelegramUser added! " + str(obj))

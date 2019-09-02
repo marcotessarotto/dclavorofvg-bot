@@ -18,7 +18,7 @@ class TelegramUser(models.Model):
         verbose_name_plural = "TelegramUsers"
 
     def __str__(self):
-        return "TelegramUser " + str(self.id) + ": " + self.user_id + " " + self.first_name + " " + self.last_name
+        return "TelegramUser " + str(self.id) + ": " + str(self.user_id)  + " " + self.first_name + " " + self.last_name
 
 
 # mission_a_cui_risponde = models.ForeignKey(Mission, on_delete=models.PROTECT)

@@ -4,6 +4,8 @@ import datetime
 import telegram
 from telegram.ext import Updater, CommandHandler
 
+from ormlayer import orm_add_user
+
 #pip install python-telegram-bot==12.0.0b1 --upgrade
 
 
@@ -52,6 +54,9 @@ def start(update, context):
 
     print(context.args) # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
+
+    print(update.message.from_user)
+    orm_add_user(update.message.from_user)
 
     update.message.reply_text(
         'Ciao {}, benvenuto al servizio GiovaniFVG,\nhai a disposizione i seguenti comandi:\n'.format(update.message.from_user.first_name) + comandi_disponibili)
