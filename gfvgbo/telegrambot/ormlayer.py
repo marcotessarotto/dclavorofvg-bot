@@ -29,8 +29,8 @@ from data.models import TelegramUser
 # print(first_user.name)
 # print(first_user.email)
 
-print("list of TelegramUser:")
-print(TelegramUser.objects.all())
+# print("list of TelegramUser:")
+# print(TelegramUser.objects.all())
 
 
 def orm_add_user(user):
@@ -46,22 +46,22 @@ def orm_add_user(user):
     for item in query_result:
         print(item)
 
-    print(query_result)
+    # print(query_result)
 
-    try:
-        if len(query_result) == 0:
-            obj = TelegramUser()
-            obj.user_id = user.id
-            obj.first_name = user.first_name
-            obj.last_name = user.last_name
-            obj.language_code = user.language_code
-            obj.save()
-            print("TelegramUser added! " + str(obj))
-        else:
-            print("TelegramUser found: " + str(query_result[0]))
-    except TelegramUser.DoesNotExist:
-        print("exception TelegramUser.DoesNotExist")
-    except RuntimeError:
-        print("RuntimeError")
-    pass
+    # try:
+    if len(query_result) == 0:
+        obj = TelegramUser()
+        obj.user_id = user.id
+        obj.first_name = user.first_name
+        obj.last_name = user.last_name
+        obj.language_code = user.language_code
+        obj.save()
+        print("TelegramUser added! " + str(obj))
+    else:
+        print("TelegramUser found: " + str(query_result[0]))
+    # except TelegramUser.DoesNotExist:
+    #     print("exception TelegramUser.DoesNotExist")
+    # except RuntimeError:
+    #     print("RuntimeError")
+    # pass
 
