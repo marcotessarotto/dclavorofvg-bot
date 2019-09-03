@@ -97,9 +97,13 @@ def create_default_keywords_for_user(tuser):
 
 class TelegramUser(models.Model):
     # {'id': 884401291, 'first_name': 'Marco', 'is_bot': False, 'last_name': 'Tessarotto', 'language_code': 'en'}
+
+    # {'id': 731571160, 'first_name': 'Matteo', 'is_bot': False, 'last_name': 'Merz', 'username': 'mttmerz', 'language_code': 'it'}
     user_id = models.BigIntegerField()
 
     giovanifvg_id = models.BigIntegerField(default=-1)
+
+    username = models.TextField(max_length=256, blank=True)
 
     first_name = models.TextField(max_length=256, blank=True)
     last_name = models.TextField(max_length=256, blank=True)
