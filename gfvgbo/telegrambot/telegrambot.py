@@ -235,7 +235,7 @@ def inline_keyboard(django_user):
     # Inserisce i pulsanti 'Conferma' e 'Esci'
     out.append(
                [
-                   InlineKeyboardButton(text='Chiudi', callback_data='OK'), # OK , 'Conferma'
+                   InlineKeyboardButton(text='CHIUDI', callback_data='OK'), # OK , 'Conferma'
                    # InlineKeyboardButton(text='Esci', callback_data='ESC') #ESC
                ]
                )
