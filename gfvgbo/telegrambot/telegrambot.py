@@ -224,7 +224,7 @@ def inline_keyboard(django_user):
         # print("filter for " + index + ", len=" + str(len(queryset)))
 
         if len(queryset) != 0:
-            label = index + ' ->' + str(category[index][0]) + '<-'
+            label = index + ' ->' + str(category[index][0]).upper() + '<-'
         else:
             label = index + " " + str(category[index][0])
 
