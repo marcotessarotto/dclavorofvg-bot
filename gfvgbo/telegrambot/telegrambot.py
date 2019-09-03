@@ -34,14 +34,13 @@ logging.basicConfig(
 
 category = get_categories_dict()
 
-# pip install python-telegram-bot==12.0.0b1 --upgrade
+# pip install python-telegram-bot==12.0.0 --upgrade
 
 
-comandi_disponibili = "/start\n" \
+comandi_disponibili = "/help oppure /aiuto\n" \
+                      "/start\n" \
                       "/mandami_ultima_newsletter\n" \
                       "/voglio_ricevere_newsletter\n" \
-                      "/basta_newsletter\n" \
-                      "/parole_chiave_newsletter\n" \
                       "/condividi_posizione\n" \
                       "/scegli_categorie"
 
@@ -162,18 +161,18 @@ def basta_newsletter(update, context):
     update.message.reply_text('ok, non ti mando più la newsletter')
 
 
-def parole_chiave_newsletter(update, context):
-    chat_id = update.message.chat_id
-
-    location_keyboard = telegram.KeyboardButton(text="send_location", request_location=True)
-    contact_keyboard = telegram.KeyboardButton(text="send_contact", request_contact=True)
-    custom_keyboard = [[location_keyboard, contact_keyboard]]
-    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
-    context.bot.send_message(chat_id=chat_id,
-                             text="Would you mind sharing your location and contact with me?",
-                             reply_markup=reply_markup)
-
-    update.message.reply_text('ok! ')
+# def parole_chiave_newsletter(update, context):
+#     chat_id = update.message.chat_id
+#
+#     location_keyboard = telegram.KeyboardButton(text="send_location", request_location=True)
+#     contact_keyboard = telegram.KeyboardButton(text="send_contact", request_contact=True)
+#     custom_keyboard = [[location_keyboard, contact_keyboard]]
+#     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard)
+#     context.bot.send_message(chat_id=chat_id,
+#                              text="Would you mind sharing your location and contact with me?",
+#                              reply_markup=reply_markup)
+#
+#     update.message.reply_text('ok! ')
 
 
 # Comando SCEGLI
@@ -220,7 +219,7 @@ def inline_keyboard(django_user):
         # print(django_user.keywords.filter(key=index))
 
         if len(django_user.keywords.filter(key=index)) != 0:
-            label = '-> ' + str(category[index][0]) + ' <-'
+            label = '-><b>' + str(category[index][0]) + '</b><-'
         else:
             label = str(category[index][0])
 
@@ -326,11 +325,12 @@ updater.dispatcher.add_handler(CommandHandler('hello', hello))
 updater.dispatcher.add_handler(CommandHandler('start', start))
 
 updater.dispatcher.add_handler(CommandHandler('help', help))
+updater.dispatcher.add_handler(CommandHandler('aiuto', help))
 
 updater.dispatcher.add_handler(CommandHandler('mandami_ultima_newsletter', mandami_ultima_newsletter))
 updater.dispatcher.add_handler(CommandHandler('voglio_ricevere_newsletter', voglio_ricevere_newsletter))
-updater.dispatcher.add_handler(CommandHandler('basta_newsletter', basta_newsletter))
-updater.dispatcher.add_handler(CommandHandler('parole_chiave_newsletter', parole_chiave_newsletter))
+#updater.dispatcher.add_handler(CommandHandler('basta_newsletter', basta_newsletter))
+#updater.dispatcher.add_handler(CommandHandler('parole_chiave_newsletter', parole_chiave_newsletter))
 
 updater.dispatcher.add_handler(CommandHandler('condividi_posizione', condividi_posizione))
 
