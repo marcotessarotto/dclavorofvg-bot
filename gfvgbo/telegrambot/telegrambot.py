@@ -205,10 +205,10 @@ def inline_keyboard(django_user):
     out = []
     label = ''
 
-    print("keywords selected by current user " + str(django_user.user_id))
-    for item in django_user.keywords.all():
-        print(item.key)
-    print("***")
+    # print("keywords selected by current user " + str(django_user.user_id))
+    # for item in django_user.keywords.all():
+    #     print(item.key)
+    # print("***")
 
     # Permette di visualizzare nella inline_keyboard le categorie già selezionate
 
@@ -219,15 +219,10 @@ def inline_keyboard(django_user):
         # print(django_user.keywords.filter(key=index))
 
         if len(django_user.keywords.filter(key=index)) != 0:
-            label = '-><b>' + str(category[index][0]) + '</b><-'
+            label = '->' + str(category[index][0]) + '<-'
         else:
             label = str(category[index][0])
 
-    # for index in category.keys():
-    #     if category[index][1]:
-    #         label = '-> ' + str(category[index][0]) + ' <-'
-    #     else:
-    #         label = str(category[index][0])
 
         out.insert(0,
                    [InlineKeyboardButton(text=label, callback_data= mix(index, django_user))]
