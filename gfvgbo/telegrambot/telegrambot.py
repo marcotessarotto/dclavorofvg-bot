@@ -3,6 +3,10 @@ import datetime
 
 import telegram
 
+# cd /home/marco/Documents/github/giovanifvg-bot
+# export PYTHONPATH=/home/marco/Documents/github/giovanifvg-bot/:/home/marco/Documents/github/giovanifvg-bot/gfvgbo/telegrambot/
+# python /home/marco/Documents/github/giovanifvg-bot/gfvgbo/telegrambot/telegrambot.py
+
 from gfvgbo.telegrambot.ormlayer import orm_add_user, update_user_keyword_settings, orm_get_user
 
 from gfvgbo.backoffice.definitions import get_categories_dict
