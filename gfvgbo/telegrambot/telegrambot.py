@@ -182,7 +182,7 @@ def scegli_categorie(update, context):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text="Seleziona una o più categorie tra le seguenti",
+        text="Seleziona le categorie:",
         reply_markup=InlineKeyboardMarkup(inline_keyboard(django_user))
     )
 
