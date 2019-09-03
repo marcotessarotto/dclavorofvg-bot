@@ -103,14 +103,14 @@ class TelegramUser(models.Model):
 
     giovanifvg_id = models.BigIntegerField(default=-1)
 
-    username = models.TextField(max_length=256, blank=True)
+    username = models.TextField(max_length=256, blank=True, null=True)
 
-    first_name = models.TextField(max_length=256, blank=True)
-    last_name = models.TextField(max_length=256, blank=True)
+    first_name = models.TextField(max_length=256, blank=True, null=True)
+    last_name = models.TextField(max_length=256, blank=True, null=True)
 
     is_bot = models.BooleanField(default=False)
 
-    language_code = models.CharField(max_length=2, blank=True)
+    language_code = models.CharField(max_length=2, blank=True, null=True)
 
     keywords = models.ManyToManyField(Keyword,   blank=True)
 
@@ -122,7 +122,7 @@ class TelegramUser(models.Model):
         app_label = "backoffice"
 
     def __str__(self):
-        return "TelegramUser " + str(self.id) + ": " + str(self.user_id)  + " " + self.first_name + " " + self.last_name + " " + str(self.created_at)
+        return "TelegramUser " + str(self.id) + ": " + str(self.user_id)  + " " + str(self.first_name) + " " + str(self.last_name) + " " + str(self.created_at)
 
 
 # mission_a_cui_risponde = models.ForeignKey(Mission, on_delete=models.PROTECT)
@@ -150,3 +150,4 @@ class MyModelAdmin(admin.ModelAdmin):
     }
 
 
+# TODO: add NewsItem, Feedback on NewsItem
