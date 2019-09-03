@@ -98,3 +98,8 @@ def orm_get_user(user_id):
     query_result = TelegramUser.objects.filter(user_id=user_id)
 
     return query_result[0]
+
+
+def orm_get_default_keywords_dict():
+    from gfvgbo.backoffice.models import get_default_keywords_dict
+    return get_default_keywords_dict()

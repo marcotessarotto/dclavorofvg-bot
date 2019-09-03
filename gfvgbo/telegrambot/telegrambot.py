@@ -7,7 +7,7 @@ import telegram
 # export PYTHONPATH=/home/marco/Documents/github/giovanifvg-bot/:/home/marco/Documents/github/giovanifvg-bot/gfvgbo/telegrambot/
 # python /home/marco/Documents/github/giovanifvg-bot/gfvgbo/telegrambot/telegrambot.py
 
-from gfvgbo.telegrambot.ormlayer import orm_add_user, update_user_keyword_settings, orm_get_user
+from gfvgbo.telegrambot.ormlayer import orm_add_user, update_user_keyword_settings, orm_get_user, orm_get_default_keywords_dict
 
 from gfvgbo.backoffice.definitions import get_categories_dict
 
@@ -178,7 +178,7 @@ def basta_newsletter(update, context):
 # Comando SCEGLI
 def scegli_categorie(update, context):
 
-    print(update)
+    # print(update)
 
     django_user = orm_add_user(update.message.from_user)
     print(django_user)
@@ -190,24 +190,25 @@ def scegli_categorie(update, context):
     )
 
 
-def mix(index, django_user):
-    return str(index) + "|" + str(django_user.user_id)
+# def mix(index, django_user):
+#     return str(index) + "|" + str(django_user.user_id)
+#
+# def demix(str):
+#     index = str.split("|")
+#     a = (index[0])
+#     b = int(index[1])
+#     return a, b
 
-def demix(str):
-    index = str.split("|")
-    a = (index[0])
-    b = int(index[1])
-    return a, b
 
 def inline_keyboard(django_user):
     """ Costruisce la inline_keyboard in base alle categorie già scelte """
 
     out = []
-    label = ''
+    # label = ''
 
-    # print("keywords selected by current user " + str(django_user.user_id))
+    # print("inline_keyboard - keywords selected by current user " + str(django_user.user_id))
     # for item in django_user.keywords.all():
-    #     print(item.key)
+    #     print(item.key + " " + orm_get_default_keywords_dict()[item.key])
     # print("***")
 
     # Permette di visualizzare nella inline_keyboard le categorie già selezionate
@@ -218,38 +219,213 @@ def inline_keyboard(django_user):
 
         # print(django_user.keywords.filter(key=index))
 
-        if len(django_user.keywords.filter(key=index)) != 0:
-            label = '->' + str(category[index][0]) + '<-'
+        queryset = django_user.keywords.filter(key=index)
+
+        # print("filter for " + index + ", len=" + str(len(queryset)))
+
+        if len(queryset) != 0:
+            label = index + ' ->' + str(category[index][0]) + '<-'
         else:
-            label = str(category[index][0])
+            label = index + " " + str(category[index][0])
 
-
-        out.insert(0,
-                   [InlineKeyboardButton(text=label, callback_data= mix(index, django_user))]
+        out.append(
+                   [InlineKeyboardButton(text=label, callback_data=index)]
                    )
 
     # Inserisce i pulsanti 'Conferma' e 'Esci'
-    out.insert(0,
+    out.append(
                [
-                   InlineKeyboardButton(text='Chiudi', callback_data=mix(-1, django_user)), # OK , 'Conferma'
-                   # InlineKeyboardButton(text='Esci', callback_data=mix(-2, django_user)) #ESC
+                   InlineKeyboardButton(text='Chiudi', callback_data='OK'), # OK , 'Conferma'
+                   # InlineKeyboardButton(text='Esci', callback_data='ESC') #ESC
                ]
                )
 
-    return reversed(out)
+    return out
 
 
 def choice(update, context):
     print("choice:")
     print(update.callback_query.data)
+    print(update)
 
-    #django_user = orm_add_user(update.message.from_user)
+    # {
+    #     'update_id': 715880587,
+    #     'callback_query': {
+    #         'id': '3798474624479937048',
+    #         'chat_instance': '-5186621929499105072',
+    #         'message': {
+    #             'message_id': 576,
+    #             'date': 1567527926,
+    #             'chat': {
+    #                 'id': 884401291,
+    #                 'type': 'private',
+    #                 'first_name': 'Marco',
+    #                 'last_name': 'Tessarotto',
+    #             },
+    #             'text': 'Seleziona le categorie:',
+    #             'entities': [],
+    #             'caption_entities': [],
+    #             'photo': [],
+    #             'new_chat_members': [],
+    #             'new_chat_photo': [],
+    #             'delete_chat_photo': False,
+    #             'group_chat_created': False,
+    #             'supergroup_chat_created': False,
+    #             'channel_chat_created': False,
+    #             'reply_markup': {'inline_keyboard': [[{'text': 'Lavoro',
+    #                                                    'callback_data': '01|884401291'}],
+    #                                                  [{'text': 'Chiudi',
+    #                                                    'callback_data': '-1|884401291'}]]},
+    #             'from': {
+    #                 'id': 815938668,
+    #                 'first_name': "Marco's test bot",
+    #                 'is_bot': True,
+    #                 'username': 'marcotts_bot',
+    #             },
+    #         },
+    #         'data': '-1|884401291',
+    #         'from': {
+    #             'id': 884401291,
+    #             'first_name': 'Marco',
+    #             'is_bot': False,
+    #             'last_name': 'Tessarotto',
+    #             'language_code': 'en',
+    #         },
+    #     },
+    #     '_effective_user': {
+    #         'id': 884401291,
+    #         'first_name': 'Marco',
+    #         'is_bot': False,
+    #         'last_name': 'Tessarotto',
+    #         'language_code': 'en',
+    #     },
+    #     '_effective_chat': {
+    #         'id': 884401291,
+    #         'type': 'private',
+    #         'first_name': 'Marco',
+    #         'last_name': 'Tessarotto',
+    #     },
+    #     '_effective_message': {
+    #         'message_id': 576,
+    #         'date': 1567527926,
+    #         'chat': {
+    #             'id': 884401291,
+    #             'type': 'private',
+    #             'first_name': 'Marco',
+    #             'last_name': 'Tessarotto',
+    #         },
+    #         'text': 'Seleziona le categorie:',
+    #         'entities': [],
+    #         'caption_entities': [],
+    #         'photo': [],
+    #         'new_chat_members': [],
+    #         'new_chat_photo': [],
+    #         'delete_chat_photo': False,
+    #         'group_chat_created': False,
+    #         'supergroup_chat_created': False,
+    #         'channel_chat_created': False,
+    #         'reply_markup': {'inline_keyboard': [[{'text': 'Lavoro',
+    #                                                'callback_data': '01|884401291'}],
+    #                                              [{'text': '->Studi e ricerche mondo giovani<-'
+    #                                                   , 'callback_data': '10|884401291'}],
+    #                                              [{'text': '->Garanzia giovani<-',
+    #                                                'callback_data': '11|884401291'}],
+    #                                              [{'text': 'Chiudi',
+    #                                                'callback_data': '-1|884401291'}]]},
+    #         'from': {
+    #             'id': 815938668,
+    #             'first_name': "Marco's test bot",
+    #             'is_bot': True,
+    #             'username': 'marcotts_bot',
+    #         },
+    #     },
+    # }
 
-    scelta, user_id = demix(update.callback_query.data)
+    # {
+    #     'update_id': 715880584,
+    #     'message': {
+    #         'message_id': 573,
+    #         'date': 1567527704,
+    #         'chat': {
+    #             'id': 884401291,
+    #             'type': 'private',
+    #             'first_name': 'Marco',
+    #             'last_name': 'Tessarotto',
+    #         },
+    #         'text': '/scegli_categorie',
+    #         'entities': [{'type': 'bot_command', 'offset': 0,
+    #                       'length': 17}],
+    #         'caption_entities': [],
+    #         'photo': [],
+    #         'new_chat_members': [],
+    #         'new_chat_photo': [],
+    #         'delete_chat_photo': False,
+    #         'group_chat_created': False,
+    #         'supergroup_chat_created': False,
+    #         'channel_chat_created': False,
+    #         'from': {
+    #             'id': 884401291,
+    #             'first_name': 'Marco',
+    #             'is_bot': False,
+    #             'last_name': 'Tessarotto',
+    #             'language_code': 'en',
+    #         },
+    #     },
+    #     '_effective_user': {
+    #         'id': 884401291,
+    #         'first_name': 'Marco',
+    #         'is_bot': False,
+    #         'last_name': 'Tessarotto',
+    #         'language_code': 'en',
+    #     },
+    #     '_effective_chat': {
+    #         'id': 884401291,
+    #         'type': 'private',
+    #         'first_name': 'Marco',
+    #         'last_name': 'Tessarotto',
+    #     },
+    #     '_effective_message': {
+    #         'message_id': 573,
+    #         'date': 1567527704,
+    #         'chat': {
+    #             'id': 884401291,
+    #             'type': 'private',
+    #             'first_name': 'Marco',
+    #             'last_name': 'Tessarotto',
+    #         },
+    #         'text': '/scegli_categorie',
+    #         'entities': [{'type': 'bot_command', 'offset': 0,
+    #                       'length': 17}],
+    #         'caption_entities': [],
+    #         'photo': [],
+    #         'new_chat_members': [],
+    #         'new_chat_photo': [],
+    #         'delete_chat_photo': False,
+    #         'group_chat_created': False,
+    #         'supergroup_chat_created': False,
+    #         'channel_chat_created': False,
+    #         'from': {
+    #             'id': 884401291,
+    #             'first_name': 'Marco',
+    #             'is_bot': False,
+    #             'last_name': 'Tessarotto',
+    #             'language_code': 'en',
+    #         },
+    #     },
+    # }
 
-    django_user = orm_get_user(user_id)
+    django_user = orm_add_user(update.callback_query.from_user)
 
-    if scelta == '-1':  # 'OK'  Stampa le categorie scelte
+
+    # scelta, user_id = demix(update.callback_query.data)
+
+    scelta = update.callback_query.data
+
+    # print("scelta = " + str(scelta))
+
+    #django_user = orm_get_user(user_id)
+
+    if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
         cat_scelte = ''
         for index in category.keys():
             if category[index][1]:
@@ -280,7 +456,7 @@ def choice(update, context):
                  '\nDigita /scegli_categorie per modificare'
         )
 
-    elif scelta == '-2':  # 'ESC' Reimposta i valori di category
+    elif scelta == 'ESC':  # 'ESC' Reimposta i valori di category
         for index in category.keys():
             category[index][1] = False
 

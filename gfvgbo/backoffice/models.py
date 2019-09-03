@@ -24,6 +24,8 @@ class CustomDateTimeField(models.DateTimeField):
 DEFAULT_KEYWORDS = []
 DEFAULT_KEYWORDS_DICT = {}
 
+def get_default_keywords_dict():
+    return DEFAULT_KEYWORDS_DICT
 
 def check_initial_keywords():
     from .definitions import get_categories_dict
