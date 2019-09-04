@@ -29,7 +29,10 @@ from telegram import (
 from telegram.ext import (
     Updater,
     CommandHandler,
-    CallbackQueryHandler
+    CallbackQueryHandler,
+    ConversationHandler,
+    MessageHandler,
+    Filters
 )
 
 import logging
@@ -45,7 +48,7 @@ logging.basicConfig(
 
 comandi_disponibili = "/help oppure /aiuto\n" \
                       "/start\n" \
-                      "/mandami_ultima_newsletter\n" \
+                      "/invia_news\n" \
                       "/voglio_ricevere_newsletter\n" \
                       "/condividi_posizione\n" \
                       "/scegli_categorie"
@@ -103,64 +106,72 @@ def help(update, context):
     update.message.reply_text('comandi:\n' + comandi_disponibili)
 
 
-def alarm(context):
-    """Send the alarm message."""
-    print_timestamp()
-    print("ora manderò una newsletter all'utente....")
+def news(update, context):
 
-    user = context.job.chat_data['user']
+    fd = open('demo_news/title', 'r')
+    title = fd.read()
+    fd.close()
+    
+    fd = open('demo_news/body', 'r')
+    body = fd.read()
+    fd.close()
+    
+    link = 'https://it.wikisource.org/wiki/I_promessi_sposi_(1840)/Capitolo_I'
+    
+    # Costruzione della descrizione
+    text = '<b>' + str(title) + '</b>'
+        
+    body = body.split()
+    text += str(" ".join(body[0:30]))
+    
+    # Aggiunta del link per approfondire
+    text += '... <a href=\"' + link + '\">continua</a>'
 
-    print(user)
+    context.bot.send_photo(
+            chat_id=update.message.chat_id,
+            photo=open('demo_news/allegato_1.jpg', 'rb'),
+            caption=text,
+            parse_mode='HTML'
+    )
+    
+    # Attivazione tastiera con pulsanti 'like' e 'dislike'
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text="Ti è piaciuto l'articolo?",
+        reply_markup=InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton(text=u'\u2717', callback_data='dislike'),
+                InlineKeyboardButton(text=u'\u2713', callback_data='like')
+            ]
+        ])
+    )
+    
+    return REACT
+    
+# Gestore dei feedback sulle news
+def reaction(update, context):
+    sel = update.callback_query.data    
+    
+    if sel=='like': print('LIKE')
+    else: print('DISLIKE')
+    
+    update.callback_query.edit_message_text('Grazie per il feedback!\n')    
+    return ConversationHandler.END
 
-    # print(context)
-    # print(context.chat_data) # None
+# Gestore dei commenti alle news
+def comment(update, context):
+    return
+    
 
-    chat_id = context.job.chat_data['chat_id']
-    print(chat_id)
-
-    # job = context.job
-
-    # print(job)
-    # print(job.context) # uguale a chat_id
-    # print(job.special_message)
-
-    context.bot.send_document(chat_id=chat_id, document=open('ultima_newsletter.pdf', 'rb'))
-    # context.bot.send_message(job.context, text='Beep!')
-
-
-def mandami_ultima_newsletter(update, context):
-    # update.message.reply_text('ok! ti sto mandando l\'ultima newletter disponibile...')
-
-    chat_id = update.message.chat_id
-
-    due = 60
-
-    # Add job to queue
-    job2 = context.job_queue.run_once(alarm, due, context=chat_id)
-    job2.special_message = 123
-    job2.chat_data = {}
-
-    job2.chat_data['chat_id'] = chat_id
-    job2.chat_data['user'] = update.message.from_user
-
-    # context.chat_data['job2'] = job2
-    # context.chat_data['chat_id'] = chat_id
-
-    job = context.job
-    # context.bot.send_message(job.context, text='Beep!')
-
-    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Code-snippets#post-a-file-from-disk
-    # context.bot.send_document(chat_id=chat_id, document=open('d:/tmp/me.png', 'rb'))
-    context.bot.send_message(chat_id=chat_id, text='tra 60 secondi ti mando la newsletter')
 
 
 def voglio_ricevere_newsletter(update, context):
-    # update.message.reply_text('ok! ti manderò la newsletter')
-    chat_id = update.message.chat_id
 
-    context.bot.send_message(chat_id=chat_id,
-                             text='ok! ti manderò la newsletter. Intanto ti mando un link <b>bold</b> <i>italic</i> <a href="http://google.com">link</a>.',
-                             parse_mode=telegram.ParseMode.HTML)
+    context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text='ok! ti manderò la newsletter. Intanto ti mando un link <a href="http://google.com">link</a>.',
+            parse_mode=telegram.ParseMode.HTML
+    )
 
 
 def basta_newsletter(update, context):
@@ -192,7 +203,8 @@ def scegli_categorie(update, context):
         text="Seleziona una o più categorie:",
         reply_markup=InlineKeyboardMarkup(inline_keyboard(django_user))
     )
-
+    
+    return CHOOSE
 
 # def mix(index, django_user):
 #     return str(index) + "|" + str(django_user.user_id)
@@ -214,14 +226,11 @@ def inline_keyboard(django_user):
     #     print(item.key + " " + orm_get_default_keywords_dict()[item.key])
     # print("***")
     
-
     # Permette di visualizzare nella inline_keyboard le categorie già selezionate
     for index in category.keys():
     
         key = category[index][0]
         queryset = django_user.keywords.filter(key=index)
-
-        print('queryset ->' + str(queryset) + "     filter for " + index + ", len=" + str(len(queryset)))
 
         label = str(category[index][0])
         if len(queryset) != 0:
@@ -421,7 +430,7 @@ def choice(update, context):
             key = category[index][0]
             queryset = django_user.keywords.filter(key=index)           
             if len(queryset) != 0:
-                cat_scelte += ' - ' + category[index][0] + '  ' + category[index][1] + '\n'
+                cat_scelte += '- ' + category[index][0] + '  ' + category[index][1] + '\n'
 
         # ALERT: Non è stata scelta alcuna categoria!
         if cat_scelte == '':
@@ -435,14 +444,26 @@ def choice(update, context):
             text='Hai scelto:\n\n' + cat_scelte +
                  '\nDigita /scegli_categorie per modificare'
         )
+        
+        return ConversationHandler.END
 
     else:  # Toggle checked/unchecked per la categoria selezionata
         update_user_keyword_settings(django_user, scelta)
+        
+        #key = category[scelta][0]
+        #queryset = django_user.keywords.filter(key=scelta)
+        
+        #if len(queryset) != 0: check = u"\t\u2713"
+        #else: check = u"\t\u2717"
+        
+        #update.callback_query.answer( check + ' ' + key )
 
         update.callback_query.edit_message_text(
             text="Seleziona una o più categorie:",
             reply_markup=InlineKeyboardMarkup(inline_keyboard(django_user))
         )
+        
+        return CHOOSE
 
 
 REQUEST_KWARGS = {
@@ -466,15 +487,40 @@ dp.add_handler(CommandHandler('start', start))
 dp.add_handler(CommandHandler('help', help))
 dp.add_handler(CommandHandler('aiuto', help))
 
-dp.add_handler(CommandHandler('mandami_ultima_newsletter', mandami_ultima_newsletter))
+# ConversationHandler per l'invio delle news
+REACT, COMMENT = range(2)
+send_news = ConversationHandler(
+    entry_points=[ CommandHandler('invia_news', news) ],
+    states={
+            REACT: [ CallbackQueryHandler(reaction) ],
+            COMMENT: [ CommandHandler('commenta', comment) ]
+    },
+    fallbacks=[],    
+    allow_reentry=True
+)
+
+dp.add_handler(send_news)
+
+# ConversationHandler per la scelta delle categorie
+CHOOSE = range(1)
+choose_categories = ConversationHandler(
+    entry_points=[ CommandHandler('scegli_categorie', scegli_categorie) ],
+    states={
+            CHOOSE: [ CallbackQueryHandler(choice) ]
+    },
+    fallbacks=[],    
+    allow_reentry=True
+)
+
+dp.add_handler(choose_categories)
+
+
 dp.add_handler(CommandHandler('voglio_ricevere_newsletter', voglio_ricevere_newsletter))
 #dp.add_handler(CommandHandler('basta_newsletter', basta_newsletter))
 #dp.add_handler(CommandHandler('parole_chiave_newsletter', parole_chiave_newsletter))
 
 dp.add_handler(CommandHandler('condividi_posizione', condividi_posizione))
 
-dp.add_handler(CommandHandler('scegli_categorie', scegli_categorie))
-dp.add_handler(CallbackQueryHandler(choice))
 
 
 # Avvio l'updater
