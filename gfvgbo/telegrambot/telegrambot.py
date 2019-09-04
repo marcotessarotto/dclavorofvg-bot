@@ -185,11 +185,11 @@ def basta_newsletter(update, context):
 def scegli_categorie(update, context):
 
     django_user = orm_add_user(update.message.from_user)
-    print(django_user)
+    print('\n' + str(django_user))
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text="Seleziona le categorie:",
+        text="Seleziona una o più categorie:",
         reply_markup=InlineKeyboardMarkup(inline_keyboard(django_user))
     )
 
@@ -203,46 +203,38 @@ def scegli_categorie(update, context):
 #     b = int(index[1])
 #     return a, b
 
-
+# Viene passato al seguente metodo il parametro identificativo dell'utente connesso
 def inline_keyboard(django_user):
     """ Costruisce la inline_keyboard in base alle categorie già scelte """
 
-    out = []
+    result = []
 
     # print("inline_keyboard - keywords selected by current user " + str(django_user.user_id))
     # for item in django_user.keywords.all():
     #     print(item.key + " " + orm_get_default_keywords_dict()[item.key])
     # print("***")
+    
 
     # Permette di visualizzare nella inline_keyboard le categorie già selezionate
     for index in category.keys():
     
-        key = category[index][1]
-        # print(key)
-        # print(django_user.keywords.filter(key=index))
-
+        key = category[index][0]
         queryset = django_user.keywords.filter(key=index)
 
-        # print("filter for " + index + ", len=" + str(len(queryset)))
+        print('queryset ->' + str(queryset) + "     filter for " + index + ", len=" + str(len(queryset)))
 
         label = str(category[index][0])
         if len(queryset) != 0:
             label = u' \u2737  ' + label.upper() + u' \u2737'
            
-        out.append( [InlineKeyboardButton(text=label, callback_data=index)] )
+        result.append( [InlineKeyboardButton(text=label, callback_data=index)] )
 
         # print("filter for " + index + ", len=" + str(len(queryset)))
 
+    # Inserisce il pulsante 'CHIUDI'
+    result.append( [InlineKeyboardButton(text='CHIUDI', callback_data='OK')] )
 
-    # Inserisce i pulsanti 'Conferma' e 'Esci'
-    out.append(
-               [
-                   InlineKeyboardButton(text='CHIUDI', callback_data='OK'), # OK , 'Conferma'
-                   # InlineKeyboardButton(text='Esci', callback_data='ESC') #ESC
-               ]
-               )
-
-    return out
+    return result
 
 
 def choice(update, context):
@@ -417,34 +409,21 @@ def choice(update, context):
 
     django_user = orm_add_user(update.callback_query.from_user)
 
-
     # scelta, user_id = demix(update.callback_query.data)
 
     scelta = update.callback_query.data
 
-    # print("scelta = " + str(scelta))
-
-    #django_user = orm_get_user(user_id)
-
     if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
+        
         cat_scelte = ''
         for index in category.keys():
-            if category[index][1]:
-                cat_scelte += ' - ' + category[index][0] + '  ' + category[index][2] + '\n'
+            
+            key = category[index][0]
+            queryset = django_user.keywords.filter(key=index)           
+            if len(queryset) != 0:
+                cat_scelte += ' - ' + category[index][0] + '  ' + category[index][1] + '\n'
 
-        for index in category.keys():
-            key = category[index][1]
-            # print(key)
-
-            # print(django_user.keywords.filter(key=index))
-
-            if len(django_user.keywords.filter(key=index)) != 0:
-                cat_scelte += ' - ' + category[index][0] + '  ' + category[index][2] + '\n'
-
-
-
-        # Nel caso in cui non sia stata scelta alcuna categoria viene inviato un
-        # messaggio di allerta
+        # ALERT: Non è stata scelta alcuna categoria!
         if cat_scelte == '':
             update.callback_query.answer(
                 text='Non è stata scelta alcuna categoria!',
@@ -457,24 +436,11 @@ def choice(update, context):
                  '\nDigita /scegli_categorie per modificare'
         )
 
-    elif scelta == 'ESC':  # 'ESC' Reimposta i valori di category
-        for index in category.keys():
-            category[index][1] = False
-
-        update.callback_query.edit_message_text(
-            text='Scelta annullata;\n'
-                 'digita /scegli_categorie per ricominciare'
-        )
-
     else:  # Toggle checked/unchecked per la categoria selezionata
-
         update_user_keyword_settings(django_user, scelta)
 
-
-        # category[scelta][1] = ~category[scelta][1]
-
         update.callback_query.edit_message_text(
-            text="Seleziona le categorie:",
+            text="Seleziona una o più categorie:",
             reply_markup=InlineKeyboardMarkup(inline_keyboard(django_user))
         )
 
@@ -487,28 +453,32 @@ REQUEST_KWARGS = {
 }
 
 import os
-
 token = os.environ.get('TOKEN') or open('token.txt').read().strip()
 
 updater = Updater(token=token, use_context=True, request_kwargs=REQUEST_KWARGS)
+dp = updater.dispatcher
 
-updater.dispatcher.add_handler(CommandHandler('hello', hello))
+# Aggiunta dei vari handler
+dp.add_handler(CommandHandler('hello', hello))
 
-updater.dispatcher.add_handler(CommandHandler('start', start))
+dp.add_handler(CommandHandler('start', start))
 
-updater.dispatcher.add_handler(CommandHandler('help', help))
-updater.dispatcher.add_handler(CommandHandler('aiuto', help))
+dp.add_handler(CommandHandler('help', help))
+dp.add_handler(CommandHandler('aiuto', help))
 
-updater.dispatcher.add_handler(CommandHandler('mandami_ultima_newsletter', mandami_ultima_newsletter))
-updater.dispatcher.add_handler(CommandHandler('voglio_ricevere_newsletter', voglio_ricevere_newsletter))
-#updater.dispatcher.add_handler(CommandHandler('basta_newsletter', basta_newsletter))
-#updater.dispatcher.add_handler(CommandHandler('parole_chiave_newsletter', parole_chiave_newsletter))
+dp.add_handler(CommandHandler('mandami_ultima_newsletter', mandami_ultima_newsletter))
+dp.add_handler(CommandHandler('voglio_ricevere_newsletter', voglio_ricevere_newsletter))
+#dp.add_handler(CommandHandler('basta_newsletter', basta_newsletter))
+#dp.add_handler(CommandHandler('parole_chiave_newsletter', parole_chiave_newsletter))
 
-updater.dispatcher.add_handler(CommandHandler('condividi_posizione', condividi_posizione))
+dp.add_handler(CommandHandler('condividi_posizione', condividi_posizione))
 
-updater.dispatcher.add_handler(CommandHandler('scegli_categorie', scegli_categorie))
+dp.add_handler(CommandHandler('scegli_categorie', scegli_categorie))
+dp.add_handler(CallbackQueryHandler(choice))
 
-updater.dispatcher.add_handler(CallbackQueryHandler(choice))
 
+# Avvio l'updater
 updater.start_polling()
+  
+# Arresta il bot in caso sia stato premuto Ctrl+C o il processo abbia ricevuto SIGINT, SIGTERM o SIGABRT
 updater.idle()

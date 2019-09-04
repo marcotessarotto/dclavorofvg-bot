@@ -3,20 +3,21 @@
 # Colonna 1 -> Nome categoria
 # Colonna 2 -> Checked/Unchecked
 # Colonna 3 -> Emoji
-category = {
-    '01': ['Lavoro', False, u'\U0001F4BC'],
-    '02': ['Studio e formazione', False, u'\U0001F4DA'],
-    '03': ['Mobilità all’estero', False, u'\U00002708'],
-    '04': ['Associazionismo e partecipazione', False, u'\U0001F46B\U0001F46B'],
-    '05': ['Casa e servizi alla persona', False, u'\U0001F4DA'],
-    '06': ['Eventi e tempo libero', False, u'\U0001F4DA'],
-    '07': ['Star bene', False, u'\U0001F4DA'],
-    '08': ['Giovani eccellenze in FVG', False, u'\U0001F4DA'],
-    '09': ['La regione FVG per i giovani', False, u'\U0001F4DA'],
-    '10': ['Studi e ricerche mondo giovani', False, u'\U0001F4DA'],
-    '11': ['Garanzia giovani', False, u'\U0001F4DA']
+category_dict = {
+    '01': ['Lavoro',  u'\U0001F4BC'],
+    '02': ['Studio e formazione', u'\U0001F4DA'],
+	  '03': ['Mobilità all’estero', u'\U00002708'],
+	  '04': ['Associazionismo e partecipazione', u'\U0001F465'],
+	  '05': ['Casa e servizi alla persona', u'\U0001F3E0'],
+	  '06': ['Eventi e tempo libero', u'\U0001F3AD'],
+	  '07': ['Star bene', u'\U0001F9D8'],
+	  '08': ['Giovani eccellenze in FVG', u'\U0001F393'],
+	  '09': ['La regione FVG per i giovani', u'\U0001F91D'],
+	  '10': ['Studi e ricerche mondo giovani', u'\U0001F4DD'],
+	  '11': ['Garanzia giovani', u'\U00002705']
 }
 
 
+
 def get_categories_dict():
-    return category
+    return category_dict
