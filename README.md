@@ -6,6 +6,10 @@ il progetto richiede:
 
 python 3.7 (virtualenv)
 
+Django 2.2
+
+Postgresql
+
 seguire:
 https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-programming-environment-on-ubuntu-18-04-quickstart
 
