@@ -7,9 +7,19 @@ import telegram
 # export PYTHONPATH=/home/marco/Documents/github/giovanifvg-bot/:/home/marco/Documents/github/giovanifvg-bot/gfvgbo/telegrambot/
 # python /home/marco/Documents/github/giovanifvg-bot/gfvgbo/telegrambot/telegrambot.py
 
-from gfvgbo.telegrambot.ormlayer import orm_add_user, update_user_keyword_settings, orm_get_user, orm_get_default_keywords_dict
+# cd Scrivania/m_test_bbot/giovanifvg-bot/
+# export PYTHONPATH=.:gfvgbo/telegrambot
+# python gfvgbo/telegrambot/telegrambot.py
+
+from gfvgbo.telegrambot.ormlayer import (
+    orm_add_user,
+    update_user_keyword_settings,
+    orm_get_user,
+    orm_get_default_keywords_dict
+)
 
 from gfvgbo.backoffice.definitions import get_categories_dict
+category = get_categories_dict()
 
 from telegram import (
     InlineKeyboardButton,
@@ -32,7 +42,7 @@ logging.basicConfig(
 
 
 
-category = get_categories_dict()
+
 
 # pip install python-telegram-bot==12.0.0 --upgrade
 
