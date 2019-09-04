@@ -11,8 +11,6 @@ import telegram
 # export PYTHONPATH=.:gfvgbo/telegrambot
 # python gfvgbo/telegrambot/telegrambot.py
 
-# --------------------------------
-
 from gfvgbo.telegrambot.ormlayer import (
     orm_add_user,
     update_user_keyword_settings,
@@ -43,11 +41,7 @@ logging.basicConfig(
 )
 
 
-
-
-
 # pip install python-telegram-bot==12.0.0 --upgrade
-
 
 comandi_disponibili = "/help oppure /aiuto\n" \
                       "/start\n" \
@@ -187,10 +181,8 @@ def basta_newsletter(update, context):
 #     update.message.reply_text('ok! ')
 
 
-# Comando SCEGLI
+# Comando SCEGLI_CATEGORIE
 def scegli_categorie(update, context):
-
-    # print(update)
 
     django_user = orm_add_user(update.message.from_user)
     print(django_user)
@@ -216,7 +208,6 @@ def inline_keyboard(django_user):
     """ Costruisce la inline_keyboard in base alle categorie già scelte """
 
     out = []
-    # label = ''
 
     # print("inline_keyboard - keywords selected by current user " + str(django_user.user_id))
     # for item in django_user.keywords.all():
@@ -224,25 +215,24 @@ def inline_keyboard(django_user):
     # print("***")
 
     # Permette di visualizzare nella inline_keyboard le categorie già selezionate
-
     for index in category.keys():
+    
         key = category[index][1]
         # print(key)
-
         # print(django_user.keywords.filter(key=index))
 
         queryset = django_user.keywords.filter(key=index)
 
         # print("filter for " + index + ", len=" + str(len(queryset)))
 
+        label = str(category[index][0])
         if len(queryset) != 0:
-            label = index + ' ->' + str(category[index][0]).upper() + '<-'
-        else:
-            label = index + " " + str(category[index][0])
+            label = u' \u2737  ' + label.upper() + u' \u2737'
+           
+        out.append( [InlineKeyboardButton(text=label, callback_data=index)] )
 
-        out.append(
-                   [InlineKeyboardButton(text=label, callback_data=index)]
-                   )
+        # print("filter for " + index + ", len=" + str(len(queryset)))
+
 
     # Inserisce i pulsanti 'Conferma' e 'Esci'
     out.append(
@@ -256,8 +246,7 @@ def inline_keyboard(django_user):
 
 
 def choice(update, context):
-    print("choice:")
-    print(update.callback_query.data)
+    print("\nchoice:", update.callback_query.data)
     print(update)
 
     # {
