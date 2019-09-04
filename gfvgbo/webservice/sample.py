@@ -16,7 +16,11 @@ class Root:
 
         print(args)
         print(kwargs)
-        print(cherrypy.request)
+
+        for k in kwargs:
+            print(k)
+            print(kwargs[k])
+            # print(v)
 
         # input_json = cherrypy.request.json
         # print(input_json)
