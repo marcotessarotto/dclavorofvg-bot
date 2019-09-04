@@ -11,6 +11,8 @@ import telegram
 # export PYTHONPATH=.:gfvgbo/telegrambot
 # python gfvgbo/telegrambot/telegrambot.py
 
+# --------------------------------
+
 from gfvgbo.telegrambot.ormlayer import (
     orm_add_user,
     update_user_keyword_settings,
