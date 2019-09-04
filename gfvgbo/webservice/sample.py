@@ -5,6 +5,26 @@ import cherrypy
 
 class Root:
 
+# https://docs.cherrypy.org/en/latest/_modules/cherrypy/tutorial/tut09_files.html#FileDemo.upload
+
+    @cherrypy.expose
+    @cherrypy.tools.json_out()
+    # @cherrypy.tools.json_in()
+    def my_endpoint(self, *args, **kwargs):
+
+        print("ok received!")
+
+        print(args)
+        print(kwargs)
+        print(cherrypy.request)
+
+        # input_json = cherrypy.request.json
+        # print(input_json)
+
+        result = {"operation": "request", "result": "success"}
+
+        return result
+
     @cherrypy.expose
     @cherrypy.tools.json_out()
     @cherrypy.tools.json_in()
