@@ -8,6 +8,8 @@ from django.forms import TextInput, Textarea
 
 from django.contrib import admin
 
+from django.contrib.postgres.fields import ArrayField
+
 import traceback
 import logging
 
@@ -127,7 +129,34 @@ class TelegramUser(models.Model):
         return "TelegramUser " + str(self.id) + ": " + str(self.user_id)  + " " + str(self.first_name) + " " + str(self.last_name) + " " + str(self.created_at)
 
 
+class NewsItem(models.Model):
+
+    title = models.TextField(max_length=4096, blank=True, null=True)
+    text = models.TextField(max_length=4096, blank=True, null=True)
+
+    # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#django.contrib.postgres.fields.ArrayField
+    tags = ArrayField(models.CharField(max_length=200), blank=True)
+
+
+    # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
+    # file will be saved to MEDIA_ROOT/uploads/2015/01/30
+    files = ArrayField(models.FileField(upload_to='uploads/%Y/%m/%d/'), blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label = "backoffice"
+
+    def __str__(self):
+        return "NewsItem " + str(self.id) + ": " + str(self.title)  + " " + str(self.tags)
+
+
+# class FeedbackOnNewsItem(models.Model):
+
+
 # mission_a_cui_risponde = models.ForeignKey(Mission, on_delete=models.PROTECT)
+
 
 class CommandsFromUser(models.Model):
     telegramUser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT)
@@ -152,4 +181,4 @@ class MyModelAdmin(admin.ModelAdmin):
     }
 
 
-# TODO: add NewsItem, Feedback on NewsItem
+# TODO: add  Feedback on NewsItem
