@@ -1,6 +1,5 @@
 import time
 import datetime
-import re
 
 import telegram
 
@@ -278,172 +277,6 @@ def choice(update, context):
     print("\nchoice:", update.callback_query.data)
     print(update)
 
-    # {
-    #     'update_id': 715880587,
-    #     'callback_query': {
-    #         'id': '3798474624479937048',
-    #         'chat_instance': '-5186621929499105072',
-    #         'message': {
-    #             'message_id': 576,
-    #             'date': 1567527926,
-    #             'chat': {
-    #                 'id': 884401291,
-    #                 'type': 'private',
-    #                 'first_name': 'Marco',
-    #                 'last_name': 'Tessarotto',
-    #             },
-    #             'text': 'Seleziona le categorie:',
-    #             'entities': [],
-    #             'caption_entities': [],
-    #             'photo': [],
-    #             'new_chat_members': [],
-    #             'new_chat_photo': [],
-    #             'delete_chat_photo': False,
-    #             'group_chat_created': False,
-    #             'supergroup_chat_created': False,
-    #             'channel_chat_created': False,
-    #             'reply_markup': {'inline_keyboard': [[{'text': 'Lavoro',
-    #                                                    'callback_data': '01|884401291'}],
-    #                                                  [{'text': 'Chiudi',
-    #                                                    'callback_data': '-1|884401291'}]]},
-    #             'from': {
-    #                 'id': 815938668,
-    #                 'first_name': "Marco's test bot",
-    #                 'is_bot': True,
-    #                 'username': 'marcotts_bot',
-    #             },
-    #         },
-    #         'data': '-1|884401291',
-    #         'from': {
-    #             'id': 884401291,
-    #             'first_name': 'Marco',
-    #             'is_bot': False,
-    #             'last_name': 'Tessarotto',
-    #             'language_code': 'en',
-    #         },
-    #     },
-    #     '_effective_user': {
-    #         'id': 884401291,
-    #         'first_name': 'Marco',
-    #         'is_bot': False,
-    #         'last_name': 'Tessarotto',
-    #         'language_code': 'en',
-    #     },
-    #     '_effective_chat': {
-    #         'id': 884401291,
-    #         'type': 'private',
-    #         'first_name': 'Marco',
-    #         'last_name': 'Tessarotto',
-    #     },
-    #     '_effective_message': {
-    #         'message_id': 576,
-    #         'date': 1567527926,
-    #         'chat': {
-    #             'id': 884401291,
-    #             'type': 'private',
-    #             'first_name': 'Marco',
-    #             'last_name': 'Tessarotto',
-    #         },
-    #         'text': 'Seleziona le categorie:',
-    #         'entities': [],
-    #         'caption_entities': [],
-    #         'photo': [],
-    #         'new_chat_members': [],
-    #         'new_chat_photo': [],
-    #         'delete_chat_photo': False,
-    #         'group_chat_created': False,
-    #         'supergroup_chat_created': False,
-    #         'channel_chat_created': False,
-    #         'reply_markup': {'inline_keyboard': [[{'text': 'Lavoro',
-    #                                                'callback_data': '01|884401291'}],
-    #                                              [{'text': '->Studi e ricerche mondo giovani<-'
-    #                                                   , 'callback_data': '10|884401291'}],
-    #                                              [{'text': '->Garanzia giovani<-',
-    #                                                'callback_data': '11|884401291'}],
-    #                                              [{'text': 'Chiudi',
-    #                                                'callback_data': '-1|884401291'}]]},
-    #         'from': {
-    #             'id': 815938668,
-    #             'first_name': "Marco's test bot",
-    #             'is_bot': True,
-    #             'username': 'marcotts_bot',
-    #         },
-    #     },
-    # }
-
-    # {
-    #     'update_id': 715880584,
-    #     'message': {
-    #         'message_id': 573,
-    #         'date': 1567527704,
-    #         'chat': {
-    #             'id': 884401291,
-    #             'type': 'private',
-    #             'first_name': 'Marco',
-    #             'last_name': 'Tessarotto',
-    #         },
-    #         'text': '/scegli_categorie',
-    #         'entities': [{'type': 'bot_command', 'offset': 0,
-    #                       'length': 17}],
-    #         'caption_entities': [],
-    #         'photo': [],
-    #         'new_chat_members': [],
-    #         'new_chat_photo': [],
-    #         'delete_chat_photo': False,
-    #         'group_chat_created': False,
-    #         'supergroup_chat_created': False,
-    #         'channel_chat_created': False,
-    #         'from': {
-    #             'id': 884401291,
-    #             'first_name': 'Marco',
-    #             'is_bot': False,
-    #             'last_name': 'Tessarotto',
-    #             'language_code': 'en',
-    #         },
-    #     },
-    #     '_effective_user': {
-    #         'id': 884401291,
-    #         'first_name': 'Marco',
-    #         'is_bot': False,
-    #         'last_name': 'Tessarotto',
-    #         'language_code': 'en',
-    #     },
-    #     '_effective_chat': {
-    #         'id': 884401291,
-    #         'type': 'private',
-    #         'first_name': 'Marco',
-    #         'last_name': 'Tessarotto',
-    #     },
-    #     '_effective_message': {
-    #         'message_id': 573,
-    #         'date': 1567527704,
-    #         'chat': {
-    #             'id': 884401291,
-    #             'type': 'private',
-    #             'first_name': 'Marco',
-    #             'last_name': 'Tessarotto',
-    #         },
-    #         'text': '/scegli_categorie',
-    #         'entities': [{'type': 'bot_command', 'offset': 0,
-    #                       'length': 17}],
-    #         'caption_entities': [],
-    #         'photo': [],
-    #         'new_chat_members': [],
-    #         'new_chat_photo': [],
-    #         'delete_chat_photo': False,
-    #         'group_chat_created': False,
-    #         'supergroup_chat_created': False,
-    #         'channel_chat_created': False,
-    #         'from': {
-    #             'id': 884401291,
-    #             'first_name': 'Marco',
-    #             'is_bot': False,
-    #             'last_name': 'Tessarotto',
-    #             'language_code': 'en',
-    #         },
-    #     },
-    # }
-
     django_user = orm_add_user(update.callback_query.from_user)
 
     # scelta, user_id = demix(update.callback_query.data)
@@ -477,14 +310,7 @@ def choice(update, context):
 
     else:  # Toggle checked/unchecked per la categoria selezionata
         update_user_keyword_settings(django_user, scelta)
-        
-        #key = category[scelta][0]
-        #queryset = django_user.keywords.filter(key=scelta)
-        
-        #if len(queryset) != 0: check = u"\t\u2713"
-        #else: check = u"\t\u2717"
-        
-        #update.callback_query.answer( check + ' ' + key )
+
 
         update.callback_query.edit_message_text(
             text="Seleziona una o più categorie:",
