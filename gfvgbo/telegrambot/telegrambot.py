@@ -1,5 +1,6 @@
 import time
 import datetime
+import re
 
 import telegram
 
@@ -108,15 +109,23 @@ def help(update, context):
 
 def news(update, context):
 
-    fd = open('demo_news/title', 'r')
+    folder_new = 'demo_new'    
+    
+    fd = open(folder_new + '/category', 'r')
+    cat = fd.read()[:-1]
+    fd.close()
+        
+    fd = open(folder_new + '/title', 'r')
     title = fd.read()
     fd.close()
     
-    fd = open('demo_news/body', 'r')
+    fd = open(folder_new + '/body', 'r')
     body = fd.read()
     fd.close()
     
-    link = 'https://it.wikisource.org/wiki/I_promessi_sposi_(1840)/Capitolo_I'
+    fd = open(folder_new + '/link', 'r')
+    link = fd.read()
+    fd.close()
     
     # Costruzione della descrizione
     text = '<b>' + str(title) + '</b>'
@@ -129,7 +138,7 @@ def news(update, context):
 
     context.bot.send_photo(
             chat_id=update.message.chat_id,
-            photo=open('demo_news/allegato_1.jpg', 'rb'),
+            photo=open(folder_new + '/allegato_1.jpg', 'rb'),
             caption=text,
             parse_mode='HTML'
     )
@@ -155,12 +164,28 @@ def reaction(update, context):
     if sel=='like': print('LIKE')
     else: print('DISLIKE')
     
-    update.callback_query.edit_message_text('Grazie per il feedback!\n')    
-    return ConversationHandler.END
+    update.callback_query.edit_message_text(
+            'Grazie per il feedback!\n'
+            'Puoi commentare la notizia scrivendo\n'
+            '\"Commento: \" <i>il tuo commento</i>',
+            parse_mode='HTML'
+    )
+        
+    return COMMENT
 
 # Gestore dei commenti alle news
 def comment(update, context):
-    return
+    
+    text = update.message.text
+    
+    #if not re.match('Commento:.*', text):
+    #    context.bot.answer(
+    #            text='Il commento inserito non è valido'
+    #    )
+    
+    print(text[10:])
+    
+    return ConversationHandler.END
     
 
 
@@ -493,7 +518,7 @@ send_news = ConversationHandler(
     entry_points=[ CommandHandler('invia_news', news) ],
     states={
             REACT: [ CallbackQueryHandler(reaction) ],
-            COMMENT: [ CommandHandler('commenta', comment) ]
+            COMMENT: [ MessageHandler(Filters.text, comment) ]
     },
     fallbacks=[],    
     allow_reentry=True
