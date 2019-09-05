@@ -6,6 +6,10 @@ il progetto richiede:
 
 python 3.7 (virtualenv)
 
+Django 2.2
+
+Postgresql
+
 seguire:
 https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-programming-environment-on-ubuntu-18-04-quickstart
 
@@ -13,7 +17,7 @@ https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set
 
 1.1 - (seguire l'articolo sopra)
 
-1.2 in virtualenv: pip install python-telegram-bot==12.0.0b1 
+1.2 in virtualenv: pip install python-telegram-bot==12.0.0
 
 1.3 in virtualenv: pip install django psycopg2-binary
 
