@@ -156,9 +156,13 @@ def news(update, context):
     )
     
     return REACT
-    
+
+
 # Gestore dei feedback sulle news
 def reaction(update, context):
+
+    print(update)
+
     sel = update.callback_query.data    
     
     if sel=='like': print('LIKE')
@@ -172,6 +176,7 @@ def reaction(update, context):
     )
         
     return COMMENT
+
 
 # Gestore dei commenti alle news
 def comment(update, context):
@@ -187,7 +192,6 @@ def comment(update, context):
     
     return ConversationHandler.END
     
-
 
 
 def voglio_ricevere_newsletter(update, context):

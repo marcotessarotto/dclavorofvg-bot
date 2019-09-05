@@ -131,12 +131,15 @@ class TelegramUser(models.Model):
 
 class NewsItem(models.Model):
 
+    news_id = models.BigIntegerField()
+
     title = models.TextField(max_length=4096, blank=True, null=True)
     text = models.TextField(max_length=4096*4, blank=True, null=True)
 
     # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#django.contrib.postgres.fields.ArrayField
     tags = ArrayField(models.CharField(max_length=200), blank=True, verbose_name="tags (separati da virgola)")
 
+    link = models.TextField(max_length=4096, blank=True, null=True)
 
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
     # file will be saved to MEDIA_ROOT/uploads/2015/01/30
