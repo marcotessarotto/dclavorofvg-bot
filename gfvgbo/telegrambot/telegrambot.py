@@ -253,8 +253,7 @@ def inline_keyboard(django_user):
     
     # Permette di visualizzare nella inline_keyboard le categorie già selezionate
     for index in category.keys():
-    
-        key = category[index][0]
+
         queryset = django_user.keywords.filter(key=index)
 
         label = str(category[index][0])
@@ -451,9 +450,9 @@ def choice(update, context):
         
         cat_scelte = ''
         for index in category.keys():
-            
-            key = category[index][0]
-            queryset = django_user.keywords.filter(key=index)           
+
+            queryset = django_user.keywords.filter(key=index)
+
             if len(queryset) != 0:
                 cat_scelte += '- ' + category[index][0] + '  ' + category[index][1] + '\n'
 
