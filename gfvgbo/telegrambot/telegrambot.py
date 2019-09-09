@@ -284,7 +284,6 @@ def choice(update, context):
     scelta = update.callback_query.data
 
     if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
-        
         cat_scelte = ''
         for index in category.keys():
 
