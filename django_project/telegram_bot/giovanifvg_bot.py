@@ -6,24 +6,8 @@ import os
 
 from django_project.telegram_bot.ormlayer import *
 
-from telegram.ext import (
-    Updater,
-    CommandHandler,
-    CallbackQueryHandler,
-    MessageHandler,
-    Filters
-)
-
-from django_project.telegram_bot.choose_categories import (
-    choose,
-    callback_choice
-)
-from django_project.telegram_bot.send_news import (
-    news,
-    comment,
-    callback_comment,
-    callback_feedback
-)
+from telegram.ext import *
+from telegram import *
 
 import logging
 
@@ -89,6 +73,185 @@ def callback(update, context):
 
     elif data[0] == 'choose':
         callback_choice(update, data[1])
+
+
+# SEZIONE SCELTA CATEGORIE
+# ****************************************************************************************
+from django_project.backoffice.definitions import get_categories_dict
+category = get_categories_dict()
+
+
+def choose(update, context):
+    """ Permette all'utente di scegliere tra le categorie disponibili """
+
+    user = orm_add_user(update.message.from_user)
+
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text="Seleziona una o più categorie:",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
+    )
+
+
+def inline_keyboard(user):
+    """ Costruisce la inline_keyboard in base alle categorie già scelte """
+
+    result = []
+
+    for index in category.keys():
+
+        queryset = user.categories.filter(key=index)
+
+        label = str(category[index][0])
+        if len(queryset) != 0:
+            label = u' \u2737  ' + label.upper() + u' \u2737'
+
+        result.append([InlineKeyboardButton(
+            text=label,
+            callback_data='choose ' + index)]
+        )
+
+    # Inserisce il pulsante 'CHIUDI'
+    result.append(
+        [InlineKeyboardButton(text='CHIUDI', callback_data='choose OK')]
+    )
+
+    return result
+
+
+def callback_choice(update, scelta):
+    user = orm_add_user(update.callback_query.from_user)
+
+    if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
+        cat_scelte = ''
+        for index in category.keys():
+            queryset = user.categories.filter(key=index)
+
+            if len(queryset) != 0:
+                cat_scelte += '- ' + category[index][0] + \
+                              '  ' + category[index][1] + '\n'
+
+        # ALERT: Non è stata scelta alcuna categoria!
+        if cat_scelte == '':
+            update.callback_query.answer(
+                text='Non è stata scelta alcuna categoria!',
+                show_alert=True
+            )
+            return
+
+        update.callback_query.edit_message_text(
+            text='Ok, le categorie sono state impostate con successo. '
+                 'Hai scelto:\n\n' + cat_scelte +
+                 '\nDigita /scegli per modificare.'
+        )
+
+    else:  # Toggle checked/unchecked per la categoria selezionata
+        update_user_category_settings(user, scelta)
+
+        update.callback_query.edit_message_text(
+            text="Seleziona una o più categorie:",
+            reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
+        )
+
+
+# SEZIONE INVIO NEWS
+# ****************************************************************************************
+def news(update, context):
+    """ Invia un nuovo articolo """
+
+    folder_new = 'demo_new'
+
+    fd = open(folder_new + '/category', 'r')
+    cat = fd.read()[:-1]
+
+    fd = open(folder_new + '/title', 'r')
+    title = fd.read()[:-1]
+
+    fd = open(folder_new + '/body', 'r')
+    body = fd.read()
+
+    fd = open(folder_new + '/link', 'r')
+    link = fd.read()
+    fd.close()
+
+    news_item = orm_add_newsitem(title, body, link)
+    context.user_data['news_id'] = news_item.news_id
+
+    # Costruzione della descrizione
+    caption = '<b>' + str(news_item.title) + \
+              ' [' + news_item.news_id + ']</b>\n'
+
+    text = news_item.text.split()
+    caption += str(" ".join(text[:30]))
+
+    # Aggiunta del link per approfondire
+    caption += '... <a href=\"' + news_item.link + '\">continua</a>'
+
+    context.bot.send_photo(
+        chat_id=update.message.chat_id,
+        photo=open(folder_new + '/allegato_1.jpg', 'rb'),
+        caption=caption,
+        parse_mode='HTML'
+    )
+
+    # Attivazione tastiera con pulsanti 'like' e 'dislike'
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text="Ti è piaciuto l'articolo?",
+        reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton(
+                    text=u'\u2717',
+                    callback_data='feedback - ' + news_item.news_id
+                ),
+                InlineKeyboardButton(
+                    text=u'\u2713',
+                    callback_data='feedback + ' + news_item.news_id
+                )
+        ]])
+    )
+
+
+def callback_feedback(update, data):
+    """ Gestisce i feedback sugli articoli """
+
+    feed = data[0]
+    news_id = data[1]
+    orm_add_feedback(feed, news_id)
+
+    update.callback_query.edit_message_text(
+        text='Grazie per il feedback!\n',
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton(
+                text='Commenta',
+                callback_data='comment ' + news_id)]
+        ])
+    )
+
+
+def callback_comment(update, context, news_id):
+    """ Gestisce i commenti agli articoli """
+
+    update.callback_query.edit_message_text(
+        'Grazie per il feedback!'
+    )
+
+    context.bot.send_message(
+        chat_id=update.callback_query.message.chat_id,
+        text='Commento art. ' + news_id,
+        reply_markup=ForceReply()
+    )
+
+
+def comment(update, context):
+
+    reply = update.message.reply_to_message.text.split()
+    text = update.message.text
+    orm_add_comment(text, reply[2], update.message.from_user.id)
+
+    context.bot.send_message(
+        chat_id=update.message.chat_id,
+        text='Commento caricato con successo!'
+    )
 
 
 # ****************************************************************************************
