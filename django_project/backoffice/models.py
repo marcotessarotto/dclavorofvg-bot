@@ -45,7 +45,7 @@ def get_default_categories_dict():
     return DEFAULT_CATEGORY_DICT
 
 
-# Popola la tabella Category (se vuota) con categorie memorizzate nel dict
+# Popola la tabella Category (se vuota) con le categorie memorizzate nel dict
 def fill_categories():
     if len(Category.objects.all()) == 0:
         for key in DEFAULT_CATEGORY_DICT:
@@ -61,16 +61,6 @@ try:
     fill_categories()
 except Exception as e:
     logging.error(traceback.format_exc())
-
-
-def create_default_keywords_for_user(tuser):
-
-    # :type tuser: TelegramUser
-    for k in Category.objects.all():
-        tuser.categories.add(k)
-        k.save()
-
-    tuser.save()
 
 
 # ****************************************************************************************

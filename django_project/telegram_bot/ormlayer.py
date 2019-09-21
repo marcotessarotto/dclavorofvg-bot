@@ -5,36 +5,35 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
 django.setup()
 
-# Your application specific imports
 from django_project.backoffice.models import *
 
 
 def orm_add_user(user):
     """ Aggiunge un nuovo utente, se non già registrato """
 
-    # {'id': 884401291, 'first_name': 'Marco', 'is_bot': False, 'last_name': 'Tessarotto', 'language_code': 'en'}
-
-    query_result = TelegramUser.objects.filter(user_id=user.id)
-
-    if len(query_result) == 0:  # L'utente user non è ancora registrato
-        obj = TelegramUser()
-        obj.user_id = user.id
-        obj.username = user.username
-        obj.first_name = user.first_name
-        obj.last_name = user.last_name
-        obj.language_code = user.language_code
-        obj.save()  # Salva il nuovo utente nella tabella 'telegramuser' dell'applicazione backoffice
-        print("TelegramUser added! " + str(obj))
+    if orm_get_user(user.id) == 0:  # L'utente non è ancora registrato
+        new_user = TelegramUser()
+        new_user.user_id = user.id
+        new_user.username = user.username
+        new_user.first_name = user.first_name
+        new_user.last_name = user.last_name
+        new_user.language_code = user.language_code
+        new_user.save()
 
         # Selezione tutte le categorie (opzione di default)
-        create_default_keywords_for_user(obj)
+        for k in Category.objects.all():
+            new_user.categories.add(k)
+            k.save()
 
-        result = obj
+        new_user.save()
 
-    else:   # L'utente user è già stato registrato
-        result = query_result[0]
+        print('\nNUOVO UTENTE:'
+              '\n' + str(new_user.user_id) +
+              '\n' + str(new_user.username) +
+              '\n' + str(new_user.first_name) + ' ' + str(new_user.last_name))
 
-    return result
+    else:
+        print('\nUTENTE GIÀ REGISTRATO')
 
 
 def orm_add_newsitem(title, text, link):
@@ -42,10 +41,12 @@ def orm_add_newsitem(title, text, link):
 
     news_id = ''
 
+    # Seleziona un id casule di 5 cifre
     import random
     for i in range(5):
         news_id += str(random.randint(0, 9))
 
+    # Se l'id è già preso riprova la selezione casuale
     queryset = NewsItem.objects.filter(news_id=news_id)
     if len(queryset) != 0:
         orm_add_newsitem(title, text, link)
@@ -105,6 +106,17 @@ def orm_get_comment(user_id):
 
     user = TelegramUser.objects.filter(user_id=user_id)[0]
     return Comment.objects.filter(user=user)
+
+
+def orm_get_user(user_id):
+    """ Restituisce l'oggetto user associato a un determinato utente """
+
+    queryset_user = TelegramUser.objects.filter(user_id=user_id)
+
+    if len(queryset_user) == 0:
+        return 0
+    else:
+        return queryset_user[0]
 
 
 def update_user_category_settings(user, scelta):

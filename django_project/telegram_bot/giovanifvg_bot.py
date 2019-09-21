@@ -1,6 +1,6 @@
 import os
 
-# cd Scrivania/progetto_tesi
+# cd Scrivania/giovanifvg_bot
 # export PYTHONPATH=.:django_project/telegram_bot
 # python django_project/telegram_bot/giovanifvg_bot.py
 
@@ -17,14 +17,15 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-
+# Messaggio da mostrare quando viene chiamato /help
 help_msg = 'Ecco i comandi a disposizione:\n' \
            '\n' \
-           '<b>/scegli</b> - permette di impostare le categorie che ti interessano\n' \
-           '<b>/invia_articoli</b> - invia l\'articolo di prova\n' \
-           '<b>/start</b> - avvia il servizio\n' \
-           '<b>/gestisci_commenti</b> - permette di modificare o eliminare i commenti\n' \
+           '<b>/scegli</b> permette di impostare le categorie che ti interessano\n' \
+           '<b>/invia_articoli</b> invia l\'articolo di prova\n' \
+           '<b>/start</b> avvia il servizio\n' \
+           '<b>/gestisci_commenti</b> permette di modificare o eliminare i commenti\n' \
            '\n' \
+           'Per avviare un comando digitalo da tastiera oppure selezionalo da questa lista.\n' \
            'Per mostrare nuovamente questo messaggio digita /help, oppure /aiuto.'
 
 
@@ -35,9 +36,7 @@ def start(update, context):
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
-    print(update.message.from_user)
-    django_user = orm_add_user(update.message.from_user)
-    print("result from orm_add_user: " + str(django_user))
+    orm_add_user(update.message.from_user)
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! '
@@ -57,34 +56,36 @@ def help(update, context):
         help_msg,
         parse_mode='HTML'
     )
-    print(context.user_data)
 
 
 def callback(update, context):
     """ Gestisce i callback_data inviati dalle inline_keyboard """
 
     data = update.callback_query.data.split()
+    # I dati inviati dalle callback_query sono organizzati come segue:
+    # il primo elemento contiente una stringa identificativa del contesto
+    # il secondo elemento (e eventuali successivi) contiene i dati da passare
 
-    if data[0] == 'feedback':
+    if data[0] == 'feedback':   # Callback per i feedback agli articoli
         callback_feedback(update, data[1:])
 
-    elif data[0] == 'comment':
+    elif data[0] == 'comment':  # Callback per i commenti agli articoli
         callback_comment(update, context, data[1])
 
-    elif data[0] == 'choose':
+    elif data[0] == 'choice':   # Callback per la scelta delle categorie
         callback_choice(update, data[1])
 
 
 # SEZIONE SCELTA CATEGORIE
 # ****************************************************************************************
 from django_project.backoffice.definitions import get_categories_dict
-category = get_categories_dict()
+category = get_categories_dict()    # Importa e memorizza il dict delle categorie di default
 
 
 def choose(update, context):
     """ Permette all'utente di scegliere tra le categorie disponibili """
 
-    user = orm_add_user(update.message.from_user)
+    user = orm_get_user(update.message.from_user.id)
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
@@ -94,9 +95,10 @@ def choose(update, context):
 
 
 def inline_keyboard(user):
-    """ Costruisce la inline_keyboard in base alle categorie già scelte """
+    """ Costruisce la inline_keyboard in base alle categorie già scelte
+    dall'utente passato per parametro """
 
-    result = []
+    keyboard = []
 
     for index in category.keys():
 
@@ -106,21 +108,23 @@ def inline_keyboard(user):
         if len(queryset) != 0:
             label = u' \u2737  ' + label.upper() + u' \u2737'
 
-        result.append([InlineKeyboardButton(
+        keyboard.append([InlineKeyboardButton(
             text=label,
-            callback_data='choose ' + index)]
+            callback_data='choice ' + index)]
         )
 
     # Inserisce il pulsante 'CHIUDI'
-    result.append(
-        [InlineKeyboardButton(text='CHIUDI', callback_data='choose OK')]
+    keyboard.append(
+        [InlineKeyboardButton(text='CHIUDI', callback_data='choice OK')]
     )
 
-    return result
+    return keyboard
 
 
 def callback_choice(update, scelta):
-    user = orm_add_user(update.callback_query.from_user)
+    """ Gestisce i pulsanti premuti nella inline_keyboard """
+
+    user = orm_get_user(update.callback_query.from_user.id)
 
     if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
         cat_scelte = ''
@@ -161,8 +165,8 @@ def news(update, context):
 
     folder_new = 'demo_new'
 
-    fd = open(folder_new + '/category', 'r')
-    cat = fd.read()[:-1]
+    # fd = open(folder_new + '/category', 'r')
+    # cat = fd.read()[:-1]
 
     fd = open(folder_new + '/title', 'r')
     title = fd.read()[:-1]
@@ -199,11 +203,11 @@ def news(update, context):
         chat_id=update.message.chat_id,
         text="Ti è piaciuto l'articolo?",
         reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton(
+                InlineKeyboardButton(   # Pulsante dislike
                     text=u'\u2717',
                     callback_data='feedback - ' + news_item.news_id
                 ),
-                InlineKeyboardButton(
+                InlineKeyboardButton(   # Pulsante like
                     text=u'\u2713',
                     callback_data='feedback + ' + news_item.news_id
                 )
@@ -216,8 +220,9 @@ def callback_feedback(update, data):
 
     feed = data[0]
     news_id = data[1]
-    orm_add_feedback(feed, news_id)
+    orm_add_feedback(feed, news_id)  # Aggiunge il nuovo feedback
 
+    # Attivazione tastiera con pulsante 'commenta'
     update.callback_query.edit_message_text(
         text='Grazie per il feedback!\n',
         reply_markup=InlineKeyboardMarkup([
@@ -231,22 +236,26 @@ def callback_feedback(update, data):
 def callback_comment(update, context, news_id):
     """ Gestisce i commenti agli articoli """
 
+    # Rimuove il pulsante 'commenta'
     update.callback_query.edit_message_text(
         'Grazie per il feedback!'
     )
 
+    # Invia un messaggio con i dati dell'articolo da commentare
     context.bot.send_message(
         chat_id=update.callback_query.message.chat_id,
         text='Commento art. ' + news_id,
-        reply_markup=ForceReply()
+        reply_markup=ForceReply()   # Invita l'utente a rispondere al messaggio
     )
 
 
 def comment(update, context):
+    """ Memorizza il commento inserito dall'utente """
 
-    reply = update.message.reply_to_message.text.split()
-    text = update.message.text
-    orm_add_comment(text, reply[2], update.message.from_user.id)
+    # Testo del messaggio cui il commento fornisce una risposta
+    # (c'è il codice dell'articolo)
+    reply_data = update.message.reply_to_message.text.split()
+    orm_add_comment(update.message.text, reply_data[2], update.message.from_user.id)
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
@@ -265,14 +274,14 @@ def main():
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', help))
 
-    # Handlers da .send_news.py
+    # Handlers per la sezione INVIO NEWS
     dp.add_handler(CommandHandler('invia_articoli', news))
     dp.add_handler(MessageHandler(Filters.reply, comment))
 
-    # Handlers da .choose_categories.py
+    # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler('scegli', choose))
 
-    # handler per servire TUTTE le inline_keyboard
+    # Handler per servire TUTTE le inline_keyboard
     dp.add_handler(CallbackQueryHandler(callback))
 
     # Avvio l'updater
@@ -282,5 +291,5 @@ def main():
     updater.idle()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
