@@ -2,7 +2,7 @@
 # Colonna 1 -> Nome categoria
 # Colonna 2 -> Checked/Unchecked
 # Colonna 3 -> Emoji
-category_dict = {
+DEFAULT_CATEGORY_DICT = {
     '01': ['Lavoro', u'\U0001F4BC'],
     '02': ['Studio e formazione', u'\U0001F4DA'],
     '03': ['Mobilità all’estero', u'\U00002708'],
@@ -18,4 +18,4 @@ category_dict = {
 
 
 def get_categories_dict():
-    return category_dict
+    return DEFAULT_CATEGORY_DICT
