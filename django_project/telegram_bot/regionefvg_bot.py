@@ -9,6 +9,9 @@ from django_project.telegram_bot.ormlayer import *
 from telegram.ext import *
 from telegram import *
 
+import telegram.bot
+from telegram.ext import messagequeue as mq
+
 import logging
 
 # Spiega quando (e perché) le cose non funzionano come ci si aspetta
@@ -311,9 +314,31 @@ def comment(update, context):
         text='Commento caricato con successo!'
     )
 
+class MQBot(telegram.bot.Bot):
+    '''A subclass of Bot which delegates send method handling to MQ'''
+    def __init__(self, *args, is_queued_def=True, mqueue=None, **kwargs):
+        super(MQBot, self).__init__(*args, **kwargs)
+        # below 2 attributes should be provided for decorator usage
+        self._is_messages_queued_default = is_queued_def
+        self._msg_queue = mqueue or mq.MessageQueue()
+
+    def __del__(self):
+        try:
+            self._msg_queue.stop()
+        except:
+            pass
+
+    @mq.queuedmessage
+    def send_message(self, *args, **kwargs):
+        '''Wrapped method would accept new `queued` and `isgroup`
+        OPTIONAL arguments'''
+        return super(MQBot, self).send_message(*args, **kwargs)
+
 
 # ****************************************************************************************
 def main():
+    from telegram.utils.request import Request
+
     from pathlib import Path
     token_file = Path('token.txt')
 
@@ -322,7 +347,15 @@ def main():
 
     token = os.environ.get('TOKEN') or open(token_file).read().strip()
 
-    updater = Updater(token=token, use_context=True)
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Avoiding-flood-limits
+    q = mq.MessageQueue(all_burst_limit=29, all_time_limit_ms=1017) # 5% safety margin in messaging flood limits
+    # set connection pool size for bot
+    request = Request(con_pool_size=8)
+    my_bot = MQBot(token, request=request, mqueue=q)
+
+    #upd = telegram.ext.updater.Updater(bot=testbot)
+
+    updater = Updater(bot=my_bot,  use_context=True) # removed: token=token
     dp = updater.dispatcher
 
     # Aggiunta dei vari handler

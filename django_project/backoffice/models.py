@@ -205,6 +205,7 @@ class UserActivityLog(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-
+    class Meta:
+        app_label = "backoffice"
 
 # TODO: add  Feedback on NewsItem
