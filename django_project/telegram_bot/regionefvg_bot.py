@@ -23,7 +23,7 @@ help_msg = 'Ecco i comandi a disposizione:\n' \
            '<b>/scegli</b> permette di impostare le categorie che ti interessano\n' \
            '<b>/invia_articoli</b> invia l\'articolo di prova\n' \
            '<b>/start</b> avvia il servizio\n' \
-           '<b>/gestisci_commenti</b> permette di modificare o eliminare i commenti\n' \
+           '<b>/privacy</b>gestisci la privacy\n' \
            '\n' \
            'Per avviare un comando digitalo da tastiera oppure selezionalo da questa lista.\n' \
            'Per mostrare nuovamente questo messaggio digita /help, oppure /aiuto.'
