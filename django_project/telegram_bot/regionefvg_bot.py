@@ -40,7 +40,7 @@ def start(update, context):
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! '
-        'Benvenuto al bot Telegram di RegioneFVG :)'
+                                                        'Benvenuto al bot Telegram di RegioneFVG :)'
     )
 
     update.message.reply_text(
@@ -58,6 +58,49 @@ def help(update, context):
     )
 
 
+def privacy(update, context):
+    user = orm_get_user(update.message.from_user.id)
+
+    privacy_state = user.has_accepted_privacy_rules
+
+    print("privacy - user = " + str(user) + " " + str(privacy_state))
+
+    if not privacy_state:
+        #
+
+        buttons = [[InlineKeyboardButton(text='ACCETTO', callback_data='privacy ACCETTO'),
+                    InlineKeyboardButton(text='NON ACCETTO', callback_data='privacy NON_ACCETTO')]
+                   ]
+
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Accetti la privacy? (.....)",
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
+
+        return
+
+    update.message.reply_text(
+        'hai accettato la privacy: ' + str(user.has_accepted_privacy_rules),
+        parse_mode='HTML'
+    )
+
+
+def callback_privacy(update, context, param):
+    id_utente = update.callback_query.from_user.id
+
+    # print("callback_privacy - id_utente = " + str(id_utente))
+
+    update.callback_query.edit_message_text(text="ok impostazione privacy = " + param)
+
+    if param == "ACCETTO":
+        privacy_setting = True
+    else:
+        privacy_setting = False
+
+    orm_change_user_privacy_setting(id_utente, privacy_setting)
+
+
 def callback(update, context):
     """ Gestisce i callback_data inviati dalle inline_keyboard """
 
@@ -66,20 +109,24 @@ def callback(update, context):
     # il primo elemento contiente una stringa identificativa del contesto
     # il secondo elemento (e eventuali successivi) contiene i dati da passare
 
-    if data[0] == 'feedback':   # Callback per i feedback agli articoli
+    if data[0] == 'feedback':  # Callback per i feedback agli articoli
         callback_feedback(update, data[1:])
 
     elif data[0] == 'comment':  # Callback per i commenti agli articoli
         callback_comment(update, context, data[1])
 
-    elif data[0] == 'choice':   # Callback per la scelta delle categorie
+    elif data[0] == 'choice':  # Callback per la scelta delle categorie
         callback_choice(update, data[1])
+
+    elif data[0] == 'privacy':
+        callback_privacy(update, context, data[1])
 
 
 # SEZIONE SCELTA CATEGORIE
 # ****************************************************************************************
 from django_project.backoffice.definitions import get_categories_dict
-category = get_categories_dict()    # Importa e memorizza il dict delle categorie di default
+
+category = get_categories_dict()  # Importa e memorizza il dict delle categorie di default
 
 
 def choose(update, context):
@@ -205,14 +252,14 @@ def news(update, context):
         chat_id=update.message.chat_id,
         text="Ti è piaciuto l'articolo?",
         reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton(   # Pulsante dislike
-                    text=u'\u2717',
-                    callback_data='feedback - ' + news_item.news_id
-                ),
-                InlineKeyboardButton(   # Pulsante like
-                    text=u'\u2713',
-                    callback_data='feedback + ' + news_item.news_id
-                )
+            InlineKeyboardButton(  # Pulsante dislike
+                text=u'\u2717',
+                callback_data='feedback - ' + news_item.news_id
+            ),
+            InlineKeyboardButton(  # Pulsante like
+                text=u'\u2713',
+                callback_data='feedback + ' + news_item.news_id
+            )
         ]])
     )
 
@@ -247,7 +294,7 @@ def callback_comment(update, context, news_id):
     context.bot.send_message(
         chat_id=update.callback_query.message.chat_id,
         text='Commento art. ' + news_id,
-        reply_markup=ForceReply()   # Invita l'utente a rispondere al messaggio
+        reply_markup=ForceReply()  # Invita l'utente a rispondere al messaggio
     )
 
 
@@ -267,7 +314,6 @@ def comment(update, context):
 
 # ****************************************************************************************
 def main():
-
     from pathlib import Path
     token_file = Path('token.txt')
 
@@ -283,6 +329,7 @@ def main():
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', help))
     dp.add_handler(CommandHandler('aiuto', help))
+    dp.add_handler(CommandHandler('privacy', privacy))
 
     # Handlers per la sezione INVIO NEWS
     dp.add_handler(CommandHandler('invia_articoli', news))

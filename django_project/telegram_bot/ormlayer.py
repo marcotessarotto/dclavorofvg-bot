@@ -119,6 +119,21 @@ def orm_get_user(user_id):
         return queryset_user[0]
 
 
+def orm_change_user_privacy_setting(user_id, privacy_setting):
+
+    # print("user_id = " + str(user_id))
+
+    user = orm_get_user(user_id)
+
+    user.has_accepted_privacy_rules = privacy_setting
+    user.privacy_acceptance_mechanism = 'U'
+
+    from django.utils.timezone import now
+    user.privacy_acceptance_timestamp = now()
+
+    user.save()
+
+
 def update_user_category_settings(user, scelta):
     """ Aggiorna le categorie selezionate dall'utente """
 

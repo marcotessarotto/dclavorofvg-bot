@@ -70,7 +70,13 @@ class TelegramUser(models.Model):
 
     user_id = models.BigIntegerField()
 
-    regionefvg_id = models.BigIntegerField(default=-1)
+    regionefvg_id = models.BigIntegerField(default=-1) # for internal use
+
+    has_accepted_privacy_rules = models.BooleanField(default=False)
+    # L : through a parameter passed to /start
+    # U : user must accept privacy rules
+    privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True)
+    privacy_acceptance_timestamp = models.DateTimeField(blank=True, null=True)
 
     username = models.CharField(max_length=32, blank=True, null=True)
 
@@ -108,10 +114,11 @@ class NewsFile(models.Model):
     def __str__(self):
         return "" + str(self.id) + ": " + self.file_field.name + ", caricato il " + self.upload_date.strftime("%d/%m/%y")
 
+
 class NewsItem(models.Model):
     """ Classe NEWSITEM: rappresenta le informazioni legati agli item di una news """
 
-    news_id = models.CharField(max_length=5)
+    news_id = models.CharField(max_length=5, blank=True, null=True)
 
     title = models.TextField(max_length=4096, blank=True, null=True)
     text = models.TextField(max_length=4096*4, blank=True, null=True)
