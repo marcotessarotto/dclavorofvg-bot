@@ -61,6 +61,7 @@ try:
     fill_categories()
 except Exception as e:
     logging.error(traceback.format_exc())
+    # django.db.utils.ProgrammingError
 
 
 # ****************************************************************************************
@@ -69,7 +70,7 @@ class TelegramUser(models.Model):
 
     user_id = models.BigIntegerField()
 
-    giovanifvg_id = models.BigIntegerField(default=-1)
+    regionefvg_id = models.BigIntegerField(default=-1)
 
     username = models.CharField(max_length=32, blank=True, null=True)
 
@@ -96,6 +97,17 @@ class TelegramUser(models.Model):
 
 
 # ****************************************************************************************
+
+class NewsFile(models.Model):
+    file_field = models.FileField(upload_to='uploads/%Y/%m/%d/')
+    upload_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "backoffice"
+
+    def __str__(self):
+        return "" + str(self.id) + ": " + self.file_field.name + ", caricato il " + self.upload_date.strftime("%d/%m/%y")
+
 class NewsItem(models.Model):
     """ Classe NEWSITEM: rappresenta le informazioni legati agli item di una news """
 
@@ -114,7 +126,8 @@ class NewsItem(models.Model):
 
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
     # file will be saved to MEDIA_ROOT/uploads/2015/01/30
-    files = ArrayField(models.FileField(upload_to='uploads/%Y/%m/%d/'), blank=True, null=True)
+    #files = ArrayField(models.FileField(upload_to='uploads/%Y/%m/%d/'), blank=True, null=True)
+    attached_files = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True)
 
     like = models.BigIntegerField(default=0, editable=False)
     dislike = models.BigIntegerField(default=0, editable=False)

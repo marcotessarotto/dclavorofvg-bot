@@ -104,9 +104,11 @@ def inline_keyboard(user):
 
         queryset = user.categories.filter(key=index)
 
-        label = str(category[index][0])
+        label = str(category[index][0]) + ' ' + category[index][1]
         if len(queryset) != 0:
-            label = u' \u2737  ' + label.upper() + u' \u2737'
+            label = u'\U00002705' + ' ' + label.upper()
+        else:
+            label = u'\U0000274C' + ' ' + label
 
         keyboard.append([InlineKeyboardButton(
             text=label,
@@ -163,7 +165,7 @@ def callback_choice(update, scelta):
 def news(update, context):
     """ Invia un nuovo articolo """
 
-    folder_new = 'demo_new'
+    folder_new = '/home/marco/Documents/github/giovanifvg-bot/demo_new'
 
     # fd = open(folder_new + '/category', 'r')
     # cat = fd.read()[:-1]
@@ -227,7 +229,7 @@ def callback_feedback(update, data):
         text='Grazie per il feedback!\n',
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton(
-                text='Commenta',
+                text='Scrivi un commento',
                 callback_data='comment ' + news_id)]
         ])
     )
@@ -265,7 +267,14 @@ def comment(update, context):
 
 # ****************************************************************************************
 def main():
-    token = os.environ.get('TOKEN') or open('token.txt').read().strip()
+
+    from pathlib import Path
+    token_file = Path('token.txt')
+
+    if not token_file.exists():
+        token_file = Path('../../token.txt')
+
+    token = os.environ.get('TOKEN') or open(token_file).read().strip()
 
     updater = Updater(token=token, use_context=True)
     dp = updater.dispatcher
@@ -273,6 +282,7 @@ def main():
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('help', help))
+    dp.add_handler(CommandHandler('aiuto', help))
 
     # Handlers per la sezione INVIO NEWS
     dp.add_handler(CommandHandler('invia_articoli', news))

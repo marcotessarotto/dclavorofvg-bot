@@ -12,7 +12,7 @@ admin.site.site_header = 'backoffice GiovaniFVG'
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'user_id', 'giovanifvg_id', 'is_bot')
+    list_display = ('username', 'first_name', 'last_name', 'user_id', 'regionefvg_id', 'is_bot')
     ordering = ('created_at',)
     list_filter = ('is_bot', )
 
@@ -40,3 +40,6 @@ class NewsItemAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class FeedbackOnNewsItemAdmin(admin.ModelAdmin):
     list_display = ('text', 'news', 'user')
+
+admin.site.register(NewsFile)
+
