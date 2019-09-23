@@ -1,8 +1,8 @@
 import os
 
-# cd Scrivania/giovanifvg_bot
+# cd Scrivania/regionefvg_bot
 # export PYTHONPATH=.:django_project/telegram_bot
-# python django_project/telegram_bot/giovanifvg_bot.py
+# python django_project/telegram_bot/regionefvg_bot.py
 
 from django_project.telegram_bot.ormlayer import *
 
@@ -40,7 +40,7 @@ def start(update, context):
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! '
-        'Benvenuto al bot Telegram di GiovaniFVG :)'
+        'Benvenuto al bot Telegram di RegioneFVG :)'
     )
 
     update.message.reply_text(
@@ -165,7 +165,7 @@ def callback_choice(update, scelta):
 def news(update, context):
     """ Invia un nuovo articolo """
 
-    folder_new = '/home/marco/Documents/github/giovanifvg-bot/demo_new'
+    folder_new = '/home/marco/Documents/github/dclavorofvg-bot/demo_new'
 
     # fd = open(folder_new + '/category', 'r')
     # cat = fd.read()[:-1]
