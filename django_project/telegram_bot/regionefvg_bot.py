@@ -14,6 +14,9 @@ from telegram.ext import messagequeue as mq
 
 import logging
 
+from telegram.error import (TelegramError, Unauthorized, BadRequest,
+                            TimedOut, ChatMigrated, NetworkError)
+
 # Spiega quando (e perché) le cose non funzionano come ci si aspetta
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,31 +36,36 @@ help_msg = 'Ecco i comandi a disposizione:\n' \
 
 
 # ****************************************************************************************
+# return True if user has not yet approved the bot's privacy policy
+def check_user_privacy_approval(tuser, update, context):
+    if not tuser.has_accepted_privacy_rules:
+        print("*** PRIVACY NOT APPROVED")
+
+        update.message.reply_text(
+          'Prima di proseguire, devi accettare il regolamento per la /privacy di questo bot.\n'
+          'Usa il comando /privacy per visualizzare il regolamento.'
+        )
+        return True
+
+    return False
+
+
 def start(update, context):
     """ Registra l'utente, nel caso sia al primo accesso; mostra i comandi disponibili """
 
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
-    # user = context.job.chat_data['user']
-    # print("***user object")
-    # print(user)
-
-    print("***context object")
-    print(context)
-
-    # chat_id = context.job.chat_data['chat_id']
-    # print(chat_id)
-
-    print("***update object")
-    print(update)
-
-    orm_add_user(update.message.from_user)
+    tuser = orm_add_user(update.message.from_user) # orm_add_user always returns a TelegramUser instance
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! '
-                                                        'Benvenuto al bot Telegram di RegioneFVG :)'
+                                                        'Benvenuto al bot Telegram di RegioneFVG Direzione Lavoro :)'
     )
+
+    if check_user_privacy_approval(tuser, update, context):
+        # privacy not yet approved by user
+        return
 
     update.message.reply_text(
         help_msg,
@@ -79,7 +87,7 @@ def privacy(update, context):
 
     privacy_state = user.has_accepted_privacy_rules
 
-    print("privacy - user = " + str(user) + " " + str(privacy_state))
+    print("privacy - " + str(user) + " " + str(privacy_state))
 
     if not privacy_state:
         #
@@ -90,16 +98,26 @@ def privacy(update, context):
 
         context.bot.send_message(
             chat_id=update.message.chat_id,
-            text="Accetti la privacy? (.....)",
+            text="Accetti la privacy? (.... regolamento della privacy .....)",
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
         return
 
     update.message.reply_text(
-        'hai accettato la privacy: ' + str(user.has_accepted_privacy_rules),
+        'hai accettato il regolamento della privacy di questo bot in data ' + str(user.privacy_acceptance_timestamp),
         parse_mode='HTML'
     )
+
+
+def detach_from_bot(update, context):
+    # TODO: l'utente si scollega dal bot
+
+    update.message.reply_text(
+        'Ok! Bye!',
+        parse_mode='HTML'
+    )
+    pass
 
 
 def callback_privacy(update, context, param):
@@ -145,10 +163,14 @@ from django_project.backoffice.definitions import get_categories_dict
 category = get_categories_dict()  # Importa e memorizza il dict delle categorie di default
 
 
-def choose(update, context):
+def choose_news_categories(update, context):
     """ Permette all'utente di scegliere tra le categorie disponibili """
 
     user = orm_get_user(update.message.from_user.id)
+
+    if check_user_privacy_approval(user, update, context):
+        # privacy not yet approved by user
+        return
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
@@ -335,7 +357,7 @@ def callback_minute(context: telegram.ext.CallbackContext):
         print("*** " + str(user.user_id))
 
         context.bot.send_message(chat_id=user.user_id,
-                                 text='One message every minute')
+                                 text='One message every 10 minutes')
 
 
 class MQBot(telegram.bot.Bot):
@@ -358,6 +380,39 @@ class MQBot(telegram.bot.Bot):
         '''Wrapped method would accept new `queued` and `isgroup`
         OPTIONAL arguments'''
         return super(MQBot, self).send_message(*args, **kwargs)
+
+
+def error_callback(update, error):
+    print("***error_callback***")
+    print(update)
+    print(error)
+
+    try:
+        raise error
+    except Unauthorized:
+        # remove update.message.chat_id from conversation list
+        print(error)
+        logging.error("Unauthorized")
+    except BadRequest:
+        # handle malformed requests - read more below!
+        print(error)
+        logging.error("BadRequest")
+    except TimedOut:
+        # handle slow connection problems
+        print(error)
+        logging.error("TimedOut")
+    except NetworkError:
+        # handle other connection problems
+        print(error)
+        logging.error("NetworkError")
+    except ChatMigrated as e:
+        # the chat_id of a group has changed, use e.new_chat_id instead
+        print(error)
+        logging.error("ChatMigrated")
+    except TelegramError:
+        # handle all other telegram related errors
+        print(error)
+        logging.error("TelegramError")
 
 
 # ****************************************************************************************
@@ -385,7 +440,7 @@ def main():
 
     job_queue = updater.job_queue
 
-    job_minute = job_queue.run_repeating(callback_minute, interval=60, first=0)
+    job_minute = job_queue.run_repeating(callback_minute, interval=600, first=0)
 
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start))
@@ -393,15 +448,20 @@ def main():
     dp.add_handler(CommandHandler('aiuto', help))
     dp.add_handler(CommandHandler('privacy', privacy))
 
+    dp.add_handler(CommandHandler('fine', detach_from_bot))
+
     # Handlers per la sezione INVIO NEWS
     dp.add_handler(CommandHandler('invia_articoli', news))  # DEBUG only
     dp.add_handler(MessageHandler(Filters.reply, comment))
 
     # Handlers per la sezione SCELTA CATEGORIE
-    dp.add_handler(CommandHandler('scegli', choose))
+    dp.add_handler(CommandHandler('scegli', choose_news_categories))
 
     # Handler per servire TUTTE le inline_keyboard
     dp.add_handler(CallbackQueryHandler(callback))
+
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
+    dp.add_error_handler(error_callback)
 
     # Avvio l'updater
     updater.start_polling()

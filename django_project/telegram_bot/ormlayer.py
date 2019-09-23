@@ -9,9 +9,11 @@ from django_project.backoffice.models import *
 
 
 def orm_add_user(user):
-    """ Aggiunge un nuovo utente, se non già registrato """
+    """ Aggiunge un nuovo utente, se non già registrato; restituisce l'istanza dell'utente """
 
-    if orm_get_user(user.id) == 0:  # L'utente non è ancora registrato
+    tuser = orm_get_user(user.id)
+
+    if tuser == 0:  # L'utente non è ancora registrato
         new_user = TelegramUser()
         new_user.user_id = user.id
         new_user.username = user.username
@@ -32,8 +34,11 @@ def orm_add_user(user):
               '\n' + str(new_user.username) +
               '\n' + str(new_user.first_name) + ' ' + str(new_user.last_name))
 
+        return new_user
+
     else:
         print('\nUTENTE GIÀ REGISTRATO')
+        return tuser
 
 
 def orm_add_newsitem(title, text, link):
@@ -109,7 +114,7 @@ def orm_get_comment(user_id):
 
 
 def orm_get_user(user_id):
-    """ Restituisce l'oggetto user associato a un determinato utente """
+    """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser """
 
     queryset_user = TelegramUser.objects.filter(user_id=user_id)
 
@@ -167,3 +172,5 @@ def orm_get_all_users():
     queryset_user = TelegramUser.objects.all()
 
     return queryset_user
+
+
