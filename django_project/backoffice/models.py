@@ -68,7 +68,7 @@ except Exception as e:
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 
-    user_id = models.BigIntegerField()
+    user_id = models.BigIntegerField() # Telegram used id
 
     regionefvg_id = models.BigIntegerField(default=-1) # for internal use
 
@@ -194,7 +194,6 @@ class CommandsFromUser(models.Model):
 
     class Meta:
         app_label = "backoffice"
-
 
 
 class UserActivityLog(models.Model):

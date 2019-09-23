@@ -39,6 +39,19 @@ def start(update, context):
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
+    # user = context.job.chat_data['user']
+    # print("***user object")
+    # print(user)
+
+    print("***context object")
+    print(context)
+
+    # chat_id = context.job.chat_data['chat_id']
+    # print(chat_id)
+
+    print("***update object")
+    print(update)
+
     orm_add_user(update.message.from_user)
 
     update.message.reply_text(
@@ -314,8 +327,20 @@ def comment(update, context):
         text='Commento caricato con successo!'
     )
 
+
+def callback_minute(context: telegram.ext.CallbackContext):
+    all_users = orm_get_all_users()
+
+    for user in all_users:
+        print("*** " + str(user.user_id))
+
+        context.bot.send_message(chat_id=user.user_id,
+                                 text='One message every minute')
+
+
 class MQBot(telegram.bot.Bot):
     '''A subclass of Bot which delegates send method handling to MQ'''
+
     def __init__(self, *args, is_queued_def=True, mqueue=None, **kwargs):
         super(MQBot, self).__init__(*args, **kwargs)
         # below 2 attributes should be provided for decorator usage
@@ -348,15 +373,19 @@ def main():
     token = os.environ.get('TOKEN') or open(token_file).read().strip()
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Avoiding-flood-limits
-    q = mq.MessageQueue(all_burst_limit=29, all_time_limit_ms=1017) # 5% safety margin in messaging flood limits
+    q = mq.MessageQueue(all_burst_limit=29, all_time_limit_ms=1017)  # 5% safety margin in messaging flood limits
     # set connection pool size for bot
     request = Request(con_pool_size=8)
     my_bot = MQBot(token, request=request, mqueue=q)
 
-    #upd = telegram.ext.updater.Updater(bot=testbot)
+    # upd = telegram.ext.updater.Updater(bot=testbot)
 
-    updater = Updater(bot=my_bot,  use_context=True) # removed: token=token
+    updater = Updater(bot=my_bot, use_context=True)  # removed: token=token
     dp = updater.dispatcher
+
+    job_queue = updater.job_queue
+
+    job_minute = job_queue.run_repeating(callback_minute, interval=60, first=0)
 
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start))
@@ -365,7 +394,7 @@ def main():
     dp.add_handler(CommandHandler('privacy', privacy))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler('invia_articoli', news)) # DEBUG only
+    dp.add_handler(CommandHandler('invia_articoli', news))  # DEBUG only
     dp.add_handler(MessageHandler(Filters.reply, comment))
 
     # Handlers per la sezione SCELTA CATEGORIE

@@ -161,3 +161,9 @@ def orm_get_default_categories_dict():
     """ Restituisce il dizionario contenente le categorie di default """
 
     return get_default_categories_dict()
+
+
+def orm_get_all_users():
+    queryset_user = TelegramUser.objects.all()
+
+    return queryset_user
