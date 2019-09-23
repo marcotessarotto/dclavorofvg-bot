@@ -332,7 +332,7 @@ def main():
     dp.add_handler(CommandHandler('privacy', privacy))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler('invia_articoli', news))
+    dp.add_handler(CommandHandler('invia_articoli', news)) # DEBUG only
     dp.add_handler(MessageHandler(Filters.reply, comment))
 
     # Handlers per la sezione SCELTA CATEGORIE

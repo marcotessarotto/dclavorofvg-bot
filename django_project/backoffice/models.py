@@ -118,6 +118,7 @@ class NewsFile(models.Model):
 class NewsItem(models.Model):
     """ Classe NEWSITEM: rappresenta le informazioni legati agli item di una news """
 
+    # TODO: news_id is a BigInteger
     news_id = models.CharField(max_length=5, blank=True, null=True)
 
     title = models.TextField(max_length=4096, blank=True, null=True)
@@ -141,6 +142,10 @@ class NewsItem(models.Model):
 
     start_publication = models.DateTimeField(blank=True, null=True)
     end_publication = models.DateTimeField(blank=True, null=True)
+
+    # if processed is true, this news item has already been sent to all users
+    processed = models.BooleanField(default=False)
+    processed_timestamp = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -189,6 +194,17 @@ class CommandsFromUser(models.Model):
 
     class Meta:
         app_label = "backoffice"
+
+
+
+class UserActivityLog(models.Model):
+    user_id = models.BigIntegerField()
+    news_id = models.BigIntegerField()
+
+    value = models.CharField(max_length=1, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 # TODO: add  Feedback on NewsItem
