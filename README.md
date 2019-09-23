@@ -1,5 +1,5 @@
-# giovanifvg-bot
-Telegram bot for GiovaniFVG portal
+# dclavorofvg-bot
+Telegram bot for DC lavoro FVG portals
 
 
 il progetto richiede:
