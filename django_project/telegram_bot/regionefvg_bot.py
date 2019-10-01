@@ -37,9 +37,9 @@ help_msg = 'Ecco i comandi a disposizione:\n' \
 
 # ****************************************************************************************
 # return True if user has not yet approved the bot's privacy policy
-def check_user_privacy_approval(tuser, update, context):
-    if not tuser.has_accepted_privacy_rules:
-        print("*** PRIVACY NOT APPROVED")
+def check_user_privacy_approval(telegram_user, update, context):
+    if not telegram_user.has_accepted_privacy_rules:
+        print("*** PRIVACY NOT APPROVED ***")
 
         update.message.reply_text(
           'Prima di proseguire, devi accettare il regolamento per la /privacy di questo bot.\n'
