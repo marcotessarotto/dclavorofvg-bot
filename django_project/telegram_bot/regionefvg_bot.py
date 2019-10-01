@@ -245,6 +245,22 @@ def callback_choice(update, scelta):
         )
 
 
+def news_dispatcher(context: telegram.ext.CallbackContext):
+    list_of_news = orm_get_news_to_send()
+
+    if len(list_of_news) == 0:
+        print("news_dispatcher - nothing to do")
+        return
+    else:
+        print("news_dispatcher - there are news to process: " + str(len(list_of_news)))
+
+    all_users = orm_get_all_users()
+
+    # TODO
+
+    pass
+
+
 # SEZIONE INVIO NEWS
 # ****************************************************************************************
 def news(update, context):
@@ -440,7 +456,7 @@ def main():
 
     job_queue = updater.job_queue
 
-    job_minute = job_queue.run_repeating(callback_minute, interval=600, first=0)
+    job_minute = job_queue.run_repeating(news_dispatcher, interval=600, first=0) # callback_minute
 
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start))

@@ -35,8 +35,6 @@ class Category(models.Model):
         return 'cat. ' + str(self.key) + ' (' +\
                str(self.name) + ')'
 
-
-
     # Popola la tabella Category (se vuota) con le categorie memorizzate nel dict
     @staticmethod
     def fill_categories():
@@ -61,19 +59,6 @@ class Category(models.Model):
         else:
             print("NON aggiungo le categorie di default, ce ne sono già alcune")
             return False
-
-
-#Restituisce un dizionario delle categorie (quello appena importato)
-# def get_default_categories_dict():
-#     return DEFAULT_CATEGORY_DICT
-#
-#
-#
-# try:
-#     fill_categories()
-# except Exception as e:
-#     logging.error(traceback.format_exc())
-#     # django.db.utils.ProgrammingError
 
 
 # ****************************************************************************************
@@ -147,7 +132,7 @@ class NewsItem(models.Model):
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
     # file will be saved to MEDIA_ROOT/uploads/2015/01/30
     #files = ArrayField(models.FileField(upload_to='uploads/%Y/%m/%d/'), blank=True, null=True)
-    attached_files = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True)
+    attached_files = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True, blank=True)
 
     like = models.BigIntegerField(default=0, editable=False)
     dislike = models.BigIntegerField(default=0, editable=False)

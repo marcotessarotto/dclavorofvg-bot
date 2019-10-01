@@ -1,4 +1,4 @@
-
+import datetime
 import os
 import django
 
@@ -173,3 +173,30 @@ def orm_get_all_users():
     return queryset_user
 
 
+def orm_get_news_to_send():
+
+    news_query = NewsItem.objects.filter(processed=False)
+
+    result = []
+
+    if len(news_query) == 0:
+        return result
+
+    now = datetime.datetime.now()
+
+    for news in news_query:
+
+        to_be_processed = False
+
+        if news.start_publication is not None and news.end_publication is not None:
+            to_be_processed = news.start_publication <= now <= news.end_publication
+        else:
+            to_be_processed = True
+
+        if not to_be_processed:
+            continue
+
+        # to be processed!
+        result.append(news)
+
+    return result
