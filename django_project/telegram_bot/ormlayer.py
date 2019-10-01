@@ -162,10 +162,9 @@ def update_user_category_settings(user, scelta):
         print('AGGIUNTA ' + str(cat))
 
 
-def orm_get_default_categories_dict():
-    """ Restituisce il dizionario contenente le categorie di default """
-
-    return get_default_categories_dict()
+# def orm_get_default_categories_dict():
+#     """ Restituisce il dizionario contenente le categorie di default """
+#     return get_default_categories_dict()
 
 
 def orm_get_all_users():

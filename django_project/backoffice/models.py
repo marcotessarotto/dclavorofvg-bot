@@ -36,32 +36,44 @@ class Category(models.Model):
                str(self.name) + ')'
 
 
-# Importa le categorie memorizzate nel file definitions.py
-from .definitions import DEFAULT_CATEGORY_DICT
+
+    # Popola la tabella Category (se vuota) con le categorie memorizzate nel dict
+    @staticmethod
+    def fill_categories():
+        from .definitions import DEFAULT_CATEGORY_DICT
+
+        if len(Category.objects.all()) == 0:
+
+            print("aggiungo le categorie di default")
+
+            # Importa le categorie memorizzate nel file definitions.py
+            # from .definitions import DEFAULT_CATEGORY_DICT
+
+            for key in DEFAULT_CATEGORY_DICT:
+                k = Category()
+
+                k.key = key
+                k.name = DEFAULT_CATEGORY_DICT[key][0]
+                k.emoji = DEFAULT_CATEGORY_DICT[key][1]
+                k.save()
+
+            return True
+        else:
+            print("NON aggiungo le categorie di default, ce ne sono già alcune")
+            return False
 
 
-# Restituisce un dizionario delle categorie (quello appena importato)
-def get_default_categories_dict():
-    return DEFAULT_CATEGORY_DICT
-
-
-# Popola la tabella Category (se vuota) con le categorie memorizzate nel dict
-def fill_categories():
-    if len(Category.objects.all()) == 0:
-        for key in DEFAULT_CATEGORY_DICT:
-            k = Category()
-
-            k.key = key
-            k.name = DEFAULT_CATEGORY_DICT[key][0]
-            k.emoji = DEFAULT_CATEGORY_DICT[key][1]
-            k.save()
-
-
-try:
-    fill_categories()
-except Exception as e:
-    logging.error(traceback.format_exc())
-    # django.db.utils.ProgrammingError
+#Restituisce un dizionario delle categorie (quello appena importato)
+# def get_default_categories_dict():
+#     return DEFAULT_CATEGORY_DICT
+#
+#
+#
+# try:
+#     fill_categories()
+# except Exception as e:
+#     logging.error(traceback.format_exc())
+#     # django.db.utils.ProgrammingError
 
 
 # ****************************************************************************************
@@ -144,7 +156,7 @@ class NewsItem(models.Model):
     end_publication = models.DateTimeField(blank=True, null=True)
 
     # if processed is true, this news item has already been sent to all users
-    processed = models.BooleanField(default=False)
+    processed = models.BooleanField(default=False, verbose_name="elaborato?")
     processed_timestamp = models.DateTimeField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
