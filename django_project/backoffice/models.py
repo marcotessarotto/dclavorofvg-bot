@@ -210,22 +210,29 @@ class SystemParameter(models.Model):
 
     value = models.TextField(max_length=1024, blank=False)
 
+    # @staticmethod
+    # def add_default_param(name):
+    #     k = SystemParameter()
+    #     k.name = name
+    #     k.value = "***" + name + "***"
+    #     k.save()
+
+    @staticmethod
+    def add_default_param(name, value):
+        k = SystemParameter()
+        k.name = name
+        k.value = value
+        k.save()
+
     @staticmethod
     def fill_system_parameters():
         if len(SystemParameter.objects.all()) == 0:
 
-            k = SystemParameter()
+            SystemParameter.add_default_param("PRIVACY", "TODO: inserire regolamento privacy del bot/portale/...")
 
-            k.name = "PRIVACY"
-            k.value = "TODO: inserire regolamento privacy del bot/portale/..."
-            k.save()
+            SystemParameter.add_default_param("seleziona le categorie di news", "Seleziona le categorie di news a cui sei interessato:")
 
-            #
-
-            k = SystemParameter()
-            k.name = "seleziona le categorie di news"
-            k.value = "Seleziona le categorie di news a cui sei interessato:"
-            k.save()
+            SystemParameter.add_default_param("presentazione bot", "")
 
             return True
         else:

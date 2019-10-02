@@ -59,11 +59,13 @@ def start(update, context):
 
     telegram_user = orm_add_user(update.message.from_user) # orm_add_user always returns a TelegramUser instance
 
+    presentazione_bot = orm_get_system_parameter("presentazione bot")
+
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! '
                                                         'Benvenuto al bot Telegram della '
                                                         'Direzione centrale lavoro, formazione, istruzione e famiglia - '
-                                                        'Regione Autonoma Friuli Venezia Giulia :)'
+                                                        'Regione Autonoma Friuli Venezia Giulia :)' + presentazione_bot
     )
 
     # if check_user_privacy_approval(telegram_user, update, context):
