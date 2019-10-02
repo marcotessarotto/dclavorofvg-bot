@@ -72,3 +72,30 @@ class FeedbackOnNewsItemAdmin(admin.ModelAdmin):
 
 admin.site.register(NewsFile)
 
+@admin.register(SystemParameter)
+class SystemParameterAdmin(admin.ModelAdmin):
+
+    def add_default_system_parameters(self, request):
+        # fill_categories aggiunge le categorie di default soltanto se non ci sono Category
+        result = SystemParameter.fill_system_parameters()
+
+        if result:
+            self.message_user(request, "i parametri di sistema di default sono stati aggiunti")
+        else:
+            self.message_user(request, "non ho fatto nulla, ci sono già dei parametri di sistema ")
+
+        from django.http import HttpResponseRedirect
+        return HttpResponseRedirect("../")
+
+    add_default_system_parameters.short_description = "Aggiungi li parametri di sistema di default"
+
+    change_list_template = "system_parameters/syspar_custom_buttons.html"
+
+    # https://books.agiliq.com/projects/django-admin-cookbook/en/latest/action_buttons.html
+    def get_urls(self):
+        urls = super().get_urls()
+        from django.urls import path
+        my_urls = [
+            path('add_default_system_parameters/', self.add_default_system_parameters),
+        ]
+        return my_urls + urls

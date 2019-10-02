@@ -193,6 +193,9 @@ def orm_get_news_to_send():
         else:
             to_be_processed = True
 
+        if news.title is None or news.text is None:
+            continue
+
         if not to_be_processed:
             continue
 

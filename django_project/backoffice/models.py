@@ -1,4 +1,3 @@
-
 from django.db import models
 
 from django.contrib.postgres.fields import ArrayField
@@ -32,10 +31,10 @@ class Category(models.Model):
         app_label = 'backoffice'
 
     def __str__(self):
-        return 'cat. ' + str(self.key) + ' (' +\
+        return 'cat. ' + str(self.key) + ' (' + \
                str(self.name) + ')'
 
-    # Popola la tabella Category (se vuota) con le categorie memorizzate nel dict
+    # fills the Category table (if it is empty) with some default cateogries stored in the dict
     @staticmethod
     def fill_categories():
         from .definitions import DEFAULT_CATEGORY_DICT
@@ -65,9 +64,9 @@ class Category(models.Model):
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 
-    user_id = models.BigIntegerField() # Telegram used id
+    user_id = models.BigIntegerField()  # Telegram used id
 
-    regionefvg_id = models.BigIntegerField(default=-1) # for internal use
+    regionefvg_id = models.BigIntegerField(default=-1)  # for internal use
 
     has_accepted_privacy_rules = models.BooleanField(default=False)
     # L : through a parameter passed to /start
@@ -95,7 +94,7 @@ class TelegramUser(models.Model):
         app_label = "backoffice"
 
     def __str__(self):
-        return 'user ' + str(self.user_id) + ' (' +\
+        return 'user ' + str(self.user_id) + ' (' + \
                str(self.first_name) + ' ' + str(self.last_name) + ')'
 
 
@@ -109,7 +108,8 @@ class NewsFile(models.Model):
         app_label = "backoffice"
 
     def __str__(self):
-        return "" + str(self.id) + ": " + self.file_field.name + ", caricato il " + self.upload_date.strftime("%d/%m/%y")
+        return "" + str(self.id) + ": " + self.file_field.name + ", caricato il " + self.upload_date.strftime(
+            "%d/%m/%y")
 
 
 class NewsItem(models.Model):
@@ -119,7 +119,7 @@ class NewsItem(models.Model):
     news_id = models.CharField(max_length=5, blank=True, null=True)
 
     title = models.TextField(max_length=4096, blank=True, null=True)
-    text = models.TextField(max_length=4096*4, blank=True, null=True)
+    text = models.TextField(max_length=4096 * 4, blank=True, null=True)
 
     tags = ArrayField(
         models.CharField(max_length=200),
@@ -131,7 +131,7 @@ class NewsItem(models.Model):
 
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
     # file will be saved to MEDIA_ROOT/uploads/2015/01/30
-    #files = ArrayField(models.FileField(upload_to='uploads/%Y/%m/%d/'), blank=True, null=True)
+    # files = ArrayField(models.FileField(upload_to='uploads/%Y/%m/%d/'), blank=True, null=True)
     attached_files = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True, blank=True)
 
     like = models.BigIntegerField(default=0, editable=False)
@@ -153,7 +153,7 @@ class NewsItem(models.Model):
         app_label = "backoffice"
 
     def __str__(self):
-        return 'art. ' + str(self.news_id) + ' (' +\
+        return 'art. ' + str(self.news_id) + ' (' + \
                str(self.title) + ')'
 
 
@@ -204,4 +204,31 @@ class UserActivityLog(models.Model):
     class Meta:
         app_label = "backoffice"
 
-# TODO: add  Feedback on NewsItem
+
+class SystemParameter(models.Model):
+    name = models.CharField(max_length=256, blank=False)
+
+    value = models.TextField(max_length=1024, blank=False)
+
+    @staticmethod
+    def fill_system_parameters():
+        if len(SystemParameter.objects.all()) == 0:
+
+            k = SystemParameter()
+
+            k.name = "PRIVACY"
+            k.value = "TODO: inserire regolamento privacy del bot/portale/..."
+            k.save()
+
+            return True
+        else:
+            return False
+
+    class Meta:
+        verbose_name = "Parametro di sistema"
+        verbose_name_plural = "Parametri di sistema"
+        app_label = "backoffice"
+
+    def __str__(self):
+        return "Parametro di sistema: " + \
+               str(self.name)

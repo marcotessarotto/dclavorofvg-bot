@@ -56,14 +56,16 @@ def start(update, context):
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
-    tuser = orm_add_user(update.message.from_user) # orm_add_user always returns a TelegramUser instance
+    telegram_user = orm_add_user(update.message.from_user) # orm_add_user always returns a TelegramUser instance
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! '
-                                                        'Benvenuto al bot Telegram di RegioneFVG Direzione Lavoro :)'
+                                                        'Benvenuto al bot Telegram della '
+                                                        'Direzione centrale lavoro, formazione, istruzione e famiglia\n'
+                                                        'Regione Autonoma Friuli Venezia Giulia :)'
     )
 
-    if check_user_privacy_approval(tuser, update, context):
+    if check_user_privacy_approval(telegram_user, update, context):
         # privacy not yet approved by user
         return
 
@@ -318,6 +320,12 @@ def news(update, context):
     )
 
 
+def debug_method(update, context):
+    #debug only
+
+    pass
+
+
 def callback_feedback(update, data):
     """ Gestisce i feedback sugli articoli """
 
@@ -460,6 +468,8 @@ def main():
 
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start))
+    dp.add_handler(CommandHandler('inizia', start))
+
     dp.add_handler(CommandHandler('help', help))
     dp.add_handler(CommandHandler('aiuto', help))
     dp.add_handler(CommandHandler('privacy', privacy))
@@ -472,6 +482,8 @@ def main():
 
     # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler('scegli', choose_news_categories))
+
+    dp.add_handler(CommandHandler('debug', debug_method))
 
     # Handler per servire TUTTE le inline_keyboard
     dp.add_handler(CallbackQueryHandler(callback))
