@@ -24,15 +24,16 @@ logging.basicConfig(
 )
 
 # Messaggio da mostrare quando viene chiamato /help
-help_msg = 'Ecco i comandi a disposizione:\n' \
+help_msg = 'Questi sono i comandi a disposizione:\n' \
            '\n' \
-           '<b>/scegli</b> permette di impostare le categorie che ti interessano\n' \
-           '<b>/invia_articoli</b> invia l\'articolo di prova\n' \
-           '<b>/start</b> avvia il servizio\n' \
+           '<b>/start</b> avvia il bot\n' \
+           '<b>/scegli</b> scegli le categorie di notizie che ti interessano\n' \
            '<b>/privacy</b> gestisci la privacy\n' \
            '\n' \
-           'Per avviare un comando digitalo da tastiera oppure selezionalo da questa lista.\n' \
-           'Per mostrare nuovamente questo messaggio digita /help, oppure /aiuto.'
+           '<b>***SOLO PER DEBUG***: /invia_articoli</b> invia l\'articolo di prova\n' \
+           '\n' \
+           'Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.\n' \
+           'Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start'
 
 
 # ****************************************************************************************
@@ -61,13 +62,14 @@ def start(update, context):
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! '
                                                         'Benvenuto al bot Telegram della '
-                                                        'Direzione centrale lavoro, formazione, istruzione e famiglia\n'
+                                                        'Direzione centrale lavoro, formazione, istruzione e famiglia - '
                                                         'Regione Autonoma Friuli Venezia Giulia :)'
     )
 
-    if check_user_privacy_approval(telegram_user, update, context):
+    # if check_user_privacy_approval(telegram_user, update, context):
+    if not telegram_user.has_accepted_privacy_rules:
         # privacy not yet approved by user
-        return
+        return privacy(update, context)
 
     update.message.reply_text(
         help_msg,
@@ -100,7 +102,9 @@ def privacy(update, context):
 
         context.bot.send_message(
             chat_id=update.message.chat_id,
-            text="Accetti la privacy? (.... regolamento della privacy .....)",
+            text="Per proseguire con l'utilizzo di questo bot, "
+                 "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
+                 + orm_get_privacy_rules(),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
@@ -124,10 +128,7 @@ def detach_from_bot(update, context):
 
 def callback_privacy(update, context, param):
     id_utente = update.callback_query.from_user.id
-
     # print("callback_privacy - id_utente = " + str(id_utente))
-
-    update.callback_query.edit_message_text(text="ok impostazione privacy = " + param)
 
     if param == "ACCETTO":
         privacy_setting = True
@@ -135,6 +136,17 @@ def callback_privacy(update, context, param):
         privacy_setting = False
 
     orm_change_user_privacy_setting(id_utente, privacy_setting)
+
+    if privacy_setting:
+        # comandi a disposizione
+        update.callback_query.edit_message_text(
+            "Grazie per avere accettato il regolamento della privacy di questo bot.\n" +
+            help_msg,
+            parse_mode='HTML'
+        )
+    else:
+
+        update.callback_query.edit_message_text(text="ok impostazione privacy = " + param)
 
 
 def callback(update, context):
@@ -176,7 +188,7 @@ def choose_news_categories(update, context):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text="Seleziona una o più categorie:",
+        text= orm_get_system_parameter("seleziona le categorie di news"),
         reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
     )
 
@@ -233,9 +245,8 @@ def callback_choice(update, scelta):
             return
 
         update.callback_query.edit_message_text(
-            text='Ok, le categorie sono state impostate con successo. '
-                 'Hai scelto:\n\n' + cat_scelte +
-                 '\nDigita /scegli per modificare.'
+            text='Grazie, hai scelto le seguenti categorie:\n\n' + cat_scelte +
+                 '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .'
         )
 
     else:  # Toggle checked/unchecked per la categoria selezionata

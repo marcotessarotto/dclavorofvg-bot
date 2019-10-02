@@ -220,6 +220,13 @@ class SystemParameter(models.Model):
             k.value = "TODO: inserire regolamento privacy del bot/portale/..."
             k.save()
 
+            #
+
+            k = SystemParameter()
+            k.name = "seleziona le categorie di news"
+            k.value = "Seleziona le categorie di news a cui sei interessato:"
+            k.save()
+
             return True
         else:
             return False

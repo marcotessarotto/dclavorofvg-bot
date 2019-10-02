@@ -203,3 +203,24 @@ def orm_get_news_to_send():
         result.append(news)
 
     return result
+
+
+def orm_get_privacy_rules():
+
+    query_result = SystemParameter.objects.filter(name="PRIVACY")
+
+    if len(query_result) == 0:
+        return "***REGOLAMENTO PRIVACY NON DEFINITO***"
+    else:
+        return query_result[0].value
+
+
+def orm_get_system_parameter(param_name):
+
+    query_result = SystemParameter.objects.filter(name=param_name)
+
+    if len(query_result) == 0:
+        return "*** '" + str(param_name) + "' parameter is not defined ***"
+    else:
+        return query_result[0].value
+
