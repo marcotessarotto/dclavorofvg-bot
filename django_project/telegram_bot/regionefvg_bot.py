@@ -26,9 +26,9 @@ logging.basicConfig(
 # Messaggio da mostrare quando viene chiamato /help
 help_msg = 'Questi sono i comandi a disposizione:\n' \
            '\n' \
-           '<b>/start</b> avvia il bot\n' \
+           '<b>/start</b> schermata iniziale del bot\n' \
            '<b>/scegli</b> scegli le categorie di notizie che ti interessano\n' \
-           '<b>/privacy</b> gestisci la privacy\n' \
+           '<b>/privacy</b> gestisci l\'accettazione della privacy\n' \
            '\n' \
            '<b>***SOLO PER DEBUG***: /invia_articoli</b> invia l\'articolo di prova\n' \
            '\n' \
