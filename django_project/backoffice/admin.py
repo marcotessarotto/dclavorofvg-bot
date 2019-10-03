@@ -13,7 +13,7 @@ admin.site.site_header = 'backoffice GiovaniFVG'
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'user_id', 'regionefvg_id', 'is_bot')
-    ordering = ('created_at',)
+    ordering = ('id',)
     list_filter = ('is_bot', )
 
     formfield_overrides = {
@@ -64,6 +64,15 @@ class NewsItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'created_at', 'processed', 'processed_timestamp', 'like', 'dislike')
     exclude = ('like', 'dislike')
 
+    formfield_overrides = {
+        models.ManyToManyField: {'widget': CheckboxSelectMultiple},
+
+        # https://stackoverflow.com/questions/910169/resize-fields-in-django-admin
+        models.CharField: {'widget': TextInput(attrs={'size': '80'})},
+        #        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':40})},
+
+    }
+
 
 @admin.register(Comment)
 class FeedbackOnNewsItemAdmin(admin.ModelAdmin):
@@ -71,6 +80,7 @@ class FeedbackOnNewsItemAdmin(admin.ModelAdmin):
 
 
 admin.site.register(NewsFile)
+
 
 @admin.register(SystemParameter)
 class SystemParameterAdmin(admin.ModelAdmin):

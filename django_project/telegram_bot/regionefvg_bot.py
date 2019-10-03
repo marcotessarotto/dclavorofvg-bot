@@ -43,8 +43,8 @@ def check_user_privacy_approval(telegram_user, update, context):
         print("*** PRIVACY NOT APPROVED ***")
 
         update.message.reply_text(
-          'Prima di proseguire, devi accettare il regolamento per la /privacy di questo bot.\n'
-          'Usa il comando /privacy per visualizzare il regolamento.'
+            'Prima di proseguire, devi accettare il regolamento per la /privacy di questo bot.\n'
+            'Usa il comando /privacy per visualizzare il regolamento.'
         )
         return True
 
@@ -57,7 +57,7 @@ def start(update, context):
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
-    telegram_user = orm_add_user(update.message.from_user) # orm_add_user always returns a TelegramUser instance
+    telegram_user = orm_add_user(update.message.from_user)  # orm_add_user always returns a TelegramUser instance
 
     presentazione_bot = orm_get_system_parameter("presentazione bot")
 
@@ -190,7 +190,7 @@ def choose_news_categories(update, context):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text= orm_get_system_parameter("seleziona le categorie di news"),
+        text=orm_get_system_parameter("seleziona le categorie di news"),
         reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
     )
 
@@ -260,8 +260,13 @@ def callback_choice(update, scelta):
         )
 
 
+def intersection(lst1, lst2):
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
+
+
 def news_dispatcher(context: telegram.ext.CallbackContext):
-    list_of_news = orm_get_news_to_send()
+    list_of_news = orm_get_news_to_process()
 
     if len(list_of_news) == 0:
         print("news_dispatcher - nothing to do")
@@ -269,15 +274,96 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
     else:
         print("news_dispatcher - there are news to process: " + str(len(list_of_news)))
 
-    all_users = orm_get_all_users()
+    all_telegram_users = orm_get_all_telegram_users()
 
-    # TODO
+    for news_item in list_of_news:
 
-    pass
+        for telegram_user in all_telegram_users:
+
+            if not telegram_user.enabled:
+                continue
+
+            intersection_result = intersection(news_item.categories.all(), telegram_user.categories.all())
+
+            if len(intersection_result) == 0:
+                continue
+
+            # send this news to this telegram_user
+            send_news_to_telegram_user(context, news_item, telegram_user)
+
+        news_item.processed = True
+        from django.utils.timezone import now
+        news_item.processed_timestamp = now()
+        # news_item.save()
+
+    print("finished processing all news")
 
 
 # SEZIONE INVIO NEWS
 # ****************************************************************************************
+
+def send_news_to_telegram_user(context, news_item, telegram_user):
+    title = news_item.title
+    body = news_item.text
+    link = news_item.link
+
+    # context.user_data['news_id'] = news_item.id
+
+    # Costruzione della descrizione
+    caption = '<b>' + str(news_item.title) + \
+              ' [' + str(news_item.id) + ']</b>\n'
+
+    text = news_item.text.split()
+    caption += str(" ".join(text[:30]))
+
+    # Aggiunta del link per approfondire
+    if news_item.link is not None:
+        caption += '... <a href=\"' + news_item.link + '\">continua</a>'
+
+    if news_item.file1 is not None:
+        #print(news_item.file1.file_field)
+        # uploads/2019/10/03/500px-Tux_chico.svg_VtRyDrN.png
+        from django_project.gfvgbo.settings import MEDIA_ROOT
+        image_path = MEDIA_ROOT + str(news_item.file1.file_field)
+
+        print("path of image to send: " + image_path)
+
+        context.bot.send_photo(
+            chat_id=telegram_user.user_id,
+            photo=open(image_path, 'rb'),
+            caption=caption,
+            parse_mode='HTML'
+        )
+    else:
+        context.bot.send_photo(
+            chat_id=telegram_user.user_id,
+            caption=caption,
+            parse_mode='HTML'
+        )
+
+
+
+    # Attivazione tastiera con pulsanti 'like' e 'dislike'
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text="Ti è piaciuto l'articolo?",
+        reply_markup=InlineKeyboardMarkup([[
+            InlineKeyboardButton(  # Pulsante dislike
+                text=u'\u2717',
+                callback_data='feedback - ' + str(news_item.id)
+            ),
+            InlineKeyboardButton(  # Pulsante like
+                text=u'\u2713',
+                callback_data='feedback + ' + str(news_item.id)
+            )
+        ]])
+    )
+
+    # context.bot.send_message(chat_id=telegram_user.user_id,
+    #                          text='One message every 10 minutes')
+
+
+
 def news(update, context):
     """ Invia un nuovo articolo """
 
@@ -297,11 +383,11 @@ def news(update, context):
     fd.close()
 
     news_item = orm_add_newsitem(title, body, link)
-    context.user_data['news_id'] = news_item.news_id
+    context.user_data['news_id'] = news_item.id
 
     # Costruzione della descrizione
     caption = '<b>' + str(news_item.title) + \
-              ' [' + news_item.news_id + ']</b>\n'
+              ' [' + news_item.id + ']</b>\n'
 
     text = news_item.text.split()
     caption += str(" ".join(text[:30]))
@@ -323,18 +409,18 @@ def news(update, context):
         reply_markup=InlineKeyboardMarkup([[
             InlineKeyboardButton(  # Pulsante dislike
                 text=u'\u2717',
-                callback_data='feedback - ' + news_item.news_id
+                callback_data='feedback - ' + news_item.id
             ),
             InlineKeyboardButton(  # Pulsante like
                 text=u'\u2713',
-                callback_data='feedback + ' + news_item.news_id
+                callback_data='feedback + ' + news_item.id
             )
         ]])
     )
 
 
 def debug_method(update, context):
-    #debug only
+    # debug only
 
     pass
 
@@ -388,12 +474,12 @@ def comment(update, context):
 
 
 def callback_minute(context: telegram.ext.CallbackContext):
-    all_users = orm_get_all_users()
+    all_telegram_users = orm_get_all_telegram_users()
 
-    for user in all_users:
-        print("*** " + str(user.user_id))
+    for telegram_user in all_telegram_users:
+        print("*** " + str(telegram_user.user_id))
 
-        context.bot.send_message(chat_id=user.user_id,
+        context.bot.send_message(chat_id=telegram_user.user_id,
                                  text='One message every 10 minutes')
 
 
@@ -477,7 +563,7 @@ def main():
 
     job_queue = updater.job_queue
 
-    job_minute = job_queue.run_repeating(news_dispatcher, interval=600, first=0) # callback_minute
+    job_minute = job_queue.run_repeating(news_dispatcher, interval=600, first=0)  # callback_minute
 
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start))

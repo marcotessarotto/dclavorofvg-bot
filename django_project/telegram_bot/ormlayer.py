@@ -47,17 +47,17 @@ def orm_add_newsitem(title, text, link):
     news_id = ''
 
     # Seleziona un id casule di 5 cifre
-    import random
-    for i in range(5):
-        news_id += str(random.randint(0, 9))
+    # import random
+    # for i in range(5):
+    #     news_id += str(random.randint(0, 9))
 
     # Se l'id è già preso riprova la selezione casuale
-    queryset = NewsItem.objects.filter(news_id=news_id)
-    if len(queryset) != 0:
-        orm_add_newsitem(title, text, link)
+    # queryset = NewsItem.objects.filter(news_id=news_id)
+    # if len(queryset) != 0:
+    #     orm_add_newsitem(title, text, link)
 
     news = NewsItem()
-    news.news_id = news_id
+    # news.news_id = news_id
     news.title = title
     news.text = text
     news.link = link
@@ -71,7 +71,7 @@ def orm_add_newsitem(title, text, link):
 def orm_add_feedback(feed, news_id):
     """ Aggiunge un nuovo feedback all'articolo """
 
-    queryset_news = NewsItem.objects.filter(news_id=news_id)
+    queryset_news = NewsItem.objects.filter(id=news_id)
     news = queryset_news[0]
 
     if feed == '+':
@@ -88,7 +88,7 @@ def orm_add_feedback(feed, news_id):
 def orm_add_comment(text, news_id, user_id):
     """ Aggiunge un nuovo commento per l'articolo """
 
-    queryset_news = NewsItem.objects.filter(news_id=news_id)
+    queryset_news = NewsItem.objects.filter(id=news_id)
     news = queryset_news[0]
 
     queryset_user = TelegramUser.objects.filter(user_id=int(user_id))
@@ -167,13 +167,13 @@ def update_user_category_settings(user, scelta):
 #     return get_default_categories_dict()
 
 
-def orm_get_all_users():
+def orm_get_all_telegram_users():
     queryset_user = TelegramUser.objects.all()
 
     return queryset_user
 
 
-def orm_get_news_to_send():
+def orm_get_news_to_process():
 
     news_query = NewsItem.objects.filter(processed=False)
 

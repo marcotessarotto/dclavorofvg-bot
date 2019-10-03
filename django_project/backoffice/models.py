@@ -87,6 +87,8 @@ class TelegramUser(models.Model):
 
     categories = models.ManyToManyField(Category, blank=True)
 
+    enabled = models.BooleanField(default=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -109,8 +111,8 @@ class NewsFile(models.Model):
 
     class Meta:
         app_label = "backoffice"
-        verbose_name = "Files per articoli"
-        verbose_name_plural = "Files per articoli"
+        verbose_name = "Files per News"
+        verbose_name_plural = "Files per News"
 
     def __str__(self):
         return "" + str(self.id) + ": " + self.file_field.name + ", caricato il " + self.upload_date.strftime(
@@ -158,16 +160,13 @@ class NewsItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Articolo"
-        verbose_name_plural = "Articoli"
+        verbose_name = "News"
+        verbose_name_plural = "News"
         app_label = "backoffice"
 
     def __str__(self):
         return 'art. ' + str(self.id) + ' (' + \
                str(self.title) + ')'
-
-
-
 
 
 # ****************************************************************************************
