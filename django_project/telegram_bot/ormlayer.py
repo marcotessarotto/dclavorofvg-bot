@@ -142,6 +142,8 @@ def orm_change_user_privacy_setting(user_id, privacy_setting):
 def update_user_category_settings(user, scelta):
     """ Aggiorna le categorie selezionate dall'utente """
 
+    print("update_user_category_settings " + str(scelta))
+
     queryset_cat = user.categories.filter(key=scelta)
 
     if len(queryset_cat) != 0:  # La categoria era presente (bisogna rimuoverla)
@@ -171,6 +173,11 @@ def orm_get_all_telegram_users():
     queryset_user = TelegramUser.objects.all()
 
     return queryset_user
+
+
+def orm_get_categories():
+    queryset = Category.objects.all().order_by('id')
+    return queryset
 
 
 def orm_get_last_processed_news():

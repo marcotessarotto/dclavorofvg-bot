@@ -161,10 +161,6 @@ def callback(update, context):
 
 # SEZIONE SCELTA CATEGORIE
 # ****************************************************************************************
-from django_project.backoffice.definitions import get_categories_dict
-
-category = get_categories_dict()  # Importa e memorizza il dict delle categorie di default
-
 
 def choose_news_categories(update, context):
     """ Permette all'utente di scegliere tra le categorie disponibili """
@@ -188,11 +184,13 @@ def inline_keyboard(user):
 
     keyboard = []
 
-    for index in category.keys():
+    all_categories = orm_get_categories()
 
-        queryset = user.categories.filter(key=index)
+    for cat in all_categories:
+        queryset = user.categories.filter(key=cat.key)
 
-        label = str(category[index][0]) + ' ' + category[index][1]
+        label = cat.name + ' ' + cat.emoji
+
         if len(queryset) != 0:
             label = u'\U00002705' + ' ' + label.upper()
         else:
@@ -200,10 +198,10 @@ def inline_keyboard(user):
 
         keyboard.append([InlineKeyboardButton(
             text=label,
-            callback_data='choice ' + index)]
-        )
+            callback_data='choice ' + cat.key)]
+            )
 
-    # Inserisce il pulsante 'CHIUDI'
+    # add close button
     keyboard.append(
         [InlineKeyboardButton(text='CHIUDI', callback_data='choice OK')]
     )
@@ -218,12 +216,14 @@ def callback_choice(update, scelta):
 
     if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
         cat_scelte = ''
-        for index in category.keys():
-            queryset = telegram_user.categories.filter(key=index)
 
+        all_categories = orm_get_categories()
+
+        for cat in all_categories:
+            queryset = telegram_user.categories.filter(key=cat.key)
             if len(queryset) != 0:
-                cat_scelte += '- ' + category[index][0] + \
-                              '  ' + category[index][1] + '\n'
+                cat_scelte += '- ' + cat.name + \
+                              '  ' + cat.emoji + '\n'
 
         # ALERT: Non è stata scelta alcuna categoria!
         if cat_scelte == '':
