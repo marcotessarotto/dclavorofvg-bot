@@ -11,34 +11,34 @@ from django_project.backoffice.models import *
 def orm_add_user(user):
     """ Aggiunge un nuovo utente, se non già registrato; restituisce l'istanza dell'utente """
 
-    tuser = orm_get_user(user.id)
+    telegram_user = orm_get_telegram_user(user.id)
 
-    if tuser == 0:  # L'utente non è ancora registrato
-        new_user = TelegramUser()
-        new_user.user_id = user.id
-        new_user.username = user.username
-        new_user.first_name = user.first_name
-        new_user.last_name = user.last_name
-        new_user.language_code = user.language_code
-        new_user.save()
+    if telegram_user == 0:  # L'utente non è ancora registrato
+        new_telegram_user = TelegramUser()
+        new_telegram_user.user_id = user.id
+        new_telegram_user.username = user.username
+        new_telegram_user.first_name = user.first_name
+        new_telegram_user.last_name = user.last_name
+        new_telegram_user.language_code = user.language_code
+        new_telegram_user.save()
 
         # Selezione tutte le categorie (opzione di default)
         for k in Category.objects.all():
-            new_user.categories.add(k)
+            new_telegram_user.categories.add(k)
             k.save()
 
-        new_user.save()
+        new_telegram_user.save()
 
-        print('\nNUOVO UTENTE:'
-              '\n' + str(new_user.user_id) +
-              '\n' + str(new_user.username) +
-              '\n' + str(new_user.first_name) + ' ' + str(new_user.last_name))
+        print('\nnew telegram user:'
+              ' ' + str(new_telegram_user.user_id) +
+              ' ' + str(new_telegram_user.username) +
+              '  ' + str(new_telegram_user.first_name) + ' ' + str(new_telegram_user.last_name))
 
-        return new_user
+        return new_telegram_user
 
     else:
-        print('\nUTENTE GIÀ REGISTRATO')
-        return tuser
+        print('telegram user: ' + str(telegram_user.user_id) )
+        return telegram_user
 
 
 def orm_add_newsitem(title, text, link):
@@ -113,7 +113,7 @@ def orm_get_comment(user_id):
     return Comment.objects.filter(user=user)
 
 
-def orm_get_user(user_id):
+def orm_get_telegram_user(user_id):
     """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser """
 
     queryset_user = TelegramUser.objects.filter(user_id=user_id)
@@ -128,7 +128,7 @@ def orm_change_user_privacy_setting(user_id, privacy_setting):
 
     # print("user_id = " + str(user_id))
 
-    user = orm_get_user(user_id)
+    user = orm_get_telegram_user(user_id)
 
     user.has_accepted_privacy_rules = privacy_setting
     user.privacy_acceptance_mechanism = 'U'

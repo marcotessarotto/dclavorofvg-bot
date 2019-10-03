@@ -251,7 +251,7 @@ class SystemParameter(models.Model):
 
             SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False")
 
-            from django_project.backoffice.definitions import get_bot_default_help_msg
+            from .definitions import get_bot_default_help_msg
             SystemParameter.add_default_param("bot help message", get_bot_default_help_msg())
 
             return True

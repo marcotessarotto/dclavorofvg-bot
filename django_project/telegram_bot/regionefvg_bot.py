@@ -77,7 +77,7 @@ def help(update, context):
 
 
 def privacy(update, context):
-    user = orm_get_user(update.message.from_user.id)
+    user = orm_get_telegram_user(update.message.from_user.id)
 
     privacy_state = user.has_accepted_privacy_rules
 
@@ -170,7 +170,7 @@ category = get_categories_dict()  # Importa e memorizza il dict delle categorie 
 def choose_news_categories(update, context):
     """ Permette all'utente di scegliere tra le categorie disponibili """
 
-    user = orm_get_user(update.message.from_user.id)
+    user = orm_get_telegram_user(update.message.from_user.id)
 
     if check_user_privacy_approval(user, update, context):
         # privacy not yet approved by user
@@ -215,7 +215,7 @@ def inline_keyboard(user):
 def callback_choice(update, scelta):
     """ Gestisce i pulsanti premuti nella inline_keyboard """
 
-    user = orm_get_user(update.callback_query.from_user.id)
+    user = orm_get_telegram_user(update.callback_query.from_user.id)
 
     if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
         cat_scelte = ''
