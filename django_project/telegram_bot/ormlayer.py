@@ -173,6 +173,14 @@ def orm_get_all_telegram_users():
     return queryset_user
 
 
+def orm_get_last_processed_news():
+    news_query = NewsItem.objects.filter(processed=True).order_by('-processed_timestamp')
+    # max 5 elements
+
+    # should check if job offer is still active or not
+    return news_query
+
+
 def orm_get_news_to_process():
 
     news_query = NewsItem.objects.filter(processed=False)

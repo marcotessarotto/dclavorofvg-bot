@@ -259,8 +259,10 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
     if debug_send_news:
         print("DEBUG_SEND_NEWS = " + str(debug_send_news))
 
+    now = datetime.datetime.now()
+
     if len(list_of_news) == 0:
-        print("news_dispatcher - nothing to do")
+        print("news_dispatcher - nothing to do " + str(now))
         return
     else:
         print("news_dispatcher - there are news to process: " + str(len(list_of_news)))
@@ -296,7 +298,7 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 # SEZIONE INVIO NEWS
 # ****************************************************************************************
 
-def send_news_to_telegram_user(context, news_item, telegram_user, intersection_result):
+def send_news_to_telegram_user(context, news_item, telegram_user, intersection_result, request_feedback=True):
     # title = news_item.title
     # body = news_item.text
     # link = news_item.link
@@ -322,7 +324,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
     html_content += title
 
     # optional: show categories
-    if orm_get_system_parameter("news - mostra match categoria").lower() == "true":
+    if intersection_result is not None and orm_get_system_parameter("news - mostra match categoria").lower() == "true":
         # print(intersection_result)
         categories = '<i>'
 
@@ -399,23 +401,33 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
         )
 
     # keyboard with 'like' and 'dislike' buttons
-    context.bot.send_message(
-        chat_id=telegram_user.user_id,
-        text=orm_get_system_parameter("request for news item feedback"),
-        reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton(  # Pulsante dislike
-                text=u'\u2717',
-                callback_data='feedback - ' + str(news_item.id)
-            ),
-            InlineKeyboardButton(  # Pulsante like
-                text=u'\u2713',
-                callback_data='feedback + ' + str(news_item.id)
-            )
-        ]])
-    )
+    if request_feedback:
+        context.bot.send_message(
+            chat_id=telegram_user.user_id,
+            text=orm_get_system_parameter("request for news item feedback"),
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton(  # Pulsante dislike
+                    text=u'\u2717',
+                    callback_data='feedback - ' + str(news_item.id)
+                ),
+                InlineKeyboardButton(  # Pulsante like
+                    text=u'\u2713',
+                    callback_data='feedback + ' + str(news_item.id)
+                )
+            ]])
+        )
 
 
-def invia_ultime_news(update, context):
+def send_last_processed_news(update, context):
+    print("send_last_processed_news")
+
+    news_query = orm_get_last_processed_news()
+
+    print(news_query)
+
+    for news_item in news_query[:5]:
+        send_news_to_telegram_user(context, news_item, intersection_result=None, request_feedback=False)
+
 
     pass
 
@@ -650,7 +662,7 @@ def main():
     dp.add_handler(CommandHandler('fine', detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler('invia_ultime_news', invia_ultime_news))  # DEBUG only
+    dp.add_handler(CommandHandler('invia_ultime_news', send_last_processed_news))  # DEBUG only
     dp.add_handler(MessageHandler(Filters.reply, comment_handler))
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
