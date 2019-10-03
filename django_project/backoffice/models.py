@@ -5,6 +5,8 @@ from django.contrib.postgres.fields import ArrayField
 import traceback
 import logging
 
+from spacy.lang.fr.tokenizer_exceptions import verb
+
 
 class CustomDateTimeField(models.DateTimeField):
     def value_to_string(self, obj):
@@ -99,10 +101,11 @@ class TelegramUser(models.Model):
 
 
 # ****************************************************************************************
-
 class NewsFile(models.Model):
     file_field = models.FileField(upload_to='uploads/%Y/%m/%d/')
     upload_date = models.DateTimeField(auto_now_add=True)
+
+    #owner = models.ForeignKey('NewsItem', on_delete= models.PROTECT, )
 
     class Meta:
         app_label = "backoffice"
@@ -120,7 +123,7 @@ class NewsItem(models.Model):
     # TODO: news_id is a BigInteger
     news_id = models.CharField(max_length=5, blank=True, null=True)
 
-    title = models.TextField(max_length=4096, blank=True, null=True)
+    title = models.TextField(max_length=4096, blank=True, null=True, verbose_name='titolo')
     text = models.TextField(max_length=4096 * 4, blank=True, null=True)
 
     tags = ArrayField(
@@ -129,11 +132,17 @@ class NewsItem(models.Model):
         null=True,
         verbose_name="tags (separati da virgola)")
 
+    categories = models.ManyToManyField(Category,  blank=True)
+
     link = models.TextField(max_length=4096, blank=True, null=True)
+
+    file1 = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True, blank=True, verbose_name="immagine")
+    file2 = models.ForeignKey(NewsFile, related_name="file2", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato")
+    file3 = models.ForeignKey(NewsFile, related_name="file3", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato")
 
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
     # file will be saved to MEDIA_ROOT/uploads/....
-    attached_files = models.ManyToManyField(NewsFile,  blank=True)
+    # attached_files = models.ManyToManyField(NewsFile,  blank=True)
 
     like = models.BigIntegerField(default=0, editable=False)
     dislike = models.BigIntegerField(default=0, editable=False)
@@ -142,10 +151,10 @@ class NewsItem(models.Model):
     end_publication = models.DateTimeField(blank=True, null=True)
 
     # if processed is true, this news item has already been sent to all users
-    processed = models.BooleanField(default=False, verbose_name="elaborato?")
-    processed_timestamp = models.DateTimeField(blank=True, null=True)
+    processed = models.BooleanField(default=False, verbose_name="questa news è stata inviata agli utenti?")
+    processed_timestamp = models.DateTimeField(blank=True, null=True, verbose_name='data di elaborazione')
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -154,8 +163,11 @@ class NewsItem(models.Model):
         app_label = "backoffice"
 
     def __str__(self):
-        return 'art. ' + str(self.news_id) + ' (' + \
+        return 'art. ' + str(self.id) + ' (' + \
                str(self.title) + ')'
+
+
+
 
 
 # ****************************************************************************************

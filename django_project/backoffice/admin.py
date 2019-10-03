@@ -61,7 +61,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(NewsItem)
 class NewsItemAdmin(admin.ModelAdmin):
-    list_display = ('news_id', 'title', 'created_at', 'like', 'dislike')
+    list_display = ('id', 'title', 'created_at', 'processed', 'processed_timestamp', 'like', 'dislike')
     exclude = ('like', 'dislike')
 
 
