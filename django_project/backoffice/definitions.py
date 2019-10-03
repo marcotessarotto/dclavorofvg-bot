@@ -17,8 +17,8 @@ DEFAULT_CATEGORY_DICT = {
 }
 
 
-def get_categories_dict():
-    return DEFAULT_CATEGORY_DICT
+# def get_categories_dict():
+#     return DEFAULT_CATEGORY_DICT
 
 
 bot_default_help_msg = 'Questi sono i comandi a disposizione:\n' \
@@ -31,6 +31,7 @@ bot_default_help_msg = 'Questi sono i comandi a disposizione:\n' \
            '\n' \
            'Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.\n' \
            'Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start'
+
 
 def get_bot_default_help_msg():
     return bot_default_help_msg
