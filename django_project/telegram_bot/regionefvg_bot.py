@@ -268,6 +268,10 @@ def intersection(lst1, lst2):
 def news_dispatcher(context: telegram.ext.CallbackContext):
     list_of_news = orm_get_news_to_process()
 
+    debug_send_news = (orm_get_system_parameter("DEBUG_SEND_NEWS").lower() == "true")
+    if debug_send_news:
+        print("DEBUG_SEND_NEWS = " + str(debug_send_news))
+
     if len(list_of_news) == 0:
         print("news_dispatcher - nothing to do")
         return
@@ -277,6 +281,8 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
     all_telegram_users = orm_get_all_telegram_users()
 
     for news_item in list_of_news:
+
+        print("news_dispatcher - elaboration of news item id=" + str(news_item.id))
 
         for telegram_user in all_telegram_users:
 
@@ -294,7 +300,8 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
         news_item.processed = True
         from django.utils.timezone import now
         news_item.processed_timestamp = now()
-        # news_item.save()
+        if not debug_send_news:
+            news_item.save()
 
     print("finished processing all news")
 
@@ -307,7 +314,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user):
     body = news_item.text
     link = news_item.link
 
-    # context.user_data['news_id'] = news_item.id
+    print("send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
     # Costruzione della descrizione
     caption = '<b>' + str(news_item.title) + \
@@ -318,15 +325,15 @@ def send_news_to_telegram_user(context, news_item, telegram_user):
 
     # Aggiunta del link per approfondire
     if news_item.link is not None:
-        caption += '... <a href=\"' + news_item.link + '\">continua</a>'
+        caption += '... <a href=\"' + news_item.link + '\">' + news_item.link_caption + '</a>'
 
     if news_item.file1 is not None:
-        #print(news_item.file1.file_field)
-        # uploads/2019/10/03/500px-Tux_chico.svg_VtRyDrN.png
+        # print(news_item.file1.file_field.name)
+        # example: uploads/2019/10/03/500px-Tux_chico.svg_VtRyDrN.png
         from django_project.gfvgbo.settings import MEDIA_ROOT
-        image_path = MEDIA_ROOT + str(news_item.file1.file_field)
+        image_path = MEDIA_ROOT + news_item.file1.file_field.name
 
-        print("path of image to send: " + image_path)
+        print("fs path of image to send: " + image_path)
 
         context.bot.send_photo(
             chat_id=telegram_user.user_id,
@@ -335,15 +342,13 @@ def send_news_to_telegram_user(context, news_item, telegram_user):
             parse_mode='HTML'
         )
     else:
-        context.bot.send_photo(
+        context.bot.send_message(
             chat_id=telegram_user.user_id,
             caption=caption,
             parse_mode='HTML'
         )
 
-
-
-    # Attivazione tastiera con pulsanti 'like' e 'dislike'
+    # keyboard with 'like' and 'dislike' buttons
     context.bot.send_message(
         chat_id=telegram_user.user_id,
         text="Ti è piaciuto l'articolo?",
@@ -358,10 +363,6 @@ def send_news_to_telegram_user(context, news_item, telegram_user):
             )
         ]])
     )
-
-    # context.bot.send_message(chat_id=telegram_user.user_id,
-    #                          text='One message every 10 minutes')
-
 
 
 def news(update, context):

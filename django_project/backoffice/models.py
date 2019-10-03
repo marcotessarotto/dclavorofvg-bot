@@ -33,8 +33,8 @@ class Category(models.Model):
         app_label = 'backoffice'
 
     def __str__(self):
-        return 'cat. ' + str(self.key) + ' (' + \
-               str(self.name) + ')'
+        return str(self.key) + ' (' + \
+               str(self.name) + ') ' + self.emoji
 
     # fills the Category table (if it is empty) with some default cateogries stored in the dict
     @staticmethod
@@ -125,22 +125,23 @@ class NewsItem(models.Model):
     # TODO: news_id is a BigInteger
     news_id = models.CharField(max_length=5, blank=True, null=True)
 
-    title = models.TextField(max_length=4096, blank=True, null=True, verbose_name='titolo')
-    text = models.TextField(max_length=4096 * 4, blank=True, null=True)
+    title = models.CharField(max_length=4096, blank=True, null=True, verbose_name='titolo della news')
+    text = models.TextField(max_length=4096 * 4, blank=True, null=True, verbose_name="testo della news")
 
-    tags = ArrayField(
-        models.CharField(max_length=200),
-        blank=True,
-        null=True,
-        verbose_name="tags (separati da virgola)")
+    # tags = ArrayField(
+    #     models.CharField(max_length=200),
+    #     blank=True,
+    #     null=True,
+    #     verbose_name="tags (separati da virgola)")
 
-    categories = models.ManyToManyField(Category,  blank=True)
+    categories = models.ManyToManyField(Category,  blank=True, verbose_name="categorie")
 
-    link = models.TextField(max_length=4096, blank=True, null=True)
+    link = models.CharField(max_length=4096, blank=True, null=True)
+    link_caption = models.CharField(max_length=256, blank=True, null=True, default="continua")
 
     file1 = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True, blank=True, verbose_name="immagine")
-    file2 = models.ForeignKey(NewsFile, related_name="file2", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato")
-    file3 = models.ForeignKey(NewsFile, related_name="file3", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato")
+    file2 = models.ForeignKey(NewsFile, related_name="file2", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato 1")
+    file3 = models.ForeignKey(NewsFile, related_name="file3", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato 2")
 
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
     # file will be saved to MEDIA_ROOT/uploads/....
@@ -149,8 +150,8 @@ class NewsItem(models.Model):
     like = models.BigIntegerField(default=0, editable=False)
     dislike = models.BigIntegerField(default=0, editable=False)
 
-    start_publication = models.DateTimeField(blank=True, null=True)
-    end_publication = models.DateTimeField(blank=True, null=True)
+    start_publication = models.DateTimeField(blank=True, null=True, verbose_name="inizio periodo di pubblicazione")
+    end_publication = models.DateTimeField(blank=True, null=True, verbose_name="fine periodo di pubblicazione")
 
     # if processed is true, this news item has already been sent to all users
     processed = models.BooleanField(default=False, verbose_name="questa news è stata inviata agli utenti?")
@@ -246,6 +247,8 @@ class SystemParameter(models.Model):
 
             SystemParameter.add_default_param("presentazione bot", "")
 
+            SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False")
+
             return True
         else:
             return False
@@ -256,5 +259,4 @@ class SystemParameter(models.Model):
         app_label = "backoffice"
 
     def __str__(self):
-        return "Parametro di sistema: " + \
-               str(self.name)
+        return str(self.name)
