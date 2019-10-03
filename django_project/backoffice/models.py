@@ -106,6 +106,8 @@ class NewsFile(models.Model):
 
     class Meta:
         app_label = "backoffice"
+        verbose_name = "Files per articoli"
+        verbose_name_plural = "Files per articoli"
 
     def __str__(self):
         return "" + str(self.id) + ": " + self.file_field.name + ", caricato il " + self.upload_date.strftime(
@@ -130,9 +132,8 @@ class NewsItem(models.Model):
     link = models.TextField(max_length=4096, blank=True, null=True)
 
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
-    # file will be saved to MEDIA_ROOT/uploads/2015/01/30
-    # files = ArrayField(models.FileField(upload_to='uploads/%Y/%m/%d/'), blank=True, null=True)
-    attached_files = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True, blank=True)
+    # file will be saved to MEDIA_ROOT/uploads/....
+    attached_files = models.ManyToManyField(NewsFile,  blank=True)
 
     like = models.BigIntegerField(default=0, editable=False)
     dislike = models.BigIntegerField(default=0, editable=False)
