@@ -176,7 +176,11 @@ def orm_get_all_telegram_users():
 
 
 def orm_get_categories():
+    a = datetime.datetime.now()
     queryset = Category.objects.all().order_by('id')
+    b = datetime.datetime.now()
+    c = b - a
+    print("orm_get_categories dt=" + str(c.microseconds) + " microseconds")
     return queryset
 
 

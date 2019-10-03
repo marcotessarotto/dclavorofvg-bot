@@ -212,6 +212,8 @@ def inline_keyboard(user):
 def callback_choice(update, scelta):
     """ Gestisce i pulsanti premuti nella inline_keyboard """
 
+    a = datetime.datetime.now()
+
     telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
     if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
@@ -245,6 +247,12 @@ def callback_choice(update, scelta):
             text="Seleziona una o più categorie:",
             reply_markup=InlineKeyboardMarkup(inline_keyboard(telegram_user))
         )
+
+    b = datetime.datetime.now()
+
+    c = b - a
+
+    print("callback_choice dt=" + str(c.microseconds) + " microseconds")
 
 
 def intersection(lst1, lst2):
