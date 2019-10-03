@@ -214,12 +214,12 @@ def inline_keyboard(user):
 def callback_choice(update, scelta):
     """ Gestisce i pulsanti premuti nella inline_keyboard """
 
-    user = orm_get_telegram_user(update.callback_query.from_user.id)
+    telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
     if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
         cat_scelte = ''
         for index in category.keys():
-            queryset = user.categories.filter(key=index)
+            queryset = telegram_user.categories.filter(key=index)
 
             if len(queryset) != 0:
                 cat_scelte += '- ' + category[index][0] + \
@@ -239,11 +239,11 @@ def callback_choice(update, scelta):
         )
 
     else:  # Toggle checked/unchecked per la categoria selezionata
-        update_user_category_settings(user, scelta)
+        update_user_category_settings(telegram_user, scelta)
 
         update.callback_query.edit_message_text(
             text="Seleziona una o più categorie:",
-            reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
+            reply_markup=InlineKeyboardMarkup(inline_keyboard(telegram_user))
         )
 
 
@@ -356,6 +356,15 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
     if news_item.link is not None:
         html_content += '... <a href=\"' + news_item.link + '\">' + news_item.link_caption + '</a>'
 
+    # print("html_content= " + html_content)
+    print("len(html_content) = " + str(len(html_content)))
+
+    # LIMIT on caption len: 1024 bytes! or we get MEDIA_CAPTION_TOO_LONG from Telegram
+
+    if len(html_content) > 1024:
+        print("reducing html_content, too long!")
+        html_content = html_content[:1024]
+
     if news_item.file1 is not None:
         # print(news_item.file1.file_field.name)
         # example: uploads/2019/10/03/500px-Tux_chico.svg_VtRyDrN.png
@@ -371,7 +380,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
             parse_mode='HTML'
         )
     else:
-        print("send_news_to_telegram_user - text: " + html_content)
+
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=html_content,
@@ -384,7 +393,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
         context.bot.send_document(
             chat_id=telegram_user.user_id,
-            photo=open(file_path, 'rb'),
+            document=open(file_path, 'rb'),
             caption=html_content,
             parse_mode='HTML'
         )
@@ -395,7 +404,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
         context.bot.send_document(
             chat_id=telegram_user.user_id,
-            photo=open(file_path, 'rb'),
+            document=open(file_path, 'rb'),
             caption=html_content,
             parse_mode='HTML'
         )
@@ -420,13 +429,21 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
 def send_last_processed_news(update, context):
     print("send_last_processed_news")
+    # print(update)
+
+    telegram_user = orm_get_telegram_user(update.message.chat.id)
+
+    # print(telegram_user)
 
     news_query = orm_get_last_processed_news()
 
-    print(news_query)
+    print("send_last_processed_news - processed news items= " + str(len(news_query)))
 
     for news_item in news_query[:5]:
-        send_news_to_telegram_user(context, news_item, intersection_result=None, request_feedback=False)
+
+        print("***send_last_processed_news - sending " + str(news_item.id))
+
+        send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=None, request_feedback=False)
 
 
     pass
