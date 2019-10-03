@@ -23,18 +23,6 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# Messaggio da mostrare quando viene chiamato /help
-help_msg = 'Questi sono i comandi a disposizione:\n' \
-           '\n' \
-           '<b>/start</b> schermata iniziale del bot\n' \
-           '<b>/scegli</b> scegli le categorie di notizie che ti interessano\n' \
-           '<b>/privacy</b> gestisci l\'accettazione della privacy\n' \
-           '\n' \
-           '<b>***SOLO PER DEBUG***: /invia_articoli</b> invia l\'articolo di prova\n' \
-           '\n' \
-           'Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.\n' \
-           'Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start'
-
 
 # ****************************************************************************************
 # return True if user has not yet approved the bot's privacy policy
@@ -74,7 +62,7 @@ def start(update, context):
         return privacy(update, context)
 
     update.message.reply_text(
-        help_msg,
+        orm_get_system_parameter("bot help message"),
         parse_mode='HTML'
     )
 
@@ -83,7 +71,7 @@ def help(update, context):
     """ Mostra i comandi disponibili """
 
     update.message.reply_text(
-        help_msg,
+        orm_get_system_parameter("bot help message"),
         parse_mode='HTML'
     )
 
@@ -143,7 +131,7 @@ def callback_privacy(update, context, param):
         # comandi a disposizione
         update.callback_query.edit_message_text(
             "Grazie per avere accettato il regolamento della privacy di questo bot.\n" +
-            help_msg,
+            orm_get_system_parameter("bot help message"),
             parse_mode='HTML'
         )
     else:

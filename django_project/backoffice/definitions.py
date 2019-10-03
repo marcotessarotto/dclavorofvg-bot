@@ -19,3 +19,18 @@ DEFAULT_CATEGORY_DICT = {
 
 def get_categories_dict():
     return DEFAULT_CATEGORY_DICT
+
+
+bot_default_help_msg = 'Questi sono i comandi a disposizione:\n' \
+           '\n' \
+           '<b>/start</b> schermata iniziale del bot\n' \
+           '<b>/scegli</b> scegli le categorie di notizie che ti interessano\n' \
+           '<b>/privacy</b> gestisci l\'accettazione della privacy\n' \
+           '\n' \
+           '<b>***SOLO PER DEBUG***: /invia_articoli</b> invia l\'articolo di prova\n' \
+           '\n' \
+           'Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.\n' \
+           'Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start'
+
+def get_bot_default_help_msg():
+    return bot_default_help_msg

@@ -223,6 +223,8 @@ class SystemParameter(models.Model):
 
     value = models.TextField(max_length=1024, blank=False)
 
+    comment = models.CharField(max_length=256, blank=True)
+
     # @staticmethod
     # def add_default_param(name):
     #     k = SystemParameter()
@@ -248,6 +250,9 @@ class SystemParameter(models.Model):
             SystemParameter.add_default_param("presentazione bot", "")
 
             SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False")
+
+            from django_project.backoffice.definitions import get_bot_default_help_msg
+            SystemParameter.add_default_param("bot help message", get_bot_default_help_msg())
 
             return True
         else:
