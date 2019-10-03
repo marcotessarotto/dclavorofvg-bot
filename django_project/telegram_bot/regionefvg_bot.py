@@ -17,6 +17,8 @@ import logging
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 
+from django_project.gfvgbo.settings import MEDIA_ROOT
+
 # Spiega quando (e perché) le cose non funzionano come ci si aspetta
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -50,10 +52,7 @@ def start(update, context):
     presentazione_bot = orm_get_system_parameter("presentazione bot")
 
     update.message.reply_text(
-        'Ciao ' + update.message.from_user.first_name + '! '
-                                                        'Benvenuto al bot Telegram della '
-                                                        'Direzione centrale lavoro, formazione, istruzione e famiglia - '
-                                                        'Regione Autonoma Friuli Venezia Giulia :)' + presentazione_bot
+        'Ciao ' + update.message.from_user.first_name + '! ' + presentazione_bot
     )
 
     # if check_user_privacy_approval(telegram_user, update, context):
@@ -283,7 +282,7 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
                 continue
 
             # send this news to this telegram_user
-            send_news_to_telegram_user(context, news_item, telegram_user)
+            send_news_to_telegram_user(context, news_item, telegram_user, intersection_result)
 
         news_item.processed = True
         from django.utils.timezone import now
@@ -297,28 +296,68 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 # SEZIONE INVIO NEWS
 # ****************************************************************************************
 
-def send_news_to_telegram_user(context, news_item, telegram_user):
-    title = news_item.title
-    body = news_item.text
-    link = news_item.link
+def send_news_to_telegram_user(context, news_item, telegram_user, intersection_result):
+    # title = news_item.title
+    # body = news_item.text
+    # link = news_item.link
 
     print("send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
-    # Costruzione della descrizione
-    caption = '<b>' + str(news_item.title) + \
-              ' [' + str(news_item.id) + ']</b>\n'
+    # build html content
+    html_content = ''
 
-    text = news_item.text.split()
-    caption += str(" ".join(text[:30]))
+    # see also: https://core.telegram.org/bots/api#html-style
+    # cannot embed <b> inside <a> tag
 
-    # Aggiunta del link per approfondire
+    # title/header
+    if news_item.title_link is not None:
+        title = '<a href="' + news_item.title_link + '"> ' + \
+                  str(news_item.title) + \
+                  ' [' + str(news_item.id) + ']' \
+                  ' </a>\n'
+    else:
+        title = '<b>' + str(news_item.title) + \
+            ' [' + str(news_item.id) + ']</b>\n'
+
+    html_content += title
+
+    # optional: show categories
+    if orm_get_system_parameter("news - mostra match categoria").lower() == "true":
+        # print(intersection_result)
+        categories = '<i>'
+
+        for cat in intersection_result:
+            categories += cat.name + ','
+
+        categories = categories[:-1]
+
+        categories += '</i>'
+
+        html_content += '\n' + categories + '\n'
+
+    # news body
+    news_text = news_item.text
+
+    if news_text is not None:
+        if news_item.show_all_text:
+            html_content += news_text
+        else:
+            text = news_text.split()
+
+            number_of_words = news_item.show_first_n_words
+            if number_of_words < 0:
+                number_of_words = 30
+
+            html_content += str(" ".join(text[:number_of_words]))
+
+    # optional link
     if news_item.link is not None:
-        caption += '... <a href=\"' + news_item.link + '\">' + news_item.link_caption + '</a>'
+        html_content += '... <a href=\"' + news_item.link + '\">' + news_item.link_caption + '</a>'
 
     if news_item.file1 is not None:
         # print(news_item.file1.file_field.name)
         # example: uploads/2019/10/03/500px-Tux_chico.svg_VtRyDrN.png
-        from django_project.gfvgbo.settings import MEDIA_ROOT
+
         image_path = MEDIA_ROOT + news_item.file1.file_field.name
 
         print("fs path of image to send: " + image_path)
@@ -326,20 +365,43 @@ def send_news_to_telegram_user(context, news_item, telegram_user):
         context.bot.send_photo(
             chat_id=telegram_user.user_id,
             photo=open(image_path, 'rb'),
-            caption=caption,
+            caption=html_content,
             parse_mode='HTML'
         )
     else:
+        print("send_news_to_telegram_user - text: " + html_content)
         context.bot.send_message(
             chat_id=telegram_user.user_id,
-            caption=caption,
+            text=html_content,
+            parse_mode='HTML'
+        )
+
+    if news_item.file2 is not None:
+        file_path = MEDIA_ROOT + news_item.file2.file_field.name
+        print("fs path of file2 to send: " + file_path)
+
+        context.bot.send_document(
+            chat_id=telegram_user.user_id,
+            photo=open(file_path, 'rb'),
+            caption=html_content,
+            parse_mode='HTML'
+        )
+
+    if news_item.file3 is not None:
+        file_path = MEDIA_ROOT + news_item.file3.file_field.name
+        print("fs path of file3 to send: " + file_path)
+
+        context.bot.send_document(
+            chat_id=telegram_user.user_id,
+            photo=open(file_path, 'rb'),
+            caption=html_content,
             parse_mode='HTML'
         )
 
     # keyboard with 'like' and 'dislike' buttons
     context.bot.send_message(
         chat_id=telegram_user.user_id,
-        text="Ti è piaciuto l'articolo?",
+        text=orm_get_system_parameter("request for news item feedback"),
         reply_markup=InlineKeyboardMarkup([[
             InlineKeyboardButton(  # Pulsante dislike
                 text=u'\u2717',
@@ -353,59 +415,63 @@ def send_news_to_telegram_user(context, news_item, telegram_user):
     )
 
 
-def news(update, context):
-    """ Invia un nuovo articolo """
+def invia_ultime_news(update, context):
 
-    folder_new = '/home/marco/Documents/github/dclavorofvg-bot/demo_new'
+    pass
 
-    # fd = open(folder_new + '/category', 'r')
-    # cat = fd.read()[:-1]
-
-    fd = open(folder_new + '/title', 'r')
-    title = fd.read()[:-1]
-
-    fd = open(folder_new + '/body', 'r')
-    body = fd.read()
-
-    fd = open(folder_new + '/link', 'r')
-    link = fd.read()
-    fd.close()
-
-    news_item = orm_add_newsitem(title, body, link)
-    context.user_data['news_id'] = news_item.id
-
-    # Costruzione della descrizione
-    caption = '<b>' + str(news_item.title) + \
-              ' [' + news_item.id + ']</b>\n'
-
-    text = news_item.text.split()
-    caption += str(" ".join(text[:30]))
-
-    # Aggiunta del link per approfondire
-    caption += '... <a href=\"' + news_item.link + '\">continua</a>'
-
-    context.bot.send_photo(
-        chat_id=update.message.chat_id,
-        photo=open(folder_new + '/allegato_1.jpg', 'rb'),
-        caption=caption,
-        parse_mode='HTML'
-    )
-
-    # Attivazione tastiera con pulsanti 'like' e 'dislike'
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text="Ti è piaciuto l'articolo?",
-        reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton(  # Pulsante dislike
-                text=u'\u2717',
-                callback_data='feedback - ' + news_item.id
-            ),
-            InlineKeyboardButton(  # Pulsante like
-                text=u'\u2713',
-                callback_data='feedback + ' + news_item.id
-            )
-        ]])
-    )
+# def news(update, context):
+#     """ Invia un nuovo articolo """
+#
+#     folder_new = '/home/marco/Documents/github/dclavorofvg-bot/demo_new'
+#
+#     # fd = open(folder_new + '/category', 'r')
+#     # cat = fd.read()[:-1]
+#
+#     fd = open(folder_new + '/title', 'r')
+#     title = fd.read()[:-1]
+#
+#     fd = open(folder_new + '/body', 'r')
+#     body = fd.read()
+#
+#     fd = open(folder_new + '/link', 'r')
+#     link = fd.read()
+#     fd.close()
+#
+#     news_item = orm_add_newsitem(title, body, link)
+#     context.user_data['news_id'] = news_item.id
+#
+#     # Costruzione della descrizione
+#     caption = '<b>' + str(news_item.title) + \
+#               ' [' + news_item.id + ']</b>\n'
+#
+#     text = news_item.text.split()
+#     caption += str(" ".join(text[:30]))
+#
+#     # Aggiunta del link per approfondire
+#     caption += '... <a href=\"' + news_item.link + '\">continua</a>'
+#
+#     context.bot.send_photo(
+#         chat_id=update.message.chat_id,
+#         photo=open(folder_new + '/allegato_1.jpg', 'rb'),
+#         caption=caption,
+#         parse_mode='HTML'
+#     )
+#
+#     # Attivazione tastiera con pulsanti 'like' e 'dislike'
+#     context.bot.send_message(
+#         chat_id=update.message.chat_id,
+#         text="Ti è piaciuto l'articolo?",
+#         reply_markup=InlineKeyboardMarkup([[
+#             InlineKeyboardButton(  # Pulsante dislike
+#                 text=u'\u2717',
+#                 callback_data='feedback - ' + news_item.id
+#             ),
+#             InlineKeyboardButton(  # Pulsante like
+#                 text=u'\u2713',
+#                 callback_data='feedback + ' + news_item.id
+#             )
+#         ]])
+#     )
 
 
 def debug_method(update, context):
@@ -448,7 +514,7 @@ def callback_comment(update, context, news_id):
     )
 
 
-def comment(update, context):
+def comment_handler(update, context):
     """ Memorizza il commento inserito dall'utente """
 
     # Testo del messaggio cui il commento fornisce una risposta
@@ -459,6 +525,25 @@ def comment(update, context):
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text='Commento caricato con successo!'
+    )
+
+
+def generic_message_handler(update, context):
+
+    # print("generic_message_handler - " + str(update))
+
+    message_text = update.message.text
+
+    print("generic_message_handler - message_text = " + message_text)
+
+    # context.bot.send_message(
+    #     chat_id=update.message.chat_id,
+    #     text='hai bisogno di aiuto?'
+    # )
+
+    update.message.reply_text(
+        orm_get_system_parameter("bot help message"),
+        parse_mode='HTML'
     )
 
 
@@ -552,7 +637,7 @@ def main():
 
     job_queue = updater.job_queue
 
-    job_minute = job_queue.run_repeating(news_dispatcher, interval=600, first=0)  # callback_minute
+    job_minute = job_queue.run_repeating(news_dispatcher, interval=60*5, first=0)  # callback_minute
 
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start))
@@ -565,8 +650,9 @@ def main():
     dp.add_handler(CommandHandler('fine', detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler('invia_articoli', news))  # DEBUG only
-    dp.add_handler(MessageHandler(Filters.reply, comment))
+    dp.add_handler(CommandHandler('invia_ultime_news', invia_ultime_news))  # DEBUG only
+    dp.add_handler(MessageHandler(Filters.reply, comment_handler))
+    dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
     # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler('scegli', choose_news_categories))

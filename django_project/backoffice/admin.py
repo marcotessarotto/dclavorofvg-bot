@@ -7,7 +7,7 @@ from django.forms import (
 from .models import *
 
 
-admin.site.site_header = 'backoffice GiovaniFVG'
+admin.site.site_header = 'backoffice LavoroFVG'
 
 
 @admin.register(TelegramUser)
@@ -87,10 +87,10 @@ class SystemParameterAdmin(admin.ModelAdmin):
 
     def add_default_system_parameters(self, request):
         # fill_categories aggiunge le categorie di default soltanto se non ci sono Category
-        result = SystemParameter.fill_system_parameters()
+        result = SystemParameter.update_system_parameters()
 
         if result:
-            self.message_user(request, "i parametri di sistema di default sono stati aggiunti")
+            self.message_user(request, "i parametri di sistema di default sono stati aggiornati")
         else:
             self.message_user(request, "non ho fatto nulla, ci sono già dei parametri di sistema ")
 

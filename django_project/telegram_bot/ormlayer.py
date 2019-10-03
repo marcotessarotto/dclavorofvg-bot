@@ -188,12 +188,12 @@ def orm_get_news_to_process():
 
         to_be_processed = False
 
-        if news.start_publication is not None and news.end_publication is not None:
-            to_be_processed = news.start_publication <= now <= news.end_publication
+        if news.start_publication is not None:
+            to_be_processed = news.start_publication <= now
         else:
             to_be_processed = True
 
-        if news.title is None or news.text is None:
+        if news.title is None:
             continue
 
         if not to_be_processed:
