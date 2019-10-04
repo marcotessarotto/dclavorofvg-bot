@@ -52,14 +52,14 @@ def start(update, context):
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
-    print("update.message.from_user = " + str(update.message.from_user))
+    # print("update.message.from_user = " + str(update.message.from_user))
 
     telegram_user = orm_add_user(update.message.from_user)  # orm_add_user always returns a TelegramUser instance
 
-    presentazione_bot = orm_get_system_parameter(UI_presentazione_bot)
+    bot_presentation = orm_get_system_parameter(UI_presentazione_bot)
 
     update.message.reply_text(
-        'Ciao ' + update.message.from_user.first_name + '! ' + presentazione_bot
+        'Ciao ' + update.message.from_user.first_name + '! ' + bot_presentation
     )
 
     # if check_user_privacy_approval(telegram_user, update, context):
@@ -87,7 +87,7 @@ def privacy(update, context):
 
     privacy_state = user.has_accepted_privacy_rules
 
-    print("privacy - " + str(user) + " " + str(privacy_state))
+    print("privacy - user id=" + str(user.id) + " privacy accepted: " + str(privacy_state))
 
     if not privacy_state:
         #
@@ -141,8 +141,7 @@ def callback_privacy(update, context, param):
             parse_mode='HTML'
         )
     else:
-
-        update.callback_query.edit_message_text(text="ok impostazione privacy = " + param)
+        update.callback_query.edit_message_text(text="Non hai accettato il regolamento della privacy di questo bot. Non posso proseguire.")
 
 
 def callback(update, context):
@@ -447,7 +446,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
         context.bot.send_document(
             chat_id=telegram_user.user_id,
             document=open(file_path, 'rb'),
-            caption=html_content,
+            caption='',
             parse_mode='HTML'
         )
 
@@ -458,7 +457,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
         context.bot.send_document(
             chat_id=telegram_user.user_id,
             document=open(file_path, 'rb'),
-            caption=html_content,
+            caption='',
             parse_mode='HTML'
         )
 
@@ -468,11 +467,11 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
             chat_id=telegram_user.user_id,
             text=orm_get_system_parameter(UI_request_for_news_item_feedback),
             reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton(  # Pulsante dislike
+                InlineKeyboardButton(  # dislike button
                     text=u'\u2717',
                     callback_data='feedback - ' + str(news_item.id)
                 ),
-                InlineKeyboardButton(  # Pulsante like
+                InlineKeyboardButton(  # like button
                     text=u'\u2713',
                     callback_data='feedback + ' + str(news_item.id)
                 )
@@ -493,7 +492,6 @@ def send_last_processed_news(update, context):
     # print(update)
 
     telegram_user = orm_get_telegram_user(update.message.chat.id)
-
     # print(telegram_user)
 
     news_query = orm_get_last_processed_news()
