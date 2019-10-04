@@ -7,9 +7,9 @@ import os
 from django_project.telegram_bot.ormlayer import *
 
 try:
-    from ..backoffice.definitions import UI_presentazione_bot, UI_bot_help_message
+    from ..backoffice.definitions import UI_presentazione_bot, UI_bot_help_message, news_mostra_match_categoria
 except:
-    from django_project.backoffice.definitions import UI_presentazione_bot, UI_bot_help_message
+    from django_project.backoffice.definitions import UI_presentazione_bot, UI_bot_help_message, news_mostra_match_categoria
 
 from telegram.ext import *
 from telegram import *
@@ -178,7 +178,7 @@ def choose_news_categories(update, context):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=orm_get_system_parameter("UI seleziona le categorie di news"),
+        text=orm_get_system_parameter(UI_seleziona_le_categorie_di_news),
         reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
     )
 
@@ -258,6 +258,21 @@ def callback_choice(update, scelta):
     c = b - a
 
     print("callback_choice dt=" + str(c.microseconds) + " microseconds")
+
+
+
+def work_categories_command_handler(update, context):
+
+    pass
+
+
+def vacancies_command_handler(update, context):
+    pass
+
+
+def young_caegories_command_handler(update, context):
+    pass
+
 
 
 def intersection(lst1, lst2):
@@ -344,7 +359,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
             ' [' + str(news_item.id) + ']</b>\n'
 
     # optional: show categories
-    if intersection_result is not None and orm_get_system_parameter("news - mostra match categoria").lower() == "true":
+    if intersection_result is not None and orm_get_system_parameter(news_mostra_match_categoria).lower() == "true":
         # print(intersection_result)
         categories_html_content = '\n<i>'
 
@@ -560,7 +575,7 @@ def callback_feedback(update, data):
 
     feed = data[0]
     news_id = data[1]
-    orm_add_feedback(feed, news_id)  # Aggiunge il nuovo feedback
+    orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)  # Aggiunge il nuovo feedback
 
     # Attivazione tastiera con pulsante 'commenta'
     update.callback_query.edit_message_text(
@@ -722,13 +737,14 @@ def main():
     dp.add_handler(CommandHandler('aiuto', help))
     dp.add_handler(CommandHandler('privacy', privacy))
 
-    dp.add_handler(CommandHandler('lavoro', lavoro_command_handler))
-    dp.add_handler(CommandHandler('offerte_di_lavoro', privacy))
+    dp.add_handler(CommandHandler('lavoro', work_categories_command_handler))
+    dp.add_handler(CommandHandler('offerte_di_lavoro', vacancies_command_handler))
+    dp.add_handler(CommandHandler('giovani', young_caegories_command_handler))
 
     dp.add_handler(CommandHandler('fine', detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler('invia_ultime_news', send_last_processed_news))  # DEBUG only
+    dp.add_handler(CommandHandler('invia_ultime_news', send_last_processed_news))
     dp.add_handler(MessageHandler(Filters.reply, comment_handler))
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 

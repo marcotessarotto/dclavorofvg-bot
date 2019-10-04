@@ -7,13 +7,17 @@ django.setup()
 
 from django_project.backoffice.models import *
 
+from django.core.cache import cache
+# https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
+use_cache = True
+
 
 def orm_add_user(user):
     """ Aggiunge un nuovo utente, se non già registrato; restituisce l'istanza dell'utente """
 
     telegram_user = orm_get_telegram_user(user.id)
 
-    if telegram_user == 0:  # L'utente non è ancora registrato
+    if telegram_user == 0:  # telegram user has not been registered yet
         new_telegram_user = TelegramUser()
         new_telegram_user.user_id = user.id
         new_telegram_user.username = user.username
@@ -75,11 +79,33 @@ def orm_add_newsitem(title, text, link):
     return news
 
 
-def orm_add_feedback(feed, news_id):
+def _orm_get_news_item(news_id):
+    queryset_news = NewsItem.objects.filter(id=news_id)
+    news_item = queryset_news[0]
+    return news_item
+
+
+def _orm_get_news_item_cache(news_id):
+    cache_key = "news" + news_id
+
+    result = cache.get(cache_key)
+
+    if result is None:
+        result = _orm_get_news_item(news_id)
+        cache.set(cache_key, result, timeout=60)
+
+    return result
+
+
+def orm_add_feedback(feed, news_id, telegram_user_id):
     """ Aggiunge un nuovo feedback all'articolo """
 
-    queryset_news = NewsItem.objects.filter(id=news_id)
-    news = queryset_news[0]
+    # queryset_news = NewsItem.objects.filter(id=news_id)
+    # news = queryset_news[0]
+    if use_cache:
+        news = _orm_get_news_item_cache(news_id)
+    else:
+        news = _orm_get_news_item(news_id)
 
     if feed == '+':
         news.like += 1
@@ -87,32 +113,31 @@ def orm_add_feedback(feed, news_id):
         news.dislike += 1
     news.save()
 
-    print('\nNUOVO FEEDBACK:'
-          '\n' + str(news) +
-          '\n' + feed)
+    print("orm_add_feedback news_id=" + str(news_id) + " telegram_user_id=" + str(telegram_user_id))
 
 
-def orm_add_comment(text, news_id, user_id):
+def orm_add_comment(text, news_id, telegram_user_id):
     """ Aggiunge un nuovo commento per l'articolo """
 
-    print("orm_add_comment id=" + str(news_id))
-
-    queryset_news = NewsItem.objects.filter(id=news_id)
-    news = queryset_news[0]
-
-    queryset_user = TelegramUser.objects.filter(user_id=int(user_id))
+    queryset_user = TelegramUser.objects.filter(user_id=int(telegram_user_id))
     user = queryset_user[0]
 
-    comment = Comment()
-    comment.user = user
-    comment.news = news
-    comment.text = text
-    comment.save()
+    print("orm_add_comment id=" + str(news_id) + " user_id=" + str(user.id))
 
-    print('\nNUOVO COMMENTO:'
-          '\n' + str(news) +
-          '\n' + str(user) +
-          '\n\"' + text + '\"')
+    # https://stackoverflow.com/a/12682379/974287
+    Comment.objects.create(user_id=user.id, news_id=news_id, text=text)
+
+    # queryset_news = NewsItem.objects.filter(id=news_id)
+    # news = queryset_news[0]
+    #
+    # queryset_user = TelegramUser.objects.filter(user_id=int(user_id))
+    # user = queryset_user[0]
+    #
+    # comment = Comment()
+    # comment.user = user
+    # comment.news = news
+    # comment.text = text
+    # comment.save()
 
 
 def orm_get_comment(user_id):
@@ -122,15 +147,46 @@ def orm_get_comment(user_id):
     return Comment.objects.filter(user=user)
 
 
-def orm_get_telegram_user(user_id):
+def orm_get_telegram_user(telegram_user_id):
     """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser """
 
-    queryset_user = TelegramUser.objects.filter(user_id=user_id)
+    def _orm_get_telegram_user():
 
-    if len(queryset_user) == 0:
-        return 0
+        queryset_user = TelegramUser.objects.filter(user_id=telegram_user_id)
+
+        if len(queryset_user) == 0:
+            result = None
+        else:
+            result = queryset_user[0]
+
+        return result
+
+    def _orm_get_telegram_user_cache():
+
+        key_name = "user" + telegram_user_id
+
+        result = cache.get(telegram_user_id)
+
+        if result is None:
+            result = _orm_get_telegram_user()
+            cache.set(telegram_user_id, result, timeout=60)
+
+        return result
+
+    a = datetime.datetime.now()
+
+    if use_cache:
+        result = _orm_get_telegram_user_cache()
     else:
-        return queryset_user[0]
+        result = _orm_get_telegram_user()
+
+    b = datetime.datetime.now()
+
+    c = b - a
+
+    print("orm_get_telegram_user dt=" + str(c.microseconds) + " microseconds")
+
+    return result
 
 
 def orm_change_user_privacy_setting(user_id, privacy_setting):
@@ -240,11 +296,6 @@ def orm_get_privacy_rules():
         return query_result[0].value
 
 
-from django.core.cache import cache
-# https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
-use_cache = True
-
-
 def orm_get_system_parameter(param_name):
 
     def _orm_get_system_parameter(param_name):
@@ -257,15 +308,29 @@ def orm_get_system_parameter(param_name):
             return query_result[0].value
 
     def _orm_get_system_parameter_cache(param_name):
-        result = cache.get(param_name)
+
+        key_name = "syspar" + param_name
+
+        result = cache.get(key_name)
 
         if result is None:
             result = _orm_get_system_parameter(param_name)
-            cache.set(param_name, result)
+            cache.set(key_name, result, timeout=60)
 
         return result
 
+    a = datetime.datetime.now()
+
     if use_cache:
-        return _orm_get_system_parameter_cache(param_name)
+        result = _orm_get_system_parameter_cache(param_name)
     else:
-        return _orm_get_system_parameter(param_name)
+        result = _orm_get_system_parameter(param_name)
+
+    b = datetime.datetime.now()
+
+    c = b - a
+
+    print("orm_get_system_parameter - dt=" + str(c.microseconds) + " microseconds")
+
+    return result
+

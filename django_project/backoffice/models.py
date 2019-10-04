@@ -4,7 +4,8 @@ import traceback
 import logging
 
 # from spacy.lang.fr.tokenizer_exceptions import verb
-from .definitions import get_bot_default_help_msg, UI_request_for_news_item_feedback, UI_PRIVACY, UI_bot_help_message, UI_presentazione_bot
+from .definitions import get_bot_default_help_msg, UI_request_for_news_item_feedback, UI_PRIVACY, UI_bot_help_message, \
+    UI_presentazione_bot, UI_seleziona_le_categorie_di_news, news_mostra_match_categoria
 
 
 class CustomDateTimeField(models.DateTimeField):
@@ -59,6 +60,20 @@ class Category(models.Model):
         else:
             print("NON aggiungo le categorie di default, ce ne sono già alcune")
             return False
+
+
+class CategoriesGroup(models.Model):
+    name = models.TextField(max_length=256)
+    updated_at = models.DateTimeField(auto_now=True)
+    categories = models.ManyToManyField(Category, blank=True)
+
+    class Meta:
+        verbose_name = 'Gruppo di categorie'
+        verbose_name_plural = 'Gruppi di categorie'
+        app_label = 'backoffice'
+
+    def __str__(self):
+        return str(self.id) + " " + self.name
 
 
 class NewsItemSentToUser(models.Model):
@@ -271,7 +286,7 @@ class SystemParameter(models.Model):
 
         SystemParameter.add_default_param(UI_PRIVACY, "TODO: inserire regolamento privacy del bot/portale/...", "regolamento della privacy")
 
-        SystemParameter.add_default_param("UI seleziona le categorie di news", "Seleziona le categorie di news a cui sei interessato:")
+        SystemParameter.add_default_param(UI_seleziona_le_categorie_di_news, "Seleziona le categorie di news a cui sei interessato:")
 
         SystemParameter.add_default_param(UI_presentazione_bot, "Benvenuto al bot Telegram della Direzione centrale lavoro, formazione, istruzione e famiglia - Regione Autonoma Friuli Venezia Giulia :)", "è mostrato nel comando /start")
 
@@ -282,7 +297,7 @@ class SystemParameter(models.Model):
 
         SystemParameter.add_default_param(UI_request_for_news_item_feedback, "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
 
-        SystemParameter.add_default_param("news - mostra match categoria", "True", "mostra la categoria della news che ha permesso l'invio all'utente")
+        SystemParameter.add_default_param(news_mostra_match_categoria, "True", "mostra la categoria della news che ha permesso l'invio all'utente")
 
         return True
         # else:

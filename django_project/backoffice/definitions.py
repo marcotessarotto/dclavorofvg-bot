@@ -51,4 +51,6 @@ UI_bot_help_message = "UI_bot_help_message"
 UI_presentazione_bot = "UI_presentazione_bot"
 UI_PRIVACY = "UI_PRIVACY"
 UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
+UI_seleziona_le_categorie_di_news = "UI_seleziona_le_categorie_di_news"
 
+news_mostra_match_categoria = "news_mostra_match_categoria"

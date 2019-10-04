@@ -83,6 +83,8 @@ admin.site.register(NewsFile)
 
 # admin.site.register(NewsItemSentToUser)
 
+admin.site.register(CategoriesGroup)
+
 
 @admin.register(SystemParameter)
 class SystemParameterAdmin(admin.ModelAdmin):
