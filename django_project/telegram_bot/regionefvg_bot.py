@@ -52,6 +52,8 @@ def start(update, context):
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
+    print("update.message.from_user = " + str(update.message.from_user))
+
     telegram_user = orm_add_user(update.message.from_user)  # orm_add_user always returns a TelegramUser instance
 
     presentazione_bot = orm_get_system_parameter(UI_presentazione_bot)

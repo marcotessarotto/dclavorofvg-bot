@@ -12,22 +12,29 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
-# Importa i dati di accesso al database dal file secrets.py, non caricato su github
+
 from .secrets import *
+
+"""
+example secrets.py file:
+
+DB_NAME="........"
+DB_USERNAME="........"
+DB_PWD="........"
+
+SECRET_KEY = "................................"
+"""
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# La chiave segreta è importata dal file secrets.py
+# SECRET_KEY is imported from secrets.py
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Nel caso in cui DEBUG sia impostato su False è necessario impostare adeguatamente ALLOWED_HOSTS
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-# Definizione delle applicazioni
 
 INSTALLED_APPS = [
     'backoffice.apps.BackofficeConfig',
@@ -71,7 +78,6 @@ WSGI_APPLICATION = 'gfvgbo.wsgi.application'
 
 
 # Database
-# Inserisce i dati estrapolati dal file secrets.py
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

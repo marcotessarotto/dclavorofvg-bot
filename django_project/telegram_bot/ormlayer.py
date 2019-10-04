@@ -17,7 +17,7 @@ def orm_add_user(user):
 
     telegram_user = orm_get_telegram_user(user.id)
 
-    if telegram_user == 0:  # telegram user has not been registered yet
+    if telegram_user is None:  # telegram user has not been registered yet
         new_telegram_user = TelegramUser()
         new_telegram_user.user_id = user.id
         new_telegram_user.username = user.username
@@ -163,7 +163,7 @@ def orm_get_telegram_user(telegram_user_id):
 
     def _orm_get_telegram_user_cache():
 
-        key_name = "user" + telegram_user_id
+        key_name = "user" + str(telegram_user_id)
 
         result = cache.get(telegram_user_id)
 
