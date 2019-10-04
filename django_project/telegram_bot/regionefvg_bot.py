@@ -6,6 +6,11 @@ import os
 
 from django_project.telegram_bot.ormlayer import *
 
+try:
+    from ..backoffice.definitions import UI_presentazione_bot, UI_bot_help_message
+except:
+    from django_project.backoffice.definitions import UI_presentazione_bot, UI_bot_help_message
+
 from telegram.ext import *
 from telegram import *
 
@@ -49,7 +54,7 @@ def start(update, context):
 
     telegram_user = orm_add_user(update.message.from_user)  # orm_add_user always returns a TelegramUser instance
 
-    presentazione_bot = orm_get_system_parameter("UI presentazione bot")
+    presentazione_bot = orm_get_system_parameter(UI_presentazione_bot)
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! ' + presentazione_bot
@@ -61,7 +66,7 @@ def start(update, context):
         return privacy(update, context)
 
     update.message.reply_text(
-        orm_get_system_parameter("UI bot help message"),
+        orm_get_system_parameter(UI_bot_help_message),
         parse_mode='HTML'
     )
 
@@ -70,7 +75,7 @@ def help(update, context):
     """ Mostra i comandi disponibili """
 
     update.message.reply_text(
-        orm_get_system_parameter("UI bot help message"),
+        orm_get_system_parameter(UI_bot_help_message),
         parse_mode='HTML'
     )
 
@@ -130,7 +135,7 @@ def callback_privacy(update, context, param):
         # comandi a disposizione
         update.callback_query.edit_message_text(
             "Grazie per avere accettato il regolamento della privacy di questo bot.\n" +
-            orm_get_system_parameter("UI bot help message"),
+            orm_get_system_parameter(UI_bot_help_message),
             parse_mode='HTML'
         )
     else:
@@ -444,7 +449,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
     if request_feedback:
         context.bot.send_message(
             chat_id=telegram_user.user_id,
-            text=orm_get_system_parameter("UI request for news item feedback"),
+            text=orm_get_system_parameter(UI_request_for_news_item_feedback),
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(  # Pulsante dislike
                     text=u'\u2717',
@@ -612,7 +617,7 @@ def generic_message_handler(update, context):
     # )
 
     update.message.reply_text(
-        orm_get_system_parameter("UI bot help message"),
+        orm_get_system_parameter(UI_bot_help_message),
         parse_mode='HTML'
     )
 
@@ -717,6 +722,9 @@ def main():
     dp.add_handler(CommandHandler('aiuto', help))
     dp.add_handler(CommandHandler('privacy', privacy))
 
+    dp.add_handler(CommandHandler('lavoro', lavoro_command_handler))
+    dp.add_handler(CommandHandler('offerte_di_lavoro', privacy))
+
     dp.add_handler(CommandHandler('fine', detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
@@ -733,7 +741,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(callback))
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
-    #dp.add_error_handler(error_callback)
+    dp.add_error_handler(error_callback)
 
     # Avvio l'updater
     updater.start_polling()

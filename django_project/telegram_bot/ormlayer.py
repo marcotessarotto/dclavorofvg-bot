@@ -37,7 +37,7 @@ def orm_add_user(user):
         return new_telegram_user
 
     else:
-        print('telegram user: ' + str(telegram_user.user_id) )
+        print('telegram user: ' + str(telegram_user.user_id))
         return telegram_user
 
 
@@ -134,7 +134,6 @@ def orm_get_telegram_user(user_id):
 
 
 def orm_change_user_privacy_setting(user_id, privacy_setting):
-
     # print("user_id = " + str(user_id))
 
     user = orm_get_telegram_user(user_id)
@@ -163,7 +162,7 @@ def update_user_category_settings(user, scelta):
 
         print('RIMOZIONE ' + str(cat))
 
-    else:   # La categoria non era presente (bisogna aggiungerla)
+    else:  # La categoria non era presente (bisogna aggiungerla)
         cat = Category.objects.filter(key=scelta)[0]
 
         user.categories.add(cat)
@@ -202,7 +201,6 @@ def orm_get_last_processed_news():
 
 
 def orm_get_news_to_process():
-
     news_query = NewsItem.objects.filter(processed=False)
 
     result = []
@@ -234,8 +232,7 @@ def orm_get_news_to_process():
 
 
 def orm_get_privacy_rules():
-
-    query_result = SystemParameter.objects.filter(name="UI PRIVACY")
+    query_result = SystemParameter.objects.filter(name=UI_PRIVACY)
 
     if len(query_result) == 0:
         return "***REGOLAMENTO PRIVACY NON DEFINITO***"
@@ -243,12 +240,32 @@ def orm_get_privacy_rules():
         return query_result[0].value
 
 
+from django.core.cache import cache
+# https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
+use_cache = True
+
+
 def orm_get_system_parameter(param_name):
 
-    query_result = SystemParameter.objects.filter(name=param_name)
+    def _orm_get_system_parameter(param_name):
 
-    if len(query_result) == 0:
-        return "*** '" + str(param_name) + "' parameter is not defined ***"
+        query_result = SystemParameter.objects.filter(name=param_name)
+
+        if len(query_result) == 0:
+            return "*** '" + str(param_name) + "' parameter is not defined ***"
+        else:
+            return query_result[0].value
+
+    def _orm_get_system_parameter_cache(param_name):
+        result = cache.get(param_name)
+
+        if result is None:
+            result = _orm_get_system_parameter(param_name)
+            cache.set(param_name, result)
+
+        return result
+
+    if use_cache:
+        return _orm_get_system_parameter_cache(param_name)
     else:
-        return query_result[0].value
-
+        return _orm_get_system_parameter(param_name)

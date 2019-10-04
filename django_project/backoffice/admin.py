@@ -83,8 +83,10 @@ admin.site.register(NewsFile)
 
 # admin.site.register(NewsItemSentToUser)
 
+
 @admin.register(SystemParameter)
 class SystemParameterAdmin(admin.ModelAdmin):
+    ordering = ('name',)
 
     def add_default_system_parameters(self, request):
         # fill_categories aggiunge le categorie di default soltanto se non ci sono Category
