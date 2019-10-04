@@ -49,7 +49,7 @@ def start(update, context):
 
     telegram_user = orm_add_user(update.message.from_user)  # orm_add_user always returns a TelegramUser instance
 
-    presentazione_bot = orm_get_system_parameter("presentazione bot")
+    presentazione_bot = orm_get_system_parameter("UI presentazione bot")
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! ' + presentazione_bot
@@ -61,7 +61,7 @@ def start(update, context):
         return privacy(update, context)
 
     update.message.reply_text(
-        orm_get_system_parameter("bot help message"),
+        orm_get_system_parameter("UI bot help message"),
         parse_mode='HTML'
     )
 
@@ -70,7 +70,7 @@ def help(update, context):
     """ Mostra i comandi disponibili """
 
     update.message.reply_text(
-        orm_get_system_parameter("bot help message"),
+        orm_get_system_parameter("UI bot help message"),
         parse_mode='HTML'
     )
 
@@ -130,7 +130,7 @@ def callback_privacy(update, context, param):
         # comandi a disposizione
         update.callback_query.edit_message_text(
             "Grazie per avere accettato il regolamento della privacy di questo bot.\n" +
-            orm_get_system_parameter("bot help message"),
+            orm_get_system_parameter("UI bot help message"),
             parse_mode='HTML'
         )
     else:
@@ -173,7 +173,7 @@ def choose_news_categories(update, context):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=orm_get_system_parameter("seleziona le categorie di news"),
+        text=orm_get_system_parameter("UI seleziona le categorie di news"),
         reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
     )
 
@@ -307,50 +307,47 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 # ****************************************************************************************
 
 def send_news_to_telegram_user(context, news_item, telegram_user, intersection_result, request_feedback=True):
-    # title = news_item.title
-    # body = news_item.text
-    # link = news_item.link
 
     print("send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
     # build html content
-    html_content = ''
+
+    # title_html_content = ''
+    categories_html_content = ''
+    body_html_content = ''
+    link_html_content = ''
 
     # see also: https://core.telegram.org/bots/api#html-style
     # cannot embed <b> inside <a> tag
 
     # title/header
     if news_item.title_link is not None:
-        title = '<a href="' + news_item.title_link + '"> ' + \
+        title_html_content = '<a href="' + news_item.title_link + '"> ' + \
                   str(news_item.title) + \
                   ' [' + str(news_item.id) + ']' \
                   ' </a>\n'
     else:
-        title = '<b>' + str(news_item.title) + \
+        title_html_content = '<b>' + str(news_item.title) + \
             ' [' + str(news_item.id) + ']</b>\n'
-
-    html_content += title
 
     # optional: show categories
     if intersection_result is not None and orm_get_system_parameter("news - mostra match categoria").lower() == "true":
         # print(intersection_result)
-        categories = '<i>'
+        categories_html_content = '\n<i>'
 
         for cat in intersection_result:
-            categories += cat.name + ','
+            categories_html_content += cat.name + ','
 
-        categories = categories[:-1]
+        categories_html_content = categories_html_content[:-1]
 
-        categories += '</i>'
-
-        html_content += '\n' + categories + '\n'
+        categories_html_content += '</i>\n'
 
     # news body
     news_text = news_item.text
 
     if news_text is not None:
         if news_item.show_all_text:
-            html_content += news_text
+            body_html_content = news_text
         else:
             text = news_text.split()
 
@@ -358,20 +355,20 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
             if number_of_words < 0:
                 number_of_words = 30
 
-            html_content += str(" ".join(text[:number_of_words]))
+            body_html_content = str(" ".join(text[:number_of_words]))
 
     # optional link
     if news_item.link is not None:
-        html_content += '... <a href=\"' + news_item.link + '\">' + news_item.link_caption + '</a>'
+        link_html_content = '... <a href=\"' + news_item.link + '\">' + news_item.link_caption + '</a>'
 
-    # print("html_content= " + html_content)
+    html_content = title_html_content + categories_html_content + body_html_content + link_html_content
+
     print("len(html_content) = " + str(len(html_content)))
 
-    # LIMIT on caption len: 1024 bytes! or we get MEDIA_CAPTION_TOO_LONG from Telegram
-
-    if len(html_content) > 1024:
-        print("reducing html_content, too long!")
-        html_content = html_content[:1024]
+    print("len(title_html_content) = " + str(len(title_html_content)))
+    print("len(categories_html_content) = " + str(len(categories_html_content)))
+    print("len(body_html_content) = " + str(len(body_html_content)))
+    print("len(link_html_content) = " + str(len(link_html_content)))
 
     if news_item.file1 is not None:
         # print(news_item.file1.file_field.name)
@@ -380,6 +377,13 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
         image_path = MEDIA_ROOT + news_item.file1.file_field.name
 
         print("fs path of image to send: " + image_path)
+
+        # LIMIT on caption len: 1024 bytes! or we get MEDIA_CAPTION_TOO_LONG from Telegram
+        # https://core.telegram.org/bots/api#sendphoto
+
+        if len(html_content) > 1024:
+            print("reducing html_content, too long!")
+            html_content = html_content[:1024]
 
         context.bot.send_photo(
             chat_id=telegram_user.user_id,
@@ -421,7 +425,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
     if request_feedback:
         context.bot.send_message(
             chat_id=telegram_user.user_id,
-            text=orm_get_system_parameter("request for news item feedback"),
+            text=orm_get_system_parameter("UI request for news item feedback"),
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(  # Pulsante dislike
                     text=u'\u2717',
@@ -433,6 +437,8 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
                 )
             ]])
         )
+
+    orm_log_news_sent_to_user(news_item, telegram_user)
 
 
 def send_last_processed_news(update, context):
@@ -513,7 +519,8 @@ def send_last_processed_news(update, context):
 
 def debug_method(update, context):
     # debug only
-
+    print("debug_method")
+    news_dispatcher(context)
     pass
 
 
@@ -579,7 +586,7 @@ def generic_message_handler(update, context):
     # )
 
     update.message.reply_text(
-        orm_get_system_parameter("bot help message"),
+        orm_get_system_parameter("UI bot help message"),
         parse_mode='HTML'
     )
 
@@ -700,7 +707,7 @@ def main():
     dp.add_handler(CallbackQueryHandler(callback))
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
-    dp.add_error_handler(error_callback)
+    #dp.add_error_handler(error_callback)
 
     # Avvio l'updater
     updater.start_polling()

@@ -62,6 +62,22 @@ class Category(models.Model):
             return False
 
 
+class NewsItemSentToUser(models.Model):
+    telegram_user = models.ForeignKey('TelegramUser', on_delete=models.CASCADE)
+    news_item = models.ForeignKey('NewsItem', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    flags = models.CharField(max_length=4, blank=True, null=True, )
+
+    def __str__(self):
+        return str(self.id)  + " user=" + str(self.telegram_user.id) + " news_id=" + str(self.news_item.id) + " " + self.flags
+
+    class Meta:
+        verbose_name = 'NewsItemSentToUser'
+        verbose_name_plural = 'NewsItemSentToUser'
+        app_label = 'backoffice'
+
+
 # ****************************************************************************************
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
@@ -89,6 +105,10 @@ class TelegramUser(models.Model):
 
     enabled = models.BooleanField(default=True)
 
+    # when loading TelegramUser, use defer()
+    # https://docs.djangoproject.com/en/2.2/ref/models/querysets/#defer
+    #news_item_sent_to_user = models.ManyToManyField(NewsItemSentToUser, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -107,8 +127,6 @@ class NewsFile(models.Model):
     file_field = models.FileField(upload_to='uploads/%Y/%m/%d/')
     upload_date = models.DateTimeField(auto_now_add=True)
 
-    #owner = models.ForeignKey('NewsItem', on_delete= models.PROTECT, )
-
     class Meta:
         app_label = "backoffice"
         verbose_name = "Files per News"
@@ -122,13 +140,12 @@ class NewsFile(models.Model):
 class NewsItem(models.Model):
     """ Classe NEWSITEM: rappresenta le informazioni legati agli item di una news """
 
-    # TODO: news_id is a BigInteger
-    news_id = models.CharField(max_length=5, blank=True, null=True)
+    #news_id = models.CharField(max_length=5, blank=True, null=True)
 
-    title = models.CharField(max_length=2048, blank=True, null=True, verbose_name='titolo della news')
+    title = models.CharField(max_length=1024, blank=True, null=True, verbose_name='titolo della news')
     title_link = models.CharField(max_length=1024, blank=True, null=True, verbose_name='link (opzionale) a cui punta il titolo')
 
-    text = models.TextField(max_length=2048 , blank=True, null=True, verbose_name="testo della news (max 2048 caratteri)")
+    text = models.TextField(max_length=1024*2, blank=True, null=True, verbose_name="testo della news (max 2048 caratteri)")
 
     show_all_text = models.BooleanField(default=True, verbose_name="mostra tutto il testo della news all'utente?")
     show_first_n_words = models.IntegerField(default=30, verbose_name="mostra le prime n parole")
@@ -136,7 +153,7 @@ class NewsItem(models.Model):
     categories = models.ManyToManyField(Category,  blank=True, verbose_name="categorie")
 
     link = models.CharField(max_length=1024, blank=True, null=True)
-    link_caption = models.CharField(max_length=256, blank=True, null=True, default="continua")
+    link_caption = models.CharField(max_length=1024, blank=True, null=True, default="continua")
 
     file1 = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True, blank=True, verbose_name="immagine")
     file2 = models.ForeignKey(NewsFile, related_name="file2", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato 1")
@@ -249,18 +266,18 @@ class SystemParameter(models.Model):
     def update_system_parameters():
         # if len(SystemParameter.objects.all()) == 0:
 
-        SystemParameter.add_default_param("PRIVACY", "TODO: inserire regolamento privacy del bot/portale/...", "regolamento della privacy")
+        SystemParameter.add_default_param("UI PRIVACY", "TODO: inserire regolamento privacy del bot/portale/...", "regolamento della privacy")
 
-        SystemParameter.add_default_param("seleziona le categorie di news", "Seleziona le categorie di news a cui sei interessato:")
+        SystemParameter.add_default_param("UI seleziona le categorie di news", "Seleziona le categorie di news a cui sei interessato:")
 
-        SystemParameter.add_default_param("presentazione bot", "Benvenuto al bot Telegram della Direzione centrale lavoro, formazione, istruzione e famiglia - Regione Autonoma Friuli Venezia Giulia :)", "è mostrato nel comando /start")
+        SystemParameter.add_default_param("UI presentazione bot", "Benvenuto al bot Telegram della Direzione centrale lavoro, formazione, istruzione e famiglia - Regione Autonoma Friuli Venezia Giulia :)", "è mostrato nel comando /start")
 
         SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False", "non setta come processati le news item")
 
         from .definitions import get_bot_default_help_msg
-        SystemParameter.add_default_param("bot help message", get_bot_default_help_msg(), "è mostrato nel comando /help")
+        SystemParameter.add_default_param("UI bot help message", get_bot_default_help_msg(), "è mostrato nel comando /help")
 
-        SystemParameter.add_default_param("request for news item feedback", "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
+        SystemParameter.add_default_param("UI request for news item feedback", "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
 
         SystemParameter.add_default_param("news - mostra match categoria", "True", "mostra la categoria della news che ha permesso l'invio all'utente")
 

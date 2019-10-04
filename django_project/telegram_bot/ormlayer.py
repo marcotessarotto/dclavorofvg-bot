@@ -41,6 +41,13 @@ def orm_add_user(user):
         return telegram_user
 
 
+def orm_log_news_sent_to_user(news_item, telegram_user):
+    item = NewsItemSentToUser()
+    item.telegram_user = telegram_user
+    item.news_item = news_item
+    item.save()
+
+
 def orm_add_newsitem(title, text, link):
     """ Aggiunge un nuovo articolo """
 
@@ -87,6 +94,8 @@ def orm_add_feedback(feed, news_id):
 
 def orm_add_comment(text, news_id, user_id):
     """ Aggiunge un nuovo commento per l'articolo """
+
+    print("orm_add_comment id=" + str(news_id))
 
     queryset_news = NewsItem.objects.filter(id=news_id)
     news = queryset_news[0]
@@ -226,7 +235,7 @@ def orm_get_news_to_process():
 
 def orm_get_privacy_rules():
 
-    query_result = SystemParameter.objects.filter(name="PRIVACY")
+    query_result = SystemParameter.objects.filter(name="UI PRIVACY")
 
     if len(query_result) == 0:
         return "***REGOLAMENTO PRIVACY NON DEFINITO***"
