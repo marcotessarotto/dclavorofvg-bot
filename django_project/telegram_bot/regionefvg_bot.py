@@ -261,6 +261,8 @@ def intersection(lst1, lst2):
 
 
 def news_dispatcher(context: telegram.ext.CallbackContext):
+    a = datetime.datetime.now()
+
     list_of_news = orm_get_news_to_process()
 
     debug_send_news = (orm_get_system_parameter("DEBUG_SEND_NEWS").lower() == "true")
@@ -300,7 +302,11 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
         if not debug_send_news:
             news_item.save()
 
-    print("finished processing all news")
+    b = datetime.datetime.now()
+
+    c = b - a
+
+    print("news_dispatcher - finished processing all news - dt=" + str(c.microseconds) + " microseconds")
 
 
 # SEZIONE INVIO NEWS
@@ -309,6 +315,8 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 def send_news_to_telegram_user(context, news_item, telegram_user, intersection_result, request_feedback=True):
 
     print("send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
+
+    a = datetime.datetime.now()
 
     # build html content
 
@@ -363,12 +371,12 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
     html_content = title_html_content + categories_html_content + body_html_content + link_html_content
 
-    print("len(html_content) = " + str(len(html_content)))
+    print("send_news_to_telegram_user - len(html_content) = " + str(len(html_content)))
 
-    print("len(title_html_content) = " + str(len(title_html_content)))
-    print("len(categories_html_content) = " + str(len(categories_html_content)))
-    print("len(body_html_content) = " + str(len(body_html_content)))
-    print("len(link_html_content) = " + str(len(link_html_content)))
+    # print("len(title_html_content) = " + str(len(title_html_content)))
+    # print("len(categories_html_content) = " + str(len(categories_html_content)))
+    # print("len(body_html_content) = " + str(len(body_html_content)))
+    # print("len(link_html_content) = " + str(len(link_html_content)))
 
     if news_item.file1 is not None:
         # print(news_item.file1.file_field.name)
@@ -376,21 +384,32 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
         image_path = MEDIA_ROOT + news_item.file1.file_field.name
 
-        print("fs path of image to send: " + image_path)
+        print("send_news_to_telegram_user - fs path of image to send: " + image_path)
 
         # LIMIT on caption len: 1024 bytes! or we get MEDIA_CAPTION_TOO_LONG from Telegram
         # https://core.telegram.org/bots/api#sendphoto
 
         if len(html_content) > 1024:
-            print("reducing html_content, too long!")
-            html_content = html_content[:1024]
-
-        context.bot.send_photo(
-            chat_id=telegram_user.user_id,
-            photo=open(image_path, 'rb'),
-            caption=html_content,
-            parse_mode='HTML'
-        )
+            # print("reducing html_content, too long!")
+            # html_content = html_content[:1024]
+            context.bot.send_photo(
+                chat_id=telegram_user.user_id,
+                photo=open(image_path, 'rb'),
+                caption='',
+                parse_mode='HTML'
+            )
+            context.bot.send_message(
+                chat_id=telegram_user.user_id,
+                text=html_content,
+                parse_mode='HTML'
+            )
+        else:
+            context.bot.send_photo(
+                chat_id=telegram_user.user_id,
+                photo=open(image_path, 'rb'),
+                caption=html_content,
+                parse_mode='HTML'
+            )
     else:
 
         context.bot.send_message(
@@ -401,7 +420,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
     if news_item.file2 is not None:
         file_path = MEDIA_ROOT + news_item.file2.file_field.name
-        print("fs path of file2 to send: " + file_path)
+        print("send_news_to_telegram_user - fs path of file2 to send: " + file_path)
 
         context.bot.send_document(
             chat_id=telegram_user.user_id,
@@ -412,7 +431,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
     if news_item.file3 is not None:
         file_path = MEDIA_ROOT + news_item.file3.file_field.name
-        print("fs path of file3 to send: " + file_path)
+        print("send_news_to_telegram_user - fs path of file3 to send: " + file_path)
 
         context.bot.send_document(
             chat_id=telegram_user.user_id,
@@ -440,6 +459,12 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
 
     orm_log_news_sent_to_user(news_item, telegram_user)
 
+    b = datetime.datetime.now()
+
+    c = b - a
+
+    print("send_news_to_telegram_user - dt=" + str(c.microseconds) + " microseconds")
+
 
 def send_last_processed_news(update, context):
     print("send_last_processed_news")
@@ -451,6 +476,9 @@ def send_last_processed_news(update, context):
 
     news_query = orm_get_last_processed_news()
 
+    # TODO:
+    # match with user categories
+
     print("send_last_processed_news - processed news items= " + str(len(news_query)))
 
     for news_item in news_query[:5]:
@@ -459,8 +487,6 @@ def send_last_processed_news(update, context):
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=None, request_feedback=False)
 
-
-    pass
 
 # def news(update, context):
 #     """ Invia un nuovo articolo """

@@ -214,7 +214,7 @@ def orm_get_news_to_process():
 
     for news in news_query:
 
-        to_be_processed = False
+        # to_be_processed = False
 
         if news.start_publication is not None:
             to_be_processed = news.start_publication <= now

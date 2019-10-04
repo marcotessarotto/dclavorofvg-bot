@@ -109,6 +109,8 @@ class TelegramUser(models.Model):
     # https://docs.djangoproject.com/en/2.2/ref/models/querysets/#defer
     #news_item_sent_to_user = models.ManyToManyField(NewsItemSentToUser, blank=True)
 
+    is_admin = models.BooleanField(default=False, verbose_name="amministratore del bot?")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -166,8 +168,10 @@ class NewsItem(models.Model):
     like = models.BigIntegerField(default=0, editable=False)
     dislike = models.BigIntegerField(default=0, editable=False)
 
-    start_publication = models.DateTimeField(blank=True, null=True, verbose_name="data di invio")
+    start_publication = models.DateTimeField(blank=True, null=True, verbose_name="data di invio (opzionale: se non specificata, la news verrà inviata appena possibile)")
     # end_publication = models.DateTimeField(blank=True, null=True, verbose_name="fine periodo di pubblicazione")
+
+    recurrent_for_new_users = models.BooleanField(default=False, verbose_name="invia questa news ad ogni nuovo utente del bot?")
 
     # if processed is true, this news item has already been sent to all users
     processed = models.BooleanField(default=False, editable=True, verbose_name="questa news è stata inviata agli utenti?")

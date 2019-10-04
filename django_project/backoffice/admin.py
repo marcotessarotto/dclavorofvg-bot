@@ -12,7 +12,7 @@ admin.site.site_header = 'backoffice LavoroFVG'
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'user_id', 'regionefvg_id', 'is_bot')
+    list_display = ('username', 'first_name', 'last_name', 'user_id', 'is_admin', 'is_bot')
     ordering = ('id',)
     list_filter = ('is_bot', )
 
@@ -81,7 +81,7 @@ class FeedbackOnNewsItemAdmin(admin.ModelAdmin):
 
 admin.site.register(NewsFile)
 
-#admin.site.register(NewsItemSentToUser)
+# admin.site.register(NewsItemSentToUser)
 
 @admin.register(SystemParameter)
 class SystemParameterAdmin(admin.ModelAdmin):
