@@ -70,7 +70,7 @@ class NewsItemSentToUser(models.Model):
     flags = models.CharField(max_length=4, blank=True, null=True, )
 
     def __str__(self):
-        return str(self.id)  + " user=" + str(self.telegram_user.id) + " news_id=" + str(self.news_item.id) + " " + self.flags
+        return str(self.id) + " user=" + str(self.telegram_user.id) + " news_id=" + str(self.news_item.id) + " " + str(self.flags)
 
     class Meta:
         verbose_name = 'NewsItemSentToUser'

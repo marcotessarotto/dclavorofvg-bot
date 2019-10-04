@@ -81,7 +81,7 @@ class FeedbackOnNewsItemAdmin(admin.ModelAdmin):
 
 admin.site.register(NewsFile)
 
-admin.site.register(NewsItemSentToUser)
+#admin.site.register(NewsItemSentToUser)
 
 @admin.register(SystemParameter)
 class SystemParameterAdmin(admin.ModelAdmin):
