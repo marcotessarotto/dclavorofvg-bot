@@ -1,44 +1,37 @@
 # dclavorofvg-bot
-Telegram bot for DC lavoro FVG portals
+Telegram bot and backoffice for Direzione centrale lavoro, formazione, istruzione e famiglia, Regione Autonoma Friuli Venezia Giulia 
 
 
-il progetto richiede:
+this project has been developed on Linux Debian 10
 
-python 3.7 (virtualenv)
+*project requirements:*
 
-Django 2.2
+- python 3.7, postgresql
+- Django 2.2
+- psycopg-binary
+- python-telegram-bot 12
 
-Postgresql
-
-seguire:
-https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-programming-environment-on-ubuntu-18-04-quickstart
-
-1 - creare l'ambiente virtualenv 
-
-1.1 - (seguire l'articolo sopra)
-
-1.2 in virtualenv: pip install python-telegram-bot==12.0.0
-
-1.3 in virtualenv: pip install django psycopg2-binary
-
-2 - installare pycharm ce, aprire il progetto e poi specificare l'interprete (che sarà la cartella virtualenv creata al punto 1)
  
+There are two main applications:
+
+- Telegram bot (django_project/telegram_bot/regionefvg_bot.py)
+
+- Django web application (i.e. start with 'python manage.py runserver' from directory django_project)
 
 
+Before running the applications:
 
-***
+- create a database and a user in local postgresql instance
+- create file django_project/gfvgbo/secrets.py containing:
 
-python-telegram-bot https://python-telegram-bot.org/
+DB_NAME="database name"
 
-Django
+DB_USERNAME="database username"
 
-psycopg2-binary
+DB_PWD="database password"
 
-programma principale:
+SECRET_KEY = "django secret"
 
-telegrambot/telegram-bot.py
-
-
-***
-https://core.telegram.org/bots/api
-
+- instruct Django to migrate applications and create superuser 
+- get a token for you Telegram bot and save it in file token.txt positioned in the root of the project
+- start Django web app and the Telegram bot

@@ -7,9 +7,9 @@ import os
 from django_project.telegram_bot.ormlayer import *
 
 try:
-    from ..backoffice.definitions import UI_presentazione_bot, UI_bot_help_message, news_mostra_match_categoria
+    from ..backoffice.definitions import UI_bot_presentation, UI_bot_help_message, param_show_match_category_news
 except:
-    from django_project.backoffice.definitions import UI_presentazione_bot, UI_bot_help_message, news_mostra_match_categoria
+    from django_project.backoffice.definitions import UI_bot_presentation, UI_bot_help_message, param_show_match_category_news
 
 from telegram.ext import *
 from telegram import *
@@ -56,7 +56,7 @@ def start(update, context):
 
     telegram_user = orm_add_user(update.message.from_user)  # orm_add_user always returns a TelegramUser instance
 
-    bot_presentation = orm_get_system_parameter(UI_presentazione_bot)
+    bot_presentation = orm_get_system_parameter(UI_bot_presentation)
 
     update.message.reply_text(
         'Ciao ' + update.message.from_user.first_name + '! ' + bot_presentation
@@ -179,7 +179,7 @@ def choose_news_categories(update, context):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text=orm_get_system_parameter(UI_seleziona_le_categorie_di_news),
+        text=orm_get_system_parameter(UI_select_news_categories),
         reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
     )
 
@@ -360,7 +360,7 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
             ' [' + str(news_item.id) + ']</b>\n'
 
     # optional: show categories
-    if intersection_result is not None and orm_get_system_parameter(news_mostra_match_categoria).lower() == "true":
+    if intersection_result is not None and orm_get_system_parameter(param_show_match_category_news).lower() == "true":
         # print(intersection_result)
         categories_html_content = '\n<i>'
 

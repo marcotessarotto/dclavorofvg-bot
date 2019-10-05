@@ -48,9 +48,9 @@ def get_bot_default_help_msg():
 
 # DO NOT USE SPACES (for memcache)
 UI_bot_help_message = "UI_bot_help_message"
-UI_presentazione_bot = "UI_presentazione_bot"
+UI_bot_presentation = "UI_presentazione_bot"
 UI_PRIVACY = "UI_PRIVACY"
 UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
-UI_seleziona_le_categorie_di_news = "UI_seleziona_le_categorie_di_news"
+UI_select_news_categories = "UI_seleziona_le_categorie_di_news"
 
-news_mostra_match_categoria = "news_mostra_match_categoria"
+param_show_match_category_news = "news_mostra_match_categoria"

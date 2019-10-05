@@ -28,7 +28,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('key', 'name')
+    list_display = ('key', 'name', 'emoji')
 
     def add_default_categories(self, request):
     # def add_default_categories(self, request, queryset):
