@@ -1,18 +1,18 @@
 import datetime
 import os
 import django
+from django.core.cache import cache
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
 django.setup()
 
 from django_project.backoffice.models import *
 
-from django.core.cache import cache
 # https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
 use_cache = True
 
 
-def orm_add_user(user):
+def orm_add_telegram_user(user):
     """ Aggiunge un nuovo utente, se non già registrato; restituisce l'istanza dell'utente """
 
     telegram_user = orm_get_telegram_user(user.id)
@@ -52,7 +52,7 @@ def orm_log_news_sent_to_user(news_item, telegram_user):
     item.save()
 
 
-def orm_add_newsitem(title, text, link):
+def orm_add_news_item(title, text, link):
     """ Aggiunge un nuovo articolo """
 
     news_id = ''
@@ -165,11 +165,11 @@ def orm_get_telegram_user(telegram_user_id):
 
         key_name = "user" + str(telegram_user_id)
 
-        result = cache.get(telegram_user_id)
+        result = cache.get(key_name)
 
         if result is None:
             result = _orm_get_telegram_user()
-            cache.set(telegram_user_id, result, timeout=60)
+            cache.set(key_name, result, timeout=60)
 
         return result
 
@@ -192,25 +192,29 @@ def orm_get_telegram_user(telegram_user_id):
 def orm_change_user_privacy_setting(user_id, privacy_setting):
     # print("user_id = " + str(user_id))
 
-    user = orm_get_telegram_user(user_id)
+    telegram_user = orm_get_telegram_user(user_id)
 
-    user.has_accepted_privacy_rules = privacy_setting
-    user.privacy_acceptance_mechanism = 'U'
+    telegram_user.has_accepted_privacy_rules = privacy_setting
+    telegram_user.privacy_acceptance_mechanism = 'U'
 
     from django.utils.timezone import now
-    user.privacy_acceptance_timestamp = now()
+    telegram_user.privacy_acceptance_timestamp = now()
 
-    user.save()
+    telegram_user.save()
+
+    if use_cache:
+        key_name = "user" + str(telegram_user.user_id)
+        cache.set(key_name, telegram_user, timeout=60)
 
 
-def update_user_category_settings(user, scelta):
-    """ Aggiorna le categorie selezionate dall'utente """
+def orm_update_user_category_settings(user, category_key):
+    """ Aggiorna le categorie selezionate dall'utente"""
 
-    print("update_user_category_settings " + str(scelta))
+    print("orm_update_user_category_settings category_key=" + str(category_key) + " user_id=" + str(user.user_id))
 
-    queryset_cat = user.categories.filter(key=scelta)
+    queryset_cat = user.categories.filter(key=category_key)
 
-    if len(queryset_cat) != 0:  # La categoria era presente (bisogna rimuoverla)
+    if len(queryset_cat) != 0:  # category is present in user settings, we have to remove it
         cat = queryset_cat[0]
         user.categories.remove(cat)
         user.save()
@@ -218,19 +222,14 @@ def update_user_category_settings(user, scelta):
 
         print('RIMOZIONE ' + str(cat))
 
-    else:  # La categoria non era presente (bisogna aggiungerla)
-        cat = Category.objects.filter(key=scelta)[0]
+    else:  # category is not present in user settings, we have to add it
+        cat = Category.objects.filter(key=category_key)[0]
 
         user.categories.add(cat)
         user.save()
         cat.save()
 
         print('AGGIUNTA ' + str(cat))
-
-
-# def orm_get_default_categories_dict():
-#     """ Restituisce il dizionario contenente le categorie di default """
-#     return get_default_categories_dict()
 
 
 def orm_get_all_telegram_users():
@@ -251,7 +250,9 @@ def orm_get_categories():
 def orm_get_last_processed_news():
     now = datetime.datetime.now()
 
-    news_query = NewsItem.objects.filter(processed=True).filter(processed_timestamp >= now - datetime.timedelta(days=10)).order_by('-processed_timestamp')
+    d = now - datetime.timedelta(days=10)
+
+    news_query = NewsItem.objects.filter(processed=True).filter(processed_timestamp__gte=d).order_by('-processed_timestamp')
 
     # should check if job offer is still active or not
     return news_query
@@ -269,8 +270,6 @@ def orm_get_news_to_process():
 
     for news in news_query:
 
-        # to_be_processed = False
-
         if news.start_publication is not None:
             to_be_processed = news.start_publication <= now
         else:
@@ -286,15 +285,6 @@ def orm_get_news_to_process():
         result.append(news)
 
     return result
-
-
-def orm_get_privacy_rules():
-    query_result = SystemParameter.objects.filter(name=UI_PRIVACY)
-
-    if len(query_result) == 0:
-        return "***REGOLAMENTO PRIVACY NON DEFINITO***"
-    else:
-        return query_result[0].value
 
 
 def orm_get_system_parameter(param_name):

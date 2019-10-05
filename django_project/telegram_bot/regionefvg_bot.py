@@ -54,7 +54,7 @@ def start_command_handler(update, context):
 
     # print("update.message.from_user = " + str(update.message.from_user))
 
-    telegram_user = orm_add_user(update.message.from_user)  # orm_add_user always returns a TelegramUser instance
+    telegram_user = orm_add_telegram_user(update.message.from_user)
 
     bot_presentation = orm_get_system_parameter(UI_bot_presentation)
 
@@ -100,7 +100,7 @@ def privacy_command_handler(update, context):
             chat_id=update.message.chat_id,
             text="Per proseguire con l'utilizzo di questo bot, "
                  "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
-                 + orm_get_privacy_rules(),
+                 + orm_get_system_parameter(UI_PRIVACY),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
@@ -247,7 +247,7 @@ def callback_choice(update, scelta):
         )
 
     else:  # Toggle checked/unchecked per la categoria selezionata
-        update_user_category_settings(telegram_user, scelta)
+        orm_update_user_category_settings(telegram_user, scelta)
 
         update.callback_query.edit_message_text(
             text=orm_get_system_parameter(UI_select_news_categories),
