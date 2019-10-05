@@ -63,7 +63,7 @@ class Category(models.Model):
 
 
 class CategoriesGroup(models.Model):
-    name = models.TextField(max_length=256)
+    name = models.TextField(max_length=256,verbose_name="Nome del gruppo")
     updated_at = models.DateTimeField(auto_now=True)
     categories = models.ManyToManyField(Category, blank=True)
 
@@ -73,7 +73,7 @@ class CategoriesGroup(models.Model):
         app_label = 'backoffice'
 
     def __str__(self):
-        return str(self.id) + " " + self.name
+        return str(self.id) + " " + self.name + " (" + str(self.categories) + ")"
 
 
 class NewsItemSentToUser(models.Model):
@@ -267,7 +267,7 @@ class SystemParameter(models.Model):
     #     k.save()
 
     @staticmethod
-    def add_default_param(name, value, comment = ""):
+    def add_default_param(name, value, comment=""):
 
         queryset = SystemParameter.objects.filter(name=name)
 
@@ -278,7 +278,6 @@ class SystemParameter(models.Model):
             k.value = value
             k.comment = comment
             k.save()
-
 
     @staticmethod
     def update_system_parameters():
@@ -292,7 +291,6 @@ class SystemParameter(models.Model):
 
         SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False", "non setta come processati le news item")
 
-
         SystemParameter.add_default_param(UI_bot_help_message, get_bot_default_help_msg(), "è mostrato nel comando /help")
 
         SystemParameter.add_default_param(UI_request_for_news_item_feedback, "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
@@ -300,8 +298,6 @@ class SystemParameter(models.Model):
         SystemParameter.add_default_param(param_show_match_category_news, "True", "mostra la categoria della news che ha permesso l'invio all'utente")
 
         return True
-        # else:
-        #     return False
 
     class Meta:
         verbose_name = "Parametro di sistema"

@@ -249,8 +249,9 @@ def orm_get_categories():
 
 
 def orm_get_last_processed_news():
-    news_query = NewsItem.objects.filter(processed=True).order_by('-processed_timestamp')
-    # max 5 elements
+    now = datetime.datetime.now()
+
+    news_query = NewsItem.objects.filter(processed=True).filter(processed_timestamp >= now - datetime.timedelta(days=10)).order_by('-processed_timestamp')
 
     # should check if job offer is still active or not
     return news_query

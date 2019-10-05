@@ -13,7 +13,8 @@ DEFAULT_CATEGORY_DICT = {
     '08': ['Giovani eccellenze in FVG', u'\U0001F393'],
     '09': ['La regione FVG per i giovani', u'\U0001F91D'],
     '10': ['Studi e ricerche mondo giovani', u'\U0001F4DD'],
-    '11': ['Garanzia giovani', u'\U00002705']
+    '11': ['Garanzia giovani', u'\U0001F3DB'],
+    '12': ['Offerte di lavoro', u'\U0001F3D7']
 }
 
 

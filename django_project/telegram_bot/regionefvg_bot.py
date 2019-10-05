@@ -46,7 +46,7 @@ def check_user_privacy_approval(telegram_user, update, context):
     return False
 
 
-def start(update, context):
+def start_command_handler(update, context):
     """ Registra l'utente, nel caso sia al primo accesso; mostra i comandi disponibili """
 
     print(context.args)  # parametro via start; max 64 caratteri
@@ -65,7 +65,7 @@ def start(update, context):
     # if check_user_privacy_approval(telegram_user, update, context):
     if not telegram_user.has_accepted_privacy_rules:
         # privacy not yet approved by user
-        return privacy(update, context)
+        return privacy_command_handler(update, context)
 
     update.message.reply_text(
         orm_get_system_parameter(UI_bot_help_message),
@@ -73,7 +73,7 @@ def start(update, context):
     )
 
 
-def help(update, context):
+def help_command_handler(update, context):
     """ Mostra i comandi disponibili """
 
     update.message.reply_text(
@@ -82,7 +82,7 @@ def help(update, context):
     )
 
 
-def privacy(update, context):
+def privacy_command_handler(update, context):
     user = orm_get_telegram_user(update.message.from_user.id)
 
     privacy_state = user.has_accepted_privacy_rules
@@ -250,7 +250,7 @@ def callback_choice(update, scelta):
         update_user_category_settings(telegram_user, scelta)
 
         update.callback_query.edit_message_text(
-            text="Seleziona una o più categorie:",
+            text=orm_get_system_parameter(UI_select_news_categories),
             reply_markup=InlineKeyboardMarkup(inline_keyboard(telegram_user))
         )
 
@@ -487,8 +487,8 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
     print("send_news_to_telegram_user - dt=" + str(c.microseconds) + " microseconds")
 
 
-def send_last_processed_news(update, context):
-    print("send_last_processed_news")
+def resend_last_processed_news(update, context):
+    print("resend_last_processed_news")
     # print(update)
 
     telegram_user = orm_get_telegram_user(update.message.chat.id)
@@ -496,16 +496,30 @@ def send_last_processed_news(update, context):
 
     news_query = orm_get_last_processed_news()
 
-    # TODO:
-    # match with user categories
+    print("resend_last_processed_news - processed news items= " + str(len(news_query)))
 
-    print("send_last_processed_news - processed news items= " + str(len(news_query)))
+    if len(news_query) == 0:
+        context.bot.send_message(
+            chat_id=telegram_user.user_id,
+            text='non ci sono news precedenti da rimandare!',
+            parse_mode='HTML'
+        )
+        return
 
-    for news_item in news_query[:5]:
+    telegram_user_categories = telegram_user.categories.all()
 
-        print("***send_last_processed_news - sending " + str(news_item.id))
+    counter = 0
 
-        send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=None, request_feedback=False)
+    for news_item in reversed(news_query[:5]):
+
+        intersection_result = intersection(news_item.categories.all(), telegram_user_categories)
+
+        if len(intersection_result) == 0:
+            continue
+
+        print("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
+
+        send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result, request_feedback=False)
 
 
 # def news(update, context):
@@ -730,12 +744,12 @@ def main():
     job_minute = job_queue.run_repeating(news_dispatcher, interval=60*5, first=0)  # callback_minute
 
     # Aggiunta dei vari handler
-    dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('inizia', start))
+    dp.add_handler(CommandHandler('start', start_command_handler))
+    dp.add_handler(CommandHandler('inizia', start_command_handler))
 
-    dp.add_handler(CommandHandler('help', help))
-    dp.add_handler(CommandHandler('aiuto', help))
-    dp.add_handler(CommandHandler('privacy', privacy))
+    dp.add_handler(CommandHandler('help', help_command_handler))
+    dp.add_handler(CommandHandler('aiuto', help_command_handler))
+    dp.add_handler(CommandHandler('privacy', privacy_command_handler))
 
     dp.add_handler(CommandHandler('lavoro', work_categories_command_handler))
     dp.add_handler(CommandHandler('offerte_di_lavoro', vacancies_command_handler))
@@ -744,7 +758,7 @@ def main():
     dp.add_handler(CommandHandler('fine', detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler('invia_ultime_news', send_last_processed_news))
+    dp.add_handler(CommandHandler('invia_ultime_news', resend_last_processed_news))
     dp.add_handler(MessageHandler(Filters.reply, comment_handler))
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 

@@ -83,7 +83,15 @@ admin.site.register(NewsFile)
 
 # admin.site.register(NewsItemSentToUser)
 
-admin.site.register(CategoriesGroup)
+
+@admin.register(CategoriesGroup)
+class CategoriesGroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'list_of_categories')
+
+    def list_of_categories(self, obj):
+        return ', '.join([a.name for a in obj.categories.all()])
+
+    list_of_categories.short_description = "Categorie scelte"
 
 
 @admin.register(SystemParameter)
