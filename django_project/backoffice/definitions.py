@@ -103,3 +103,6 @@ UI_message_write_a_comment = 'Scrivi un commento'
 UI_message_comment_to_news_item = 'Commento alla news {0}'
 
 UI_message_comment_successful = 'Commento caricato con successo!'
+
+DATE_FORMAT_STR = '%d-%m-%Y'
+# DATE_FORMAT_STR = '%Y-%m-%d'

@@ -98,8 +98,9 @@ def privacy_command_handler(update, context):
 
         return
 
+    # https://stackoverflow.com/a/17311079/974287
     update.message.reply_text(
-        UI_message_you_have_accepted_privacy_rules_on_this_day + str(telegram_user.privacy_acceptance_timestamp),
+        UI_message_you_have_accepted_privacy_rules_on_this_day + (telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR)),
         parse_mode='HTML'
     )
 

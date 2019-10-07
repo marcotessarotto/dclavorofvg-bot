@@ -4,8 +4,7 @@ import traceback
 import logging
 
 # from spacy.lang.fr.tokenizer_exceptions import verb
-from .definitions import get_bot_default_help_msg, UI_request_for_news_item_feedback, UI_PRIVACY, UI_bot_help_message, \
-    UI_bot_presentation, UI_select_news_categories, param_show_match_category_news
+from .definitions import *
 
 
 class CustomDateTimeField(models.DateTimeField):
