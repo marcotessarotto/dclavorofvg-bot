@@ -18,12 +18,7 @@ DEFAULT_CATEGORY_DICT = {
 }
 
 
-# def get_categories_dict():
-#     return DEFAULT_CATEGORY_DICT
-
-bot_default_help_msg = 'Attraverso questo bot potrai ricevere news sul mondo del lavoro personalizzate sulle tue esigenze.\n' \
-    '\n' \
-    'Se sei interessato principalmente al mondo del lavoro, allora puoi usare il comando <b>/lavoro</b>.\n' \
+bot_default_help_msg = 'Potrai ricevere news sul mondo del lavoro personalizzate sulle tue esigenze.\n' \
     '\n' \
     'Se sei interessato principalmente alle offerte di lavoro, usa il comando <b>/offerte_di_lavoro</b>.\n' \
     '\n' \

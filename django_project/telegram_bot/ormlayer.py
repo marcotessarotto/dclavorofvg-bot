@@ -247,6 +247,30 @@ def orm_get_categories():
     return queryset
 
 
+def orm_get_category_group(group_name: str) -> CategoriesGroup:
+    """
+
+    :rtype: CategoriesGroup
+    """
+    queryset = CategoriesGroup.objects.filter(name=group_name)
+    if len(queryset) == 0:
+        return None
+    else:
+        return queryset[0]
+
+
+def orm_set_telegram_user_categories(telegram_user_id: int, categories: object) -> TelegramUser:
+    """assign categories to user.categories (replacing exiting user categories)"""
+
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    telegram_user.categories.clear()
+
+    telegram_user.categories.set(categories.all())
+
+    return telegram_user
+
+
 def orm_get_last_processed_news():
     now = datetime.datetime.now()
 

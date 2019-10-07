@@ -9,7 +9,8 @@ from django_project.telegram_bot.ormlayer import *
 try:
     from ..backoffice.definitions import UI_bot_presentation, UI_bot_help_message, param_show_match_category_news
 except:
-    from django_project.backoffice.definitions import UI_bot_presentation, UI_bot_help_message, param_show_match_category_news
+    from django_project.backoffice.definitions import UI_bot_presentation, UI_bot_help_message, \
+        param_show_match_category_news
 
 from telegram.ext import *
 from telegram import *
@@ -141,7 +142,8 @@ def callback_privacy(update, context, param):
             parse_mode='HTML'
         )
     else:
-        update.callback_query.edit_message_text(text="Non hai accettato il regolamento della privacy di questo bot. Non posso proseguire.")
+        update.callback_query.edit_message_text(
+            text="Non hai accettato il regolamento della privacy di questo bot. Non posso proseguire.")
 
 
 def callback(update, context):
@@ -205,7 +207,7 @@ def inline_keyboard(user):
         keyboard.append([InlineKeyboardButton(
             text=label,
             callback_data='choice ' + cat.key)]
-            )
+        )
 
     # add close button
     keyboard.append(
@@ -215,39 +217,30 @@ def inline_keyboard(user):
     return keyboard
 
 
-def callback_choice(update, scelta):
+def callback_choice(update, choice: str):
     """ Gestisce i pulsanti premuti nella inline_keyboard """
 
     a = datetime.datetime.now()
 
     telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
-    if scelta == 'OK':  # 'OK'  Stampa le categorie scelte
-        cat_scelte = ''
-
-        all_categories = orm_get_categories()
-
-        for cat in all_categories:
-            queryset = telegram_user.categories.filter(key=cat.key)
-            if len(queryset) != 0:
-                cat_scelte += '- ' + cat.name + \
-                              '  ' + cat.emoji + '\n'
+    if choice == 'OK':  # 'OK'  Stampa le categorie scelte
+        choosen_categories = telegram_user.categories_str()
 
         # ALERT: Non è stata scelta alcuna categoria!
-        if cat_scelte == '':
+        if choosen_categories == '':
             update.callback_query.answer(
-                text='Non è stata scelta alcuna categoria!',
+                text='Non hai scelto alcuna categoria!',
                 show_alert=True
             )
-            return
-
-        update.callback_query.edit_message_text(
-            text='Grazie, hai scelto le seguenti categorie:\n\n' + cat_scelte +
-                 '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .'
-        )
+        else:
+            update.callback_query.edit_message_text(
+                text='Grazie, hai scelto le seguenti categorie:\n\n' + choosen_categories +
+                     '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .'
+            )
 
     else:  # Toggle checked/unchecked per la categoria selezionata
-        orm_update_user_category_settings(telegram_user, scelta)
+        orm_update_user_category_settings(telegram_user, choice)
 
         update.callback_query.edit_message_text(
             text=orm_get_system_parameter(UI_select_news_categories),
@@ -261,19 +254,22 @@ def callback_choice(update, scelta):
     print("callback_choice dt=" + str(c.microseconds) + " microseconds")
 
 
-
-def work_categories_command_handler(update, context):
-
-    pass
-
-
 def vacancies_command_handler(update, context):
+    group = orm_get_category_group('offerte_lavoro')
+
+    if group is None:
+        return
+
+    telegram_user = orm_set_telegram_user_categories(update.message.chat.id, group.categories)
+
+    update.message.reply_text(
+        'Ho cambiato le tue categorie, adesso sono:\n' + telegram_user.categories_str(),
+        parse_mode='HTML'
+    )
+
+
+def young_categories_command_handler(update, context):
     pass
-
-
-def young_caegories_command_handler(update, context):
-    pass
-
 
 
 def intersection(lst1, lst2):
@@ -334,8 +330,8 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 # ****************************************************************************************
 
 def send_news_to_telegram_user(context, news_item, telegram_user, intersection_result, request_feedback=True):
-
-    print("send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
+    print(
+        "send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
     a = datetime.datetime.now()
 
@@ -352,12 +348,12 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
     # title/header
     if news_item.title_link is not None:
         title_html_content = '<a href="' + news_item.title_link + '"> ' + \
-                  str(news_item.title) + \
-                  ' [' + str(news_item.id) + ']' \
-                  ' </a>\n'
+                             str(news_item.title) + \
+                             ' [' + str(news_item.id) + ']' \
+                                                        ' </a>\n'
     else:
         title_html_content = '<b>' + str(news_item.title) + \
-            ' [' + str(news_item.id) + ']</b>\n'
+                             ' [' + str(news_item.id) + ']</b>\n'
 
     # optional: show categories
     if intersection_result is not None and orm_get_system_parameter(param_show_match_category_news).lower() == "true":
@@ -519,7 +515,8 @@ def resend_last_processed_news(update, context):
 
         print("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
 
-        send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result, request_feedback=False)
+        send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
+                                   request_feedback=False)
 
 
 # def news(update, context):
@@ -633,7 +630,6 @@ def comment_handler(update, context):
 
 
 def generic_message_handler(update, context):
-
     # print("generic_message_handler - " + str(update))
 
     message_text = update.message.text
@@ -741,7 +737,7 @@ def main():
 
     job_queue = updater.job_queue
 
-    job_minute = job_queue.run_repeating(news_dispatcher, interval=60*5, first=0)  # callback_minute
+    job_minute = job_queue.run_repeating(news_dispatcher, interval=60 * 5, first=0)  # callback_minute
 
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler('start', start_command_handler))
@@ -751,9 +747,8 @@ def main():
     dp.add_handler(CommandHandler('aiuto', help_command_handler))
     dp.add_handler(CommandHandler('privacy', privacy_command_handler))
 
-    dp.add_handler(CommandHandler('lavoro', work_categories_command_handler))
     dp.add_handler(CommandHandler('offerte_di_lavoro', vacancies_command_handler))
-    dp.add_handler(CommandHandler('giovani', young_caegories_command_handler))
+    dp.add_handler(CommandHandler('giovani', young_categories_command_handler))
 
     dp.add_handler(CommandHandler('fine', detach_from_bot))
 

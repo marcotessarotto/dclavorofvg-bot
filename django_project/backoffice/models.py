@@ -41,25 +41,19 @@ class Category(models.Model):
     def fill_categories():
         from .definitions import DEFAULT_CATEGORY_DICT
 
-        if len(Category.objects.all()) == 0:
+        for key in DEFAULT_CATEGORY_DICT:
 
-            print("aggiungo le categorie di default")
+            if len(Category.objects.filter(key=key)) != 0:
+                continue
 
-            # Importa le categorie memorizzate nel file definitions.py
-            # from .definitions import DEFAULT_CATEGORY_DICT
+            k = Category()
 
-            for key in DEFAULT_CATEGORY_DICT:
-                k = Category()
+            k.key = key
+            k.name = DEFAULT_CATEGORY_DICT[key][0]
+            k.emoji = DEFAULT_CATEGORY_DICT[key][1]
+            k.save()
 
-                k.key = key
-                k.name = DEFAULT_CATEGORY_DICT[key][0]
-                k.emoji = DEFAULT_CATEGORY_DICT[key][1]
-                k.save()
-
-            return True
-        else:
-            print("NON aggiungo le categorie di default, ce ne sono già alcune")
-            return False
+        return True
 
 
 class CategoriesGroup(models.Model):
@@ -116,6 +110,12 @@ class TelegramUser(models.Model):
     language_code = models.CharField(max_length=2, blank=True, null=True)
 
     categories = models.ManyToManyField(Category, blank=True)
+
+    def categories_str(self):
+        result = ''
+        for cat in self.categories.all():
+            result += '- ' + cat.name + '  ' + cat.emoji + '\n'
+        return result
 
     enabled = models.BooleanField(default=True)
 
