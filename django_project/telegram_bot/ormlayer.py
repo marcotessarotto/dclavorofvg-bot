@@ -1,6 +1,7 @@
 import datetime
 import os
 import django
+from django.utils.timezone import now
 from django.core.cache import cache
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
@@ -189,16 +190,18 @@ def orm_get_telegram_user(telegram_user_id):
     return result
 
 
-def orm_change_user_privacy_setting(user_id, privacy_setting):
+def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
     # print("user_id = " + str(user_id))
 
-    telegram_user = orm_get_telegram_user(user_id)
+    telegram_user = orm_get_telegram_user(telegram_user_id)
 
     telegram_user.has_accepted_privacy_rules = privacy_setting
     telegram_user.privacy_acceptance_mechanism = 'U'
 
-    from django.utils.timezone import now
-    telegram_user.privacy_acceptance_timestamp = now()
+    if privacy_setting:
+        telegram_user.privacy_acceptance_timestamp = now()
+    else:
+        telegram_user.privacy_acceptance_timestamp = None
 
     telegram_user.save()
 

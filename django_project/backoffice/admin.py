@@ -12,7 +12,7 @@ admin.site.site_header = 'backoffice LavoroFVG'
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'user_id', 'is_admin', 'is_bot')
+    list_display = ('username', 'first_name', 'last_name', 'user_id', 'is_admin', 'has_accepted_privacy_rules')
     ordering = ('id',)
     list_filter = ('is_bot', )
 
@@ -61,7 +61,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(NewsItem)
 class NewsItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'created_at', 'processed', 'processed_timestamp', 'like', 'dislike')
+    list_display = ('id', 'title', 'created_at', 'list_of_categories', 'processed', 'processed_timestamp', 'like', 'dislike')
     exclude = ('like', 'dislike')
 
     formfield_overrides = {
@@ -72,6 +72,11 @@ class NewsItemAdmin(admin.ModelAdmin):
         #        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':40})},
 
     }
+
+    def list_of_categories(self, obj):
+        return ', '.join([a.name for a in obj.categories.all()])
+
+    list_of_categories.short_description = "Categorie"
 
 
 @admin.register(Comment)

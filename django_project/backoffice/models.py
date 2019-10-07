@@ -57,9 +57,10 @@ class Category(models.Model):
 
 
 class CategoriesGroup(models.Model):
-    name = models.TextField(max_length=256,verbose_name="Nome del gruppo")
+    name = models.CharField(max_length=256,verbose_name="Nome del gruppo")
     updated_at = models.DateTimeField(auto_now=True)
     categories = models.ManyToManyField(Category, blank=True)
+    add_bot_command = models.BooleanField(default=True, verbose_name="aggiungi automaticamente comando bot con stesso nome")
 
     class Meta:
         verbose_name = 'Gruppo di categorie'
@@ -90,26 +91,26 @@ class NewsItemSentToUser(models.Model):
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 
-    user_id = models.BigIntegerField()  # Telegram used id
+    user_id = models.BigIntegerField(verbose_name="telegram user id")  # Telegram used id
 
-    regionefvg_id = models.BigIntegerField(default=-1)  # for internal use
+    regionefvg_id = models.BigIntegerField(default=-1,verbose_name="non usare questo campo")  # for internal use
 
-    has_accepted_privacy_rules = models.BooleanField(default=False)
+    has_accepted_privacy_rules = models.BooleanField(default=False, verbose_name="ha accettato il regolamento privacy?")
     # L : through a parameter passed to /start
     # U : user must accept privacy rules
-    privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True)
+    privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True, verbose_name="meccanismo di accettazione privacy (U: tramite il bot)")
     privacy_acceptance_timestamp = models.DateTimeField(blank=True, null=True)
 
     username = models.CharField(max_length=32, blank=True, null=True)
 
-    first_name = models.CharField(max_length=50, blank=True, null=True)
-    last_name = models.CharField(max_length=50, blank=True, null=True)
+    first_name = models.CharField(max_length=50, blank=True, null=True, verbose_name="Nome")
+    last_name = models.CharField(max_length=50, blank=True, null=True, verbose_name="Cognome")
 
-    is_bot = models.BooleanField(default=False)
+    is_bot = models.BooleanField(default=False, verbose_name="è un bot?")
 
     language_code = models.CharField(max_length=2, blank=True, null=True)
 
-    categories = models.ManyToManyField(Category, blank=True)
+    categories = models.ManyToManyField(Category, blank=True, verbose_name="categorie")
 
     def categories_str(self):
         result = ''
@@ -117,7 +118,7 @@ class TelegramUser(models.Model):
             result += '- ' + cat.name + '  ' + cat.emoji + '\n'
         return result
 
-    enabled = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=True, verbose_name="abilitato")
 
     # when loading TelegramUser, use defer()
     # https://docs.djangoproject.com/en/2.2/ref/models/querysets/#defer

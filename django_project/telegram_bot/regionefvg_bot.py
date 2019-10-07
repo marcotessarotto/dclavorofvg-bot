@@ -7,10 +7,9 @@ import os
 from django_project.telegram_bot.ormlayer import *
 
 try:
-    from ..backoffice.definitions import UI_bot_presentation, UI_bot_help_message, param_show_match_category_news
+    from ..backoffice.definitions import *
 except:
-    from django_project.backoffice.definitions import UI_bot_presentation, UI_bot_help_message, \
-        param_show_match_category_news
+    from django_project.backoffice.definitions import *
 
 from telegram.ext import *
 from telegram import *
@@ -32,24 +31,18 @@ logging.basicConfig(
 )
 
 
-# ****************************************************************************************
-# return True if user has not yet approved the bot's privacy policy
-def check_user_privacy_approval(telegram_user, update, context):
+def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
+    """return True if user has not yet approved the bot's privacy policy"""
     if not telegram_user.has_accepted_privacy_rules:
-        print("*** PRIVACY NOT APPROVED ***")
+        print("check_user_privacy_approval - PRIVACY NOT APPROVED  telegram_user_id=" + str(telegram_user.user_id))
 
-        update.message.reply_text(
-            'Prima di proseguire, devi accettare il regolamento per la /privacy di questo bot.\n'
-            'Usa il comando /privacy per visualizzare il regolamento.'
-        )
+        update.message.reply_text(UI_message_accept_privacy_rules_to_continue)
         return True
-
-    return False
+    else:
+        return False
 
 
 def start_command_handler(update, context):
-    """ Registra l'utente, nel caso sia al primo accesso; mostra i comandi disponibili """
-
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
@@ -75,7 +68,7 @@ def start_command_handler(update, context):
 
 
 def help_command_handler(update, context):
-    """ Mostra i comandi disponibili """
+    """ Show available bot commands"""
 
     update.message.reply_text(
         orm_get_system_parameter(UI_bot_help_message),
@@ -84,33 +77,44 @@ def help_command_handler(update, context):
 
 
 def privacy_command_handler(update, context):
-    user = orm_get_telegram_user(update.message.from_user.id)
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
 
-    privacy_state = user.has_accepted_privacy_rules
+    privacy_state = telegram_user.has_accepted_privacy_rules
 
-    print("privacy - user id=" + str(user.id) + " privacy accepted: " + str(privacy_state))
+    print("privacy_command_handler - user id=" + str(telegram_user.id) + " privacy accepted: " + str(privacy_state))
 
     if not privacy_state:
         #
 
-        buttons = [[InlineKeyboardButton(text='ACCETTO', callback_data='privacy ACCETTO'),
-                    InlineKeyboardButton(text='NON ACCETTO', callback_data='privacy NON_ACCETTO')]
+        buttons = [[InlineKeyboardButton(text=UI_ACCEPT_UC, callback_data='privacy ' + UI_ACCEPT_UC),
+                    InlineKeyboardButton(text=UI_NOT_ACCEPT_UC, callback_data='privacy ' + UI_NOT_ACCEPT_UC)]
                    ]
 
         context.bot.send_message(
             chat_id=update.message.chat_id,
-            text="Per proseguire con l'utilizzo di questo bot, "
-                 "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
-                 + orm_get_system_parameter(UI_PRIVACY),
+            text=UI_message_read_and_accept_privacy_rules_as_follows + orm_get_system_parameter(UI_PRIVACY),
             reply_markup=InlineKeyboardMarkup(buttons)
         )
 
         return
 
     update.message.reply_text(
-        'hai accettato il regolamento della privacy di questo bot in data ' + str(user.privacy_acceptance_timestamp),
+        UI_message_you_have_accepted_privacy_rules_on_this_day + str(telegram_user.privacy_acceptance_timestamp),
         parse_mode='HTML'
     )
+
+
+def undo_privacy_command_handler(update, context):
+    orm_change_user_privacy_setting(update.message.from_user.id, False)
+
+    print("undo_privacy_command_handler - telegram user id=" + str(update.message.from_user.id))
+
+    update.message.reply_text(
+        UI_message_your_privacy_acceptance_has_been_deleted,
+        parse_mode='HTML'
+    )
+
+    pass
 
 
 def detach_from_bot(update, context):
@@ -127,7 +131,7 @@ def callback_privacy(update, context, param):
     id_utente = update.callback_query.from_user.id
     # print("callback_privacy - id_utente = " + str(id_utente))
 
-    if param == "ACCETTO":
+    if param == UI_ACCEPT_UC:
         privacy_setting = True
     else:
         privacy_setting = False
@@ -137,13 +141,12 @@ def callback_privacy(update, context, param):
     if privacy_setting:
         # comandi a disposizione
         update.callback_query.edit_message_text(
-            "Grazie per avere accettato il regolamento della privacy di questo bot.\n" +
-            orm_get_system_parameter(UI_bot_help_message),
+            UI_message_thank_you_for_accepting_privacy_rules + orm_get_system_parameter(UI_bot_help_message),
             parse_mode='HTML'
         )
     else:
         update.callback_query.edit_message_text(
-            text="Non hai accettato il regolamento della privacy di questo bot. Non posso proseguire.")
+            text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue)
 
 
 def callback(update, context):
@@ -173,16 +176,16 @@ def callback(update, context):
 def choose_news_categories(update, context):
     """ Permette all'utente di scegliere tra le categorie disponibili """
 
-    user = orm_get_telegram_user(update.message.from_user.id)
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
 
-    if check_user_privacy_approval(user, update, context):
+    if check_user_privacy_approval(telegram_user, update, context):
         # privacy not yet approved by user
         return
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text=orm_get_system_parameter(UI_select_news_categories),
-        reply_markup=InlineKeyboardMarkup(inline_keyboard(user))
+        reply_markup=InlineKeyboardMarkup(inline_keyboard(telegram_user))
     )
 
 
@@ -211,7 +214,7 @@ def inline_keyboard(user):
 
     # add close button
     keyboard.append(
-        [InlineKeyboardButton(text='CHIUDI', callback_data='choice OK')]
+        [InlineKeyboardButton(text=UI_CLOSE_UC, callback_data='choice OK')]
     )
 
     return keyboard
@@ -230,13 +233,14 @@ def callback_choice(update, choice: str):
         # ALERT: Non è stata scelta alcuna categoria!
         if choosen_categories == '':
             update.callback_query.answer(
-                text='Non hai scelto alcuna categoria!',
+                text=UI_message_you_have_choosen_no_categories,
                 show_alert=True
             )
         else:
             update.callback_query.edit_message_text(
-                text='Grazie, hai scelto le seguenti categorie:\n\n' + choosen_categories +
-                     '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .'
+                text=UI_message_you_have_choosen_the_following_categories +
+                     choosen_categories +
+                     UI_message_you_can_modify_categories_with_command
             )
 
     else:  # Toggle checked/unchecked per la categoria selezionata
@@ -254,22 +258,33 @@ def callback_choice(update, choice: str):
     print("callback_choice dt=" + str(c.microseconds) + " microseconds")
 
 
-def vacancies_command_handler(update, context):
-    group = orm_get_category_group('offerte_lavoro')
+def _change_categories(update, context, category_group_name):
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+
+    if check_user_privacy_approval(telegram_user, update, context):
+        # privacy not yet approved by user
+        return
+
+    group = orm_get_category_group(category_group_name)
 
     if group is None:
+        print("_change_categories - category group '" + category_group_name + "' is not defined")
         return
 
     telegram_user = orm_set_telegram_user_categories(update.message.chat.id, group.categories)
 
     update.message.reply_text(
-        'Ho cambiato le tue categorie, adesso sono:\n' + telegram_user.categories_str(),
+        UI_message_i_have_changed_your_categories + telegram_user.categories_str(),
         parse_mode='HTML'
     )
 
 
+def vacancies_command_handler(update, context):
+    _change_categories(update, context, 'offerte_lavoro')
+
+
 def young_categories_command_handler(update, context):
-    pass
+    _change_categories(update, context, 'giovani')
 
 
 def intersection(lst1, lst2):
@@ -488,7 +503,10 @@ def resend_last_processed_news(update, context):
     # print(update)
 
     telegram_user = orm_get_telegram_user(update.message.chat.id)
-    # print(telegram_user)
+
+    if check_user_privacy_approval(telegram_user, update, context):
+        # privacy not yet approved by user
+        return
 
     news_query = orm_get_last_processed_news()
 
@@ -497,7 +515,7 @@ def resend_last_processed_news(update, context):
     if len(news_query) == 0:
         context.bot.send_message(
             chat_id=telegram_user.user_id,
-            text='non ci sono news precedenti da rimandare!',
+            text=UI_message_no_previous_news_to_send_again,
             parse_mode='HTML'
         )
         return
@@ -590,10 +608,10 @@ def callback_feedback(update, data):
 
     # Attivazione tastiera con pulsante 'commenta'
     update.callback_query.edit_message_text(
-        text='Grazie per il feedback!\n',
+        text=UI_message_thank_you_for_feedback,
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton(
-                text='Scrivi un commento',
+                text=UI_message_write_a_comment,
                 callback_data='comment ' + news_id)]
         ])
     )
@@ -604,13 +622,13 @@ def callback_comment(update, context, news_id):
 
     # Rimuove il pulsante 'commenta'
     update.callback_query.edit_message_text(
-        'Grazie per il feedback!'
+        UI_message_thank_you_for_feedback
     )
 
     # Invia un messaggio con i dati dell'articolo da commentare
     context.bot.send_message(
         chat_id=update.callback_query.message.chat_id,
-        text='Commento art. ' + news_id,
+        text=UI_message_comment_to_news_item.format(news_id),
         reply_markup=ForceReply()  # Invita l'utente a rispondere al messaggio
     )
 
@@ -625,7 +643,7 @@ def comment_handler(update, context):
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
-        text='Commento caricato con successo!'
+        text=UI_message_comment_successful
     )
 
 
@@ -636,25 +654,20 @@ def generic_message_handler(update, context):
 
     print("generic_message_handler - message_text = " + message_text)
 
-    # context.bot.send_message(
-    #     chat_id=update.message.chat_id,
-    #     text='hai bisogno di aiuto?'
-    # )
-
     update.message.reply_text(
         orm_get_system_parameter(UI_bot_help_message),
         parse_mode='HTML'
     )
 
 
-def callback_minute(context: telegram.ext.CallbackContext):
-    all_telegram_users = orm_get_all_telegram_users()
-
-    for telegram_user in all_telegram_users:
-        print("*** " + str(telegram_user.user_id))
-
-        context.bot.send_message(chat_id=telegram_user.user_id,
-                                 text='One message every 10 minutes')
+# def callback_minute(context: telegram.ext.CallbackContext):
+#     all_telegram_users = orm_get_all_telegram_users()
+#
+#     for telegram_user in all_telegram_users:
+#         print("*** " + str(telegram_user.user_id))
+#
+#         context.bot.send_message(chat_id=telegram_user.user_id,
+#                                  text='One message every 10 minutes')
 
 
 class MQBot(telegram.bot.Bot):
@@ -740,27 +753,35 @@ def main():
     job_minute = job_queue.run_repeating(news_dispatcher, interval=60 * 5, first=0)  # callback_minute
 
     # Aggiunta dei vari handler
-    dp.add_handler(CommandHandler('start', start_command_handler))
-    dp.add_handler(CommandHandler('inizia', start_command_handler))
+    dp.add_handler(CommandHandler(UI_START_COMMAND, start_command_handler))
 
-    dp.add_handler(CommandHandler('help', help_command_handler))
-    dp.add_handler(CommandHandler('aiuto', help_command_handler))
-    dp.add_handler(CommandHandler('privacy', privacy_command_handler))
+    if UI_START_COMMAND_ALT is not None:
+        dp.add_handler(CommandHandler(UI_START_COMMAND_ALT, start_command_handler))
 
-    dp.add_handler(CommandHandler('offerte_di_lavoro', vacancies_command_handler))
-    dp.add_handler(CommandHandler('giovani', young_categories_command_handler))
+    dp.add_handler(CommandHandler(UI_HELP_COMMAND, help_command_handler))
 
-    dp.add_handler(CommandHandler('fine', detach_from_bot))
+    if UI_HELP_COMMAND_ALT is not None:
+        dp.add_handler(CommandHandler(UI_HELP_COMMAND_ALT, help_command_handler))
+
+    dp.add_handler(CommandHandler(UI_PRIVACY_COMMAND, privacy_command_handler))
+    dp.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
+
+    # TODO: add automatically bot commands derived from categories group name
+    dp.add_handler(CommandHandler(UI_VACANCIES_COMMAND, vacancies_command_handler))
+    dp.add_handler(CommandHandler(UI_YOUNG_COMMAND, young_categories_command_handler))
+    #
+
+    dp.add_handler(CommandHandler(UI_DETACH_BOT, detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler('invia_ultime_news', resend_last_processed_news))
+    dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news))
     dp.add_handler(MessageHandler(Filters.reply, comment_handler))
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
     # Handlers per la sezione SCELTA CATEGORIE
-    dp.add_handler(CommandHandler('scegli', choose_news_categories))
+    dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories))
 
-    dp.add_handler(CommandHandler('debug', debug_method))
+    dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_method))
 
     # Handler per servire TUTTE le inline_keyboard
     dp.add_handler(CallbackQueryHandler(callback))
