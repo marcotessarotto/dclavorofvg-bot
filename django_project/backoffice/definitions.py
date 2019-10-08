@@ -41,8 +41,6 @@ Questi sono i comandi a disposizione:
 Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.
 Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start"""
 
-print(bot_default_help_msg)
-
 
 def get_bot_default_help_msg():
     return bot_default_help_msg
