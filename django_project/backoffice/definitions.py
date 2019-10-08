@@ -18,24 +18,30 @@ DEFAULT_CATEGORY_DICT = {
 }
 
 
-bot_default_help_msg = 'Potrai ricevere news sul mondo del lavoro personalizzate sulle tue esigenze.\n' \
-    '\n' \
-    'Se sei interessato principalmente alle offerte di lavoro, usa il comando <b>/offerte_di_lavoro</b>.\n' \
-    '\n' \
-    'Se sei interessato principalmente alle proposte per i giovani, usa il comando <b>/giovani</b>.\n' \
-    '\n' \
-    'Per specificare più in dettaglio le aree di interesse, usa il comando <b>/scegli</b>.\n' \
-    '\n' \
-    'Questi sono i comandi a disposizione:\n' \
-    '\n' \
-    '<b>/start</b> schermata iniziale del bot\n' \
-    '<b>/scegli</b> scegli le categorie di notizie che ti interessano\n' \
-    '<b>/privacy</b> gestisci l\'accettazione della privacy\n' \
-    '\n' \
-    '<b>/invia_ultime_news</b> invia le ultime news\n' \
-    '\n' \
-    'Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.\n' \
-    'Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start'
+bot_default_help_msg = """Potrai ricevere news sul mondo del lavoro personalizzate sulle tue esigenze.
+
+Se sei interessato principalmente alle offerte di lavoro, usa il comando <b>/offerte_di_lavoro</b>.
+
+Se sei interessato principalmente alle proposte per i giovani, usa il comando <b>/giovani</b>.
+
+Se vuoi ricevere tutte le news, usa il comando <b>/tutte_le_news</b>.
+
+Se non vuoi ricevere nessuna news, usa il comando <b>/nessuna_news</b>.
+
+Per specificare più in dettaglio le aree di interesse, usa il comando <b>/scegli</b>.
+
+Questi sono i comandi a disposizione:
+
+<b>/start</b> schermata iniziale del bot
+<b>/scegli</b> scegli le categorie di notizie che ti interessano
+<b>/privacy</b> gestisci l'accettazione della privacy
+
+<b>/rimanda_ultime_news</b> rimanda le ultime news
+
+Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.
+Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start"""
+
+print(bot_default_help_msg)
 
 
 def get_bot_default_help_msg():
@@ -65,7 +71,9 @@ UI_PRIVACY_COMMAND = 'privacy'
 UI_UNDO_PRIVACY_COMMAND = 'undo_privacy'
 UI_VACANCIES_COMMAND = 'offerte_di_lavoro'
 UI_YOUNG_COMMAND = 'giovani'
-UI_RESEND_LAST_NEWS_COMMAND = 'invia_ultime_news'
+UI_ALL_CATEGORIES_COMMAND = 'tutte_le_news'
+UI_NO_CATEGORIES_COMMAND = 'nessuna_news'
+UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_DEBUG_COMMAND = 'debug'
 UI_DETACH_BOT = 'fine'
@@ -85,15 +93,19 @@ UI_message_thank_you_for_accepting_privacy_rules = "Grazie per avere accettato i
 
 UI_message_you_have_not_accepted_privacy_rules_cannot_continue = "Non hai accettato il regolamento della privacy di questo bot. Non posso proseguire."
 
-UI_message_you_have_choosen_no_categories = 'Non hai scelto alcuna categoria!'
+UI_message_you_have_choosen_no_categories = 'Non hai scelto alcuna categoria.\n'
 
 UI_message_you_have_choosen_the_following_categories = 'Grazie, hai scelto le seguenti categorie:\n\n'
 
 UI_message_you_can_modify_categories_with_command = '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .'
 
-UI_message_i_have_changed_your_categories = 'Ho cambiato le tue categorie, adesso sono:\n'
+UI_message_i_have_changed_your_categories = 'Ho cambiato le categorie di news che vuoi ricevere, adesso sono:\n'
+
+UI_message_i_have_removed_all_your_categories = 'Ho rimosso tutte le tue categorie di news, non ne riceverai.\n'
 
 UI_message_no_previous_news_to_send_again = 'non ci sono news precedenti da rimandare!'
+UI_message_no_matching_previous_news = 'non ci sono news precedenti che corrispondono alle tue impostazioni. ' \
+                                       'Se vuoi, prova a cambiare le categorie di news con il comando /scegli e poi riprova /rimanda_ultime_news.'
 
 UI_message_thank_you_for_feedback_newline = 'Grazie per il feedback!\n'
 UI_message_thank_you_for_feedback = 'Grazie per il feedback!'
@@ -104,5 +116,20 @@ UI_message_comment_to_news_item = 'Commento alla news {0}'
 
 UI_message_comment_successful = 'Commento caricato con successo!'
 
+UI_broadcast_message = 'comunicazione di servizio'
+
 DATE_FORMAT_STR = '%d-%m-%Y'
 # DATE_FORMAT_STR = '%Y-%m-%d'
+
+
+# show available commands in telegram input box:
+# https://stackoverflow.com/questions/34457568/how-to-show-options-in-telegram-bot
+'''
+help - mostra i comandi disponibili
+offerte_di_lavoro - iscriviti a ricevere news su offerte di lavoro
+giovani - iscriviti a ricevere news sul tema dei giovani e lavoro
+scegli  - scegli in dettaglio che tipo di news vuoi ricevere
+privacy - accetta il regolamento sulla privacy di questo bot
+
+'''
+

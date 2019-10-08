@@ -14,7 +14,7 @@ admin.site.site_header = 'backoffice LavoroFVG'
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'user_id', 'is_admin', 'has_accepted_privacy_rules')
     ordering = ('id',)
-    list_filter = ('is_bot', )
+    list_filter = ('has_accepted_privacy_rules', )
 
     formfield_overrides = {
         models.ManyToManyField: {'widget': CheckboxSelectMultiple},

@@ -263,13 +263,14 @@ def orm_get_category_group(group_name: str) -> CategoriesGroup:
 
 
 def orm_set_telegram_user_categories(telegram_user_id: int, categories: object) -> TelegramUser:
-    """assign categories to user.categories (replacing exiting user categories)"""
+    """assign categories to user.categories (replacing exiting user categories); if categories is None, all user's categories are removed"""
 
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
     telegram_user.categories.clear()
 
-    telegram_user.categories.set(categories.all())
+    if categories is not None:
+        telegram_user.categories.set(categories.all())
 
     return telegram_user
 
@@ -285,7 +286,7 @@ def orm_get_last_processed_news():
     return news_query
 
 
-def orm_get_news_to_process():
+def orm_get_fresh_news_to_send():
     news_query = NewsItem.objects.filter(processed=False)
 
     result = []

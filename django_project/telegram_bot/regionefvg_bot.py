@@ -233,9 +233,13 @@ def callback_choice(update, choice: str):
 
         # ALERT: Non è stata scelta alcuna categoria!
         if choosen_categories == '':
-            update.callback_query.answer(
-                text=UI_message_you_have_choosen_no_categories,
-                show_alert=True
+            # update.callback_query.answer(
+            #     text=UI_message_you_have_choosen_no_categories,
+            #     show_alert=True
+            # )
+            update.callback_query.edit_message_text(
+                text=UI_message_you_have_choosen_no_categories +
+                     UI_message_you_can_modify_categories_with_command
             )
         else:
             update.callback_query.edit_message_text(
@@ -280,12 +284,46 @@ def _change_categories(update, context, category_group_name):
     )
 
 
+def _set_all_categories(update, context, add_or_remove_all: bool):
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+
+    if check_user_privacy_approval(telegram_user, update, context):
+        # privacy not yet approved by user
+        return
+
+    if add_or_remove_all:
+        queryset = orm_get_categories()
+
+        telegram_user = orm_set_telegram_user_categories(update.message.chat.id, queryset)
+
+        update.message.reply_text(
+            UI_message_i_have_changed_your_categories + telegram_user.categories_str(),
+            parse_mode='HTML'
+        )
+    else:
+        telegram_user = orm_set_telegram_user_categories(update.message.chat.id, None)
+
+        update.message.reply_text(
+            UI_message_i_have_removed_all_your_categories ,
+            parse_mode='HTML'
+        )
+
 def vacancies_command_handler(update, context):
     _change_categories(update, context, 'offerte_lavoro')
+
+    # TODO mostrare quante news (nell'ultima settimana) l'utente avrebbe ricevuto, con questi settings
 
 
 def young_categories_command_handler(update, context):
     _change_categories(update, context, 'giovani')
+
+
+def all_categories_command_handler(update, context):
+    _set_all_categories(update, context, True)
+
+
+def no_categories_command_handler(update, context):
+    _set_all_categories(update, context, False)
 
 
 def intersection(lst1, lst2):
@@ -296,7 +334,7 @@ def intersection(lst1, lst2):
 def news_dispatcher(context: telegram.ext.CallbackContext):
     a = datetime.datetime.now()
 
-    list_of_news = orm_get_news_to_process()
+    list_of_news = orm_get_fresh_news_to_send()
 
     debug_send_news = (orm_get_system_parameter("DEBUG_SEND_NEWS").lower() == "true")
     if debug_send_news:
@@ -323,7 +361,7 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 
             intersection_result = intersection(news_item.categories.all(), telegram_user.categories.all())
 
-            if len(intersection_result) == 0:
+            if news_item.broadcast_message is not True and len(intersection_result) == 0:
                 continue
 
             # send this news to this telegram_user
@@ -345,7 +383,7 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 # SEZIONE INVIO NEWS
 # ****************************************************************************************
 
-def send_news_to_telegram_user(context, news_item, telegram_user, intersection_result, request_feedback=True):
+def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user, intersection_result, request_feedback=True):
     print(
         "send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
@@ -361,27 +399,37 @@ def send_news_to_telegram_user(context, news_item, telegram_user, intersection_r
     # see also: https://core.telegram.org/bots/api#html-style
     # cannot embed <b> inside <a> tag
 
+    if news_item.processed and news_item.processed_timestamp is not None:
+        processed_timestamp_html = ' ' + news_item.processed_timestamp.strftime(DATE_FORMAT_STR)
+    else:
+        processed_timestamp_html = ''
+
     # title/header
     if news_item.title_link is not None:
         title_html_content = '<a href="' + news_item.title_link + '"> ' + \
                              str(news_item.title) + \
-                             ' [' + str(news_item.id) + ']' \
+                             ' [' + str(news_item.id) + ']' + processed_timestamp_html + \
                                                         ' </a>\n'
     else:
         title_html_content = '<b>' + str(news_item.title) + \
-                             ' [' + str(news_item.id) + ']</b>\n'
+                             ' [' + str(news_item.id) + ']' + processed_timestamp_html + '</b>\n'
+
+    show_categories_in_news = orm_get_system_parameter(param_show_match_category_news).lower() == "true"
 
     # optional: show categories
-    if intersection_result is not None and orm_get_system_parameter(param_show_match_category_news).lower() == "true":
-        # print(intersection_result)
-        categories_html_content = '\n<i>'
+    if show_categories_in_news is True:
+        if intersection_result is not None:
+            # print(intersection_result)
+            categories_html_content = '\n<i>'
 
-        for cat in intersection_result:
-            categories_html_content += cat.name + ','
+            for cat in intersection_result:
+                categories_html_content += cat.name + ','
 
-        categories_html_content = categories_html_content[:-1]
+            categories_html_content = categories_html_content[:-1]
 
-        categories_html_content += '</i>\n'
+            categories_html_content += '</i>\n'
+        elif news_item.broadcast_message is True:
+            categories_html_content = '\n<i>' + UI_broadcast_message + '</i>\n'
 
     # news body
     news_text = news_item.text
@@ -529,13 +577,22 @@ def resend_last_processed_news(update, context):
 
         intersection_result = intersection(news_item.categories.all(), telegram_user_categories)
 
-        if len(intersection_result) == 0:
+        if news_item.broadcast_message is not True and len(intersection_result) == 0:
             continue
 
         print("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
                                    request_feedback=False)
+
+        counter = counter + 1
+
+    if counter == 0:
+        context.bot.send_message(
+            chat_id=telegram_user.user_id,
+            text=UI_message_no_matching_previous_news,
+            parse_mode='HTML'
+        )
 
 
 # def news(update, context):
@@ -593,9 +650,9 @@ def resend_last_processed_news(update, context):
 #     )
 
 
-def debug_method(update, context):
+def debug_command_handler(update, context):
     # debug only
-    print("debug_method")
+    print("debug_command_handler")
     news_dispatcher(context)
     pass
 
@@ -770,8 +827,12 @@ def main():
     # TODO: add automatically bot commands derived from categories group name
     dp.add_handler(CommandHandler(UI_VACANCIES_COMMAND, vacancies_command_handler))
     dp.add_handler(CommandHandler(UI_YOUNG_COMMAND, young_categories_command_handler))
-    #
 
+    # these are 'standard' commands (add all categories / remove all categories)
+    dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, all_categories_command_handler))
+    dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, no_categories_command_handler))
+
+    #
     dp.add_handler(CommandHandler(UI_DETACH_BOT, detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
@@ -782,7 +843,7 @@ def main():
     # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories))
 
-    dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_method))
+    dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
 
     # Handler per servire TUTTE le inline_keyboard
     dp.add_handler(CallbackQueryHandler(callback))

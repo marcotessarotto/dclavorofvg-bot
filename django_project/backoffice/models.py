@@ -111,6 +111,8 @@ class TelegramUser(models.Model):
 
     categories = models.ManyToManyField(Category, blank=True, verbose_name="categorie")
 
+    number_of_received_news_items = models.BigIntegerField(default=0, verbose_name="numero di news ricevute")
+
     def categories_str(self):
         result = ''
         for cat in self.categories.all():
@@ -167,6 +169,8 @@ class NewsItem(models.Model):
     show_first_n_words = models.IntegerField(default=30, verbose_name="mostra le prime n parole")
 
     categories = models.ManyToManyField(Category,  blank=True, verbose_name="categorie")
+
+    broadcast_message = models.BooleanField(default=False, verbose_name='forza l\'invio a tutti gli utenti')
 
     link = models.CharField(max_length=1024, blank=True, null=True)
     link_caption = models.CharField(max_length=1024, blank=True, null=True, default="continua")
