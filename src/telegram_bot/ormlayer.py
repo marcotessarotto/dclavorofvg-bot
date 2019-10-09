@@ -191,8 +191,6 @@ def orm_get_telegram_user(telegram_user_id):
 
 
 def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
-    # print("user_id = " + str(user_id))
-
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
     telegram_user.has_accepted_privacy_rules = privacy_setting
@@ -202,6 +200,18 @@ def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
         telegram_user.privacy_acceptance_timestamp = now()
     else:
         telegram_user.privacy_acceptance_timestamp = None
+
+    telegram_user.save()
+
+    if use_cache:
+        key_name = "user" + str(telegram_user.user_id)
+        cache.set(key_name, telegram_user, timeout=60)
+
+
+def orm_change_user_intership_setting(telegram_user_id, intership_setting):
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    telegram_user.receive_intership_information = intership_setting
 
     telegram_user.save()
 

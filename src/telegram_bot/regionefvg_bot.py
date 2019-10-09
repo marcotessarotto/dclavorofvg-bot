@@ -3,6 +3,7 @@ import os
 # cd Scrivania/regionefvg_bot
 # export PYTHONPATH=.:src/telegram_bot
 # python src/telegram_bot/regionefvg_bot.py
+from email import message
 
 from src.telegram_bot.ormlayer import *
 
@@ -150,6 +151,44 @@ def callback_privacy(update, context, param):
             text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue)
 
 
+# not used at the moment
+def callback_internship(update, context, param):
+    id_utente = update.callback_query.from_user.id
+
+    if param == UI_OK:
+        intership_setting = True
+    else:
+        intership_setting = False
+
+    orm_change_user_intership_setting(id_utente, intership_setting)
+
+    update.callback_query.edit_message_text(
+        UI_message_intership_settings_modified,
+        parse_mode='HTML'
+    )
+
+
+def process_intership_message(update, context, param):
+
+    if param == UI_message_ok_interniship_info:
+        intership_setting = True
+    elif param == UI_message_no_interniship_info:
+        intership_setting = False
+    else:
+        return False
+
+    id_utente = update.message.chat.id
+
+    orm_change_user_intership_setting(id_utente, intership_setting)
+
+    update.message.reply_text(
+        UI_message_intership_settings_modified,
+        parse_mode='HTML'
+    )
+
+    return True
+
+
 def callback(update, context):
     """ Gestisce i callback_data inviati dalle inline_keyboard """
 
@@ -158,17 +197,24 @@ def callback(update, context):
     # il primo elemento contiente una stringa identificativa del contesto
     # il secondo elemento (e eventuali successivi) contiene i dati da passare
 
-    if data[0] == 'feedback':  # Callback per i feedback agli articoli
+    keyword = data[0]
+
+    print("callback " + keyword)
+
+    if keyword == 'feedback':  # Callback per i feedback agli articoli
         callback_feedback(update, data[1:])
 
-    elif data[0] == 'comment':  # Callback per i commenti agli articoli
+    elif keyword == 'comment':  # Callback per i commenti agli articoli
         callback_comment(update, context, data[1])
 
-    elif data[0] == 'choice':  # Callback per la scelta delle categorie
+    elif keyword == 'choice':  # Callback per la scelta delle categorie
         callback_choice(update, data[1])
 
-    elif data[0] == 'privacy':
+    elif keyword == 'privacy':
         callback_privacy(update, context, data[1])
+
+    # elif keyword == 'internship':
+    #     callback_internship(update, context, data[1])
 
 
 # SEZIONE SCELTA CATEGORIE
@@ -308,6 +354,7 @@ def _set_all_categories(update, context, add_or_remove_all: bool):
             parse_mode='HTML'
         )
 
+
 def vacancies_command_handler(update, context):
     _change_categories(update, context, 'offerte_lavoro')
 
@@ -326,9 +373,21 @@ def no_categories_command_handler(update, context):
     _set_all_categories(update, context, False)
 
 
-def no_internship_command_handler(update, context):
-    # TODO
-    pass
+def internship_command_handler(update, context):
+    intership_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_interniship_info)
+    intership_no_keyboard = telegram.KeyboardButton(text=UI_message_no_interniship_info)
+
+    custom_keyboard = [[intership_ok_keyboard, intership_no_keyboard]]
+
+    # UI_message_receive_internship_question
+
+    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+
+    update.message.reply_text(
+        UI_message_receive_internship_question,
+        parse_mode='HTML',
+        reply_markup=reply_markup
+    )
 
 
 def intersection(lst1, lst2):
@@ -717,6 +776,9 @@ def generic_message_handler(update, context):
 
     print("generic_message_handler - message_text = " + message_text)
 
+    if process_intership_message(update, context, message_text):
+        return
+
     update.message.reply_text(
         orm_get_system_parameter(UI_bot_help_message),
         parse_mode='HTML'
@@ -815,6 +877,9 @@ def main():
 
     job_minute = job_queue.run_repeating(news_dispatcher, interval=60 * 5, first=0)  # callback_minute
 
+    # Handler per servire TUTTE le inline_keyboard
+    dp.add_handler(CallbackQueryHandler(callback))
+
     # Aggiunta dei vari handler
     dp.add_handler(CommandHandler(UI_START_COMMAND, start_command_handler))
 
@@ -837,7 +902,7 @@ def main():
     dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, all_categories_command_handler))
     dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, no_categories_command_handler))
 
-    dp.add_handler(CommandHandler(UI_NO_INTERNSHIP_COMMAND, no_internship_command_handler))
+    dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
 
     #
     dp.add_handler(CommandHandler(UI_DETACH_BOT, detach_from_bot))
@@ -852,8 +917,6 @@ def main():
 
     dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
 
-    # Handler per servire TUTTE le inline_keyboard
-    dp.add_handler(CallbackQueryHandler(callback))
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
     dp.add_error_handler(error_callback)

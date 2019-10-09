@@ -75,7 +75,7 @@ UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_DEBUG_COMMAND = 'debug'
 UI_DETACH_BOT = 'fine'
-UI_NO_INTERNSHIP_COMMAND = '/no_tirocini'
+UI_INTERNSHIP_COMMAND = 'tirocini'
 
 UI_message_read_and_accept_privacy_rules_as_follows = "Per proseguire con l'utilizzo di questo bot, " \
                  "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
@@ -114,6 +114,21 @@ UI_message_comment_to_news_item = 'Commento alla news {0}'
 
 UI_message_comment_successful = 'Commento caricato con successo!'
 
+UI_message_receive_internship_question = 'vuoi ricevere notizie su tirocini?'
+
+UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'
+
+UI_message_ok_interniship_info = 'Sì, mandami informazioni sui tirocini'
+UI_message_no_interniship_info = 'No, non mandarmi informazioni sui tirocini'
+
+
+UI_OK = 'OK'
+UI_NO = 'No'
+
+
+CALLBACK_INTERNSHIP_OK = 'internship ' + UI_OK
+CALLBACK_INTERNSHIP_NO = 'internship ' + UI_NO
+
 UI_broadcast_message = 'comunicazione di servizio'
 
 DATE_FORMAT_STR = '%d-%m-%Y'
@@ -128,6 +143,6 @@ offerte_di_lavoro - iscriviti a ricevere news su offerte di lavoro
 giovani - iscriviti a ricevere news sul tema dei giovani e lavoro
 scegli  - scegli in dettaglio che tipo di news vuoi ricevere
 privacy - accetta il regolamento sulla privacy di questo bot
-
+tirocini - impostazioni sui tirocini
 '''
 
