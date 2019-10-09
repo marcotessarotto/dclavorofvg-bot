@@ -31,6 +31,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+global_bot_instance = None
 
 def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
     """return True if user has not yet approved the bot's privacy policy"""
@@ -419,6 +420,40 @@ def courses_command_handler(update, context):
 
     update.message.reply_text(
         UI_message_receive_courses_question,
+        parse_mode='HTML',
+        reply_markup=reply_markup
+    )
+
+
+def me_command_handler(update, context):
+
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+
+    if check_user_privacy_approval(telegram_user, update, context):
+        # privacy not yet approved by user
+        return
+
+    # update.message.reply_text(
+    #     UI_message_help_me_provide_better_results,
+    #     parse_mode='HTML',
+    #     # reply_markup=reply_markup
+    # )
+
+    # update.message.reply_text(
+    #     UI_message_do_you_need_examples_on_me_command,
+    #     parse_mode='HTML',
+    #     # reply_markup=reply_markup
+    # )
+
+    me_continue_keyboard = telegram.KeyboardButton(text=UI_message_let_me_ask_you_some_questions)
+    me_stop_keyboard = telegram.KeyboardButton(text=UI_message_me_stop_questions)
+
+    custom_keyboard = [[me_continue_keyboard, me_stop_keyboard]]
+
+    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+
+    update.message.reply_text(
+        UI_message_help_me_provide_better_results,
         parse_mode='HTML',
         reply_markup=reply_markup
     )
@@ -815,10 +850,15 @@ def generic_message_handler(update, context):
     elif process_courses_message(update, context, message_text):
         return
 
-    update.message.reply_text(
-        orm_get_system_parameter(UI_bot_help_message),
-        parse_mode='HTML'
-    )
+    id_utente = update.message.chat.id
+
+    if message_text.lower() in help_keyword_list or len(message_text) <= 2:
+        update.message.reply_text(
+            orm_get_system_parameter(UI_bot_help_message),
+            parse_mode='HTML'
+        )
+    else:
+        global_bot_instance.send_chat_action(chat_id=id_utente, action=telegram.ChatAction.TYPING)
 
 
 # def callback_minute(context: telegram.ext.CallbackContext):
@@ -904,6 +944,9 @@ def main():
     request = Request(con_pool_size=8)
     my_bot = MQBot(token, request=request, mqueue=q)
 
+    global global_bot_instance
+    global_bot_instance = my_bot
+
     # upd = telegram.ext.updater.Updater(bot=testbot)
 
     updater = Updater(bot=my_bot, use_context=True)  # removed: token=token
@@ -940,6 +983,8 @@ def main():
 
     dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
     dp.add_handler(CommandHandler(UI_COURSES_COMMAND, courses_command_handler))
+
+    dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
 
     #
     dp.add_handler(CommandHandler(UI_DETACH_BOT, detach_from_bot))

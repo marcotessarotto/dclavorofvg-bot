@@ -17,10 +17,13 @@ DEFAULT_CATEGORY_DICT = {
     '12': ['Offerte di lavoro', u'\U0001F3D7']
 }
 
+help_keyword_list =  ['aiuto', 'help', '?']
 
-bot_default_help_msg = """Potrai ricevere news sul mondo del lavoro personalizzate sulle tue esigenze.
+bot_default_help_msg = """Con il mio aiuto puoi ricevere news ed offerte di lavoro personalizzate sulle tue esigenze.
 
-Se sei interessato principalmente alle offerte di lavoro, usa il comando <b>/offerte_di_lavoro</b>.
+Aiutami a fornirti risultati migliori per te! Usa il comando /me
+
+Per definire quali offerte di lavoro vuoi ricevere, usa il comando <b>/offerte_di_lavoro</b>.
 
 Se sei interessato principalmente alle proposte per i giovani, usa il comando <b>/giovani</b>.
 
@@ -81,6 +84,7 @@ UI_DEBUG_COMMAND = 'debug'
 UI_DETACH_BOT = 'fine'
 UI_INTERNSHIP_COMMAND = 'tirocini'
 UI_COURSES_COMMAND = 'corsi'
+UI_ME_COMMAND = 'me'
 
 
 UI_message_read_and_accept_privacy_rules_as_follows = "Per proseguire con l'utilizzo di questo bot, " \
@@ -136,6 +140,16 @@ UI_message_ok_course_info = 'Corsi: Sì'
 UI_message_no_course_info = 'Corsi: No'
 
 
+UI_message_help_me_provide_better_results = 'Aiutami a darti risultati migliori!\nScrivimi liberamente qualche frase sui tuoi interessi lavorativi.\n' \
+                                            'Quello che mi dirai lo darò in pasto alla mia Intelligenza Artificiale :)'
+
+UI_message_do_you_need_examples_on_me_command = 'Vuoi qualche esempio?'
+
+UI_message_let_me_ask_you_some_questions = 'Avanti con le domande!'
+UI_message_me_stop_questions = 'Basta così!'
+
+
+
 UI_OK = 'OK'
 UI_NO = 'No'
 
@@ -153,10 +167,13 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 # https://stackoverflow.com/questions/34457568/how-to-show-options-in-telegram-bot
 '''
 help - mostra i comandi disponibili
-offerte_di_lavoro - iscriviti a ricevere news su offerte di lavoro
+offerte_di_lavoro - che tipo di  offerte di lavoro vuoi ricevere?
 giovani - iscriviti a ricevere news sul tema dei giovani e lavoro
-scegli  - scegli in dettaglio che tipo di news vuoi ricevere
+scegli  - scegli che tipo di news vuoi ricevere
 privacy - accetta il regolamento sulla privacy di questo bot
-tirocini - impostazioni sui tirocini
+tirocini - ricevi (o no) info sui tirocini
+corsi - ricevi (o no) info sui corsi
+me - aiutami a fornirti risultati su misura per te
+impostazioni - mostra tutte le impostazioni utente
 '''
 
