@@ -30,6 +30,10 @@ Se non vuoi ricevere nessuna news, usa il comando <b>/nessuna_news</b>.
 
 Per specificare più in dettaglio le aree di interesse, usa il comando <b>/scegli</b>.
 
+Per ricevere (o no) info sui tirocini: <b>/tirocini</b>.
+
+Per ricevere (o no) info sui corsi: <b>/corsi</b>.
+
 Questi sono i comandi a disposizione:
 
 <b>/start</b> schermata iniziale del bot
@@ -76,6 +80,8 @@ UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_DEBUG_COMMAND = 'debug'
 UI_DETACH_BOT = 'fine'
 UI_INTERNSHIP_COMMAND = 'tirocini'
+UI_COURSES_COMMAND = 'corsi'
+
 
 UI_message_read_and_accept_privacy_rules_as_follows = "Per proseguire con l'utilizzo di questo bot, " \
                  "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
@@ -114,12 +120,20 @@ UI_message_comment_to_news_item = 'Commento alla news {0}'
 
 UI_message_comment_successful = 'Commento caricato con successo!'
 
-UI_message_receive_internship_question = 'vuoi ricevere notizie su tirocini?'
-
+UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
 UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'
+UI_message_intership_settings_modified_true = 'OK, riceverai informazioni sui tirocini'
+UI_message_intership_settings_modified_false = 'NON riceverai informazioni sui tirocini'
+UI_message_ok_internship_info = 'Tirocini: Sì'
+UI_message_no_internship_info = 'Tirocini: No'
 
-UI_message_ok_interniship_info = 'Sì, mandami informazioni sui tirocini'
-UI_message_no_interniship_info = 'No, non mandarmi informazioni sui tirocini'
+
+UI_message_receive_courses_question = 'vuoi ricevere notizie sui CORSI organizzati dalla Regione?'
+UI_message_courses_settings_modified = 'ok, impostazioni sui corsi modificate.'
+UI_message_courses_settings_modified_true = 'OK, riceverai informazioni sui corsi'
+UI_message_courses_settings_modified_false = 'NON riceverai informazioni sui corsi'
+UI_message_ok_course_info = 'Corsi: Sì'
+UI_message_no_course_info = 'Corsi: No'
 
 
 UI_OK = 'OK'

@@ -113,7 +113,9 @@ class TelegramUser(models.Model):
 
     number_of_received_news_items = models.BigIntegerField(default=0, verbose_name="numero di news ricevute")
 
-    receive_intership_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni su tirocini?")
+    receive_intership_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui tirocini?")
+
+    receive_courses_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui corsi?")
 
     def categories_str(self):
         result = ''

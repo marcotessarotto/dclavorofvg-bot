@@ -170,9 +170,9 @@ def callback_internship(update, context, param):
 
 def process_intership_message(update, context, param):
 
-    if param == UI_message_ok_interniship_info:
+    if param == UI_message_ok_internship_info:
         intership_setting = True
-    elif param == UI_message_no_interniship_info:
+    elif param == UI_message_no_internship_info:
         intership_setting = False
     else:
         return False
@@ -182,7 +182,28 @@ def process_intership_message(update, context, param):
     orm_change_user_intership_setting(id_utente, intership_setting)
 
     update.message.reply_text(
-        UI_message_intership_settings_modified,
+        UI_message_intership_settings_modified_true if intership_setting else UI_message_intership_settings_modified_false,
+        parse_mode='HTML'
+    )
+
+    return True
+
+
+def process_courses_message(update, context, param):
+
+    if param == UI_message_ok_course_info:
+        courses_setting = True
+    elif param == UI_message_no_course_info:
+        courses_setting = False
+    else:
+        return False
+
+    id_utente = update.message.chat.id
+
+    orm_change_user_courses_setting(id_utente, courses_setting)
+
+    update.message.reply_text(
+        UI_message_courses_settings_modified_true if courses_setting else UI_message_courses_settings_modified_false,
         parse_mode='HTML'
     )
 
@@ -374,17 +395,30 @@ def no_categories_command_handler(update, context):
 
 
 def internship_command_handler(update, context):
-    intership_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_interniship_info)
-    intership_no_keyboard = telegram.KeyboardButton(text=UI_message_no_interniship_info)
+    intership_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_internship_info)
+    intership_no_keyboard = telegram.KeyboardButton(text=UI_message_no_internship_info)
 
     custom_keyboard = [[intership_ok_keyboard, intership_no_keyboard]]
-
-    # UI_message_receive_internship_question
 
     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     update.message.reply_text(
         UI_message_receive_internship_question,
+        parse_mode='HTML',
+        reply_markup=reply_markup
+    )
+
+
+def courses_command_handler(update, context):
+    course_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_course_info)
+    course_no_keyboard = telegram.KeyboardButton(text=UI_message_no_course_info)
+
+    custom_keyboard = [[course_ok_keyboard, course_no_keyboard]]
+
+    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+
+    update.message.reply_text(
+        UI_message_receive_courses_question,
         parse_mode='HTML',
         reply_markup=reply_markup
     )
@@ -778,6 +812,8 @@ def generic_message_handler(update, context):
 
     if process_intership_message(update, context, message_text):
         return
+    elif process_courses_message(update, context, message_text):
+        return
 
     update.message.reply_text(
         orm_get_system_parameter(UI_bot_help_message),
@@ -903,6 +939,7 @@ def main():
     dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, no_categories_command_handler))
 
     dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
+    dp.add_handler(CommandHandler(UI_COURSES_COMMAND, courses_command_handler))
 
     #
     dp.add_handler(CommandHandler(UI_DETACH_BOT, detach_from_bot))
