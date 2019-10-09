@@ -1,15 +1,15 @@
 import os
 
 # cd Scrivania/regionefvg_bot
-# export PYTHONPATH=.:django_project/telegram_bot
-# python django_project/telegram_bot/regionefvg_bot.py
+# export PYTHONPATH=.:src/telegram_bot
+# python src/telegram_bot/regionefvg_bot.py
 
-from django_project.telegram_bot.ormlayer import *
+from src.telegram_bot.ormlayer import *
 
 try:
     from ..backoffice.definitions import *
 except:
-    from django_project.backoffice.definitions import *
+    from src.backoffice.definitions import *
 
 from telegram.ext import *
 from telegram import *
@@ -22,7 +22,7 @@ import logging
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 
-from django_project.gfvgbo.settings import MEDIA_ROOT
+from src.gfvgbo.settings import MEDIA_ROOT
 
 # Spiega quando (e perché) le cose non funzionano come ci si aspetta
 logging.basicConfig(

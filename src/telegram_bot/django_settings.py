@@ -1,7 +1,7 @@
 
-# Importa il file di impostazioni django_project/gfvgbo/settings.py
+# Importa il file di impostazioni src/gfvgbo/settings.py
 from django.conf import settings
-from django_project.gfvgbo.secrets import *
+from src.gfvgbo.secrets import *
 
 import os
 
@@ -19,5 +19,5 @@ DATABASES = {
             }
 
 INSTALLED_APPS = [
-    'django_project.backoffice.apps.BackofficeConfig'
+    'src.backoffice.apps.BackofficeConfig'
 ]

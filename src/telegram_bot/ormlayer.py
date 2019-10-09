@@ -7,7 +7,7 @@ from django.core.cache import cache
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
 django.setup()
 
-from django_project.backoffice.models import *
+from src.backoffice.models import *
 
 # https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
 use_cache = True
