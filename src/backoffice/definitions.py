@@ -75,7 +75,7 @@ UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_DEBUG_COMMAND = 'debug'
 UI_DETACH_BOT = 'fine'
-
+UI_NO_INTERNSHIP_COMMAND = '/no_tirocini'
 
 UI_message_read_and_accept_privacy_rules_as_follows = "Per proseguire con l'utilizzo di questo bot, " \
                  "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"

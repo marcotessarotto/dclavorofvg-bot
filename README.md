@@ -14,7 +14,7 @@ this project has been developed on Linux Debian 10
  
 There are two main applications:
 
-- Telegram bot (django_project/telegram_bot/regionefvg_bot.py)
+- Telegram bot (src/telegram_bot/regionefvg_bot.py)
 
 - Django web application (i.e. start with 'python manage.py runserver' from directory django_project)
 
@@ -22,7 +22,7 @@ There are two main applications:
 Before running the applications:
 
 - create a database and a user in local postgresql instance
-- create file django_project/gfvgbo/secrets.py containing:
+- create file src/gfvgbo/secrets.py containing:
 
 DB_NAME="database name"
 

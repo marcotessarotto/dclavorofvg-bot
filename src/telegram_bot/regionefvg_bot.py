@@ -326,6 +326,11 @@ def no_categories_command_handler(update, context):
     _set_all_categories(update, context, False)
 
 
+def no_internship_command_handler(update, context):
+    # TODO
+    pass
+
+
 def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
     return lst3
@@ -831,6 +836,8 @@ def main():
     # these are 'standard' commands (add all categories / remove all categories)
     dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, all_categories_command_handler))
     dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, no_categories_command_handler))
+
+    dp.add_handler(CommandHandler(UI_NO_INTERNSHIP_COMMAND, no_internship_command_handler))
 
     #
     dp.add_handler(CommandHandler(UI_DETACH_BOT, detach_from_bot))
