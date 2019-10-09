@@ -4,33 +4,62 @@ from bs4 import BeautifulSoup
 
 URL = "https://it.indeed.com/salaries/ESTETISTA%20QUALIFICATA"
 
-URL = "https://it.indeed.com/salaries/estetista-Salaries"
+# URL = "https://it.indeed.com/salaries/estetista-Salaries"
+# https://it.indeed.com/jobs?q=%23categorieprotette&l=Friuli-Venezia+Giulia&from=disabilityfilter
+
+URL = "https://it.indeed.com/salaries/sviluppatore%20software-Salaries"
+URL = "https://it.indeed.com/salaries/svilupatore%20software-Salaries"
 
 
 soup = BeautifulSoup(urllib.request.urlopen(URL).read(), 'html.parser')
 
 # print(soup)
 
-results = soup.find_all('strong', attrs={'class': 'cmp-salary-amount'})
+# results = soup.find_all('strong', attrs={'class': 'cmp-salary-amount'})
+#
+# counter = 0
+# sum_total = 0
+#
+# for item in results:
+#     value = item.text.strip()
+#     print(value)
+#
+#     # float_value = float(value[1:].replace(".", "").replace(",", "."))
+#     # # print(float_value)
+#     # sum_total += float_value
+#     # counter += 1
+#
+# # print("average:")
+# # print(sum_total / counter)
 
-counter = 0
-sum_total = 0
+not_enough_data = False
+
+print("*****")
+
+results = soup.find_all('div', attrs={'class': 'cmp-not-enough-data-box'})
+
+for item in results:
+    if "Spiacenti, non abbiamo abbastanza informazioni sugli stipendi" in item.text.strip():
+        not_enough_data = True
+
+if not_enough_data:
+    print("***not_enough_data***")
+
+print("*****")
+
+results = soup.find_all('div', attrs={'class': 'cmp-sal-salary'})
 
 for item in results:
     value = item.text.strip()
     print(value)
 
-    float_value = float(value[1:].replace(".", "").replace(",", "."))
-    # print(float_value)
-    sum_total += float_value
-    counter += 1
+print("*****")
 
-print("average:")
-print(sum_total / counter)
+results = soup.find_all('div', attrs={'class': 'cmp-sal-summary'})
 
-
-
-
+for item in results:
+    value = item.text.strip()
+    print(value)
 
 
 """
@@ -40,6 +69,19 @@ print(sum_total / counter)
    <td class="cmp-sal-summary-col">
       <div class="cmp-sal-summary"><strong class="cmp-salary-amount">€4.000</strong> al mese</div>
    </td>
+   
+
+
+<div class="cmp-not-enough-data-box">
+   <div>
+      <div class="text">
+         <div class="caption">Spiacenti, non abbiamo abbastanza informazioni sugli stipendi per svilupatore software.</div>
+         <div class="content">Di seguito trovi alcune informazioni sullo stipendio per altri lavori simili:</div>
+      </div>
+   </div>
+</div>
+
+   
 
 https://it.indeed.com/salaries/estetista-Salaries
 
