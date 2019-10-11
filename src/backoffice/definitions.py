@@ -14,8 +14,10 @@ DEFAULT_CATEGORY_DICT = {
     '09': ['La regione FVG per i giovani', u'\U0001F91D'],
     '10': ['Studi e ricerche mondo giovani', u'\U0001F4DD'],
     '11': ['Garanzia giovani', u'\U0001F3DB'],
-    '12': ['Offerte di lavoro', u'\U0001F3D7']
+    '12': ['Offerte di lavoro', u'\U0001F3D7'],
+    '13': ['Collocamento mirato', u'\U0001F305'],
 }
+# https://unicode.org/emoji/charts/full-emoji-list.html
 
 help_keyword_list =  ['aiuto', 'help', '?']
 
@@ -61,6 +63,7 @@ UI_bot_presentation = "UI_presentazione_bot"
 UI_PRIVACY = "UI_PRIVACY"
 UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
 UI_select_news_categories = "UI_seleziona_le_categorie_di_news"
+RSS_FEED = "RSS_FEED"
 
 param_show_match_category_news = "news_mostra_match_categoria"
 

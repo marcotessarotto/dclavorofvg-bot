@@ -553,7 +553,7 @@ def news_dispatcher(context: telegram.ext.CallbackContext):
 # SEZIONE INVIO NEWS
 # ****************************************************************************************
 
-def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user, intersection_result, request_feedback=True):
+def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user, intersection_result, request_feedback=True, title_only=False):
     print(
         "send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
@@ -753,7 +753,7 @@ def resend_last_processed_news(update, context):
         print("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
-                                   request_feedback=False)
+                                   request_feedback=False, title_only= True)
 
         counter = counter + 1
 
@@ -847,6 +847,7 @@ def callback_feedback(update, data):
 
 def callback_comment(update, context, news_id):
     """ Gestisce i commenti agli articoli """
+    print("callback_comment")
 
     # Rimuove il pulsante 'commenta'
     update.callback_query.edit_message_text(
@@ -867,7 +868,8 @@ def comment_handler(update, context):
     # Testo del messaggio cui il commento fornisce una risposta
     # (c'è il codice dell'articolo)
     reply_data = update.message.reply_to_message.text.split()
-    orm_add_comment(update.message.text, reply_data[2], update.message.chat.id)
+    # print(reply_data)
+    orm_add_comment(update.message.text, reply_data[3], update.message.chat.id)
 
     context.bot.send_message(
         chat_id=update.message.chat_id,

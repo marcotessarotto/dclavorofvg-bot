@@ -2,3 +2,4 @@ cherrypy
 django
 python-telegram-bot
 beautifulsoup4
+feedparser==6.0.0b1

@@ -94,6 +94,8 @@ class TelegramUser(models.Model):
 
     regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
 
+    rss_id = models.CharField(max_length=256, blank=True, null=True, editable=False) # used if news comes from rss feed
+
     has_accepted_privacy_rules = models.BooleanField(default=False, verbose_name="ha accettato il regolamento privacy?")
     # L : through a parameter passed to /start
     # U : user must accept privacy rules
@@ -118,6 +120,8 @@ class TelegramUser(models.Model):
     receive_courses_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui corsi?")
 
     receive_recruiting_days_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui recruiting day?")
+
+    receive_targeted_placement_information = models.BooleanField(default=False, verbose_name="vuole ricevere informazioni dal collocamento mirato?")
 
     def categories_str(self):
         result = ''
@@ -306,6 +310,8 @@ class SystemParameter(models.Model):
         SystemParameter.add_default_param(UI_request_for_news_item_feedback, "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
 
         SystemParameter.add_default_param(param_show_match_category_news, "True", "mostra la categoria della news che ha permesso l'invio all'utente")
+
+        SystemParameter.add_default_param(RSS_FEED, "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/?rss=y", "rss feed to watch")
 
         return True
 
