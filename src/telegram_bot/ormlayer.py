@@ -232,6 +232,18 @@ def orm_change_user_courses_setting(telegram_user_id, courses_setting):
         cache.set(key_name, telegram_user, timeout=60)
 
 
+def orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting):
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    telegram_user.receive_recruiting_days_information = recruiting_days_setting
+
+    telegram_user.save()
+
+    if use_cache:
+        key_name = "user" + str(telegram_user.user_id)
+        cache.set(key_name, telegram_user, timeout=60)
+
+
 def orm_update_user_category_settings(user, category_key):
     """ Aggiorna le categorie selezionate dall'utente"""
 

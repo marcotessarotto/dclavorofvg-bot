@@ -131,7 +131,7 @@ def detach_from_bot(update, context):
 
 
 def callback_privacy(update, context, param):
-    id_utente = update.callback_query.from_user.id
+    telegram_user_id = update.callback_query.from_user.id
     # print("callback_privacy - id_utente = " + str(id_utente))
 
     if param == UI_ACCEPT_UC:
@@ -139,7 +139,7 @@ def callback_privacy(update, context, param):
     else:
         privacy_setting = False
 
-    orm_change_user_privacy_setting(id_utente, privacy_setting)
+    orm_change_user_privacy_setting(telegram_user_id, privacy_setting)
 
     if privacy_setting:
         # comandi a disposizione
@@ -154,14 +154,14 @@ def callback_privacy(update, context, param):
 
 # not used at the moment
 def callback_internship(update, context, param):
-    id_utente = update.callback_query.from_user.id
+    telegram_user_id = update.callback_query.from_user.id
 
     if param == UI_OK:
         intership_setting = True
     else:
         intership_setting = False
 
-    orm_change_user_intership_setting(id_utente, intership_setting)
+    orm_change_user_intership_setting(telegram_user_id, intership_setting)
 
     update.callback_query.edit_message_text(
         UI_message_intership_settings_modified,
@@ -178,9 +178,9 @@ def process_intership_message(update, context, param):
     else:
         return False
 
-    id_utente = update.message.chat.id
+    telegram_user_id = update.message.chat.id
 
-    orm_change_user_intership_setting(id_utente, intership_setting)
+    orm_change_user_intership_setting(telegram_user_id, intership_setting)
 
     update.message.reply_text(
         UI_message_intership_settings_modified_true if intership_setting else UI_message_intership_settings_modified_false,
@@ -199,12 +199,33 @@ def process_courses_message(update, context, param):
     else:
         return False
 
-    id_utente = update.message.chat.id
+    telegram_user_id = update.message.chat.id
 
-    orm_change_user_courses_setting(id_utente, courses_setting)
+    orm_change_user_courses_setting(telegram_user_id, courses_setting)
 
     update.message.reply_text(
         UI_message_courses_settings_modified_true if courses_setting else UI_message_courses_settings_modified_false,
+        parse_mode='HTML'
+    )
+
+    return True
+
+
+def process_recruiting_day_message(update, context, param):
+
+    if param == UI_message_ok_recruiting_days_info:
+        recruiting_days_setting = True
+    elif param == UI_message_no_recruiting_days_info:
+        recruiting_days_setting = False
+    else:
+        return False
+
+    telegram_user_id = update.message.chat.id
+
+    orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting)
+
+    update.message.reply_text(
+        UI_message_recruiting_days_settings_modified_true if recruiting_days_setting else UI_message_recruiting_days_settings_modified_false,
         parse_mode='HTML'
     )
 
@@ -423,6 +444,22 @@ def courses_command_handler(update, context):
         parse_mode='HTML',
         reply_markup=reply_markup
     )
+
+
+def recruiting_day_command_handler(update, context):
+    recruiting_days_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_recruiting_days_info)
+    recruiting_days_no_keyboard = telegram.KeyboardButton(text=UI_message_no_recruiting_days_info)
+
+    custom_keyboard = [[recruiting_days_ok_keyboard, recruiting_days_no_keyboard]]
+
+    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+
+    update.message.reply_text(
+        UI_message_receive_recruiting_days_question,
+        parse_mode='HTML',
+        reply_markup=reply_markup
+    )
+
 
 
 def me_command_handler(update, context):
@@ -849,6 +886,8 @@ def generic_message_handler(update, context):
         return
     elif process_courses_message(update, context, message_text):
         return
+    elif process_recruiting_day_message(update, context, message_text):
+        return
 
     id_utente = update.message.chat.id
 
@@ -983,6 +1022,7 @@ def main():
 
     dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
     dp.add_handler(CommandHandler(UI_COURSES_COMMAND, courses_command_handler))
+    dp.add_handler(CommandHandler(UI_RECRUITING_DAY_COMMAND, recruiting_day_command_handler))
 
     dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
 

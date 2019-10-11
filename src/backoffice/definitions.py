@@ -37,6 +37,8 @@ Per ricevere (o no) info sui tirocini: <b>/tirocini</b>.
 
 Per ricevere (o no) info sui corsi: <b>/corsi</b>.
 
+Per ricevere (o no) info sui recruiting day: <b>/recruiting_day</b>.
+
 Questi sono i comandi a disposizione:
 
 <b>/start</b> schermata iniziale del bot
@@ -84,6 +86,7 @@ UI_DEBUG_COMMAND = 'debug'
 UI_DETACH_BOT = 'fine'
 UI_INTERNSHIP_COMMAND = 'tirocini'
 UI_COURSES_COMMAND = 'corsi'
+UI_RECRUITING_DAY_COMMAND = 'recruiting_day'
 UI_ME_COMMAND = 'me'
 
 
@@ -138,6 +141,14 @@ UI_message_courses_settings_modified_true = 'OK, riceverai informazioni sui cors
 UI_message_courses_settings_modified_false = 'NON riceverai informazioni sui corsi'
 UI_message_ok_course_info = 'Corsi: Sì'
 UI_message_no_course_info = 'Corsi: No'
+
+
+UI_message_receive_recruiting_days_question = 'vuoi ricevere notizie sui RECRUITING DAY organizzati dalla Regione?'
+UI_message_recruiting_days_settings_modified = 'ok, impostazioni sui recruiting day modificate.'
+UI_message_recruiting_days_settings_modified_true = 'OK, riceverai informazioni sui recruiting day'
+UI_message_recruiting_days_settings_modified_false = 'NON riceverai informazioni sui recruiting day'
+UI_message_ok_recruiting_days_info = 'Recruiting day: Sì'
+UI_message_no_recruiting_days_info = 'Recruiting day: No'
 
 
 UI_message_help_me_provide_better_results = 'Aiutami a darti risultati migliori!\nScrivimi liberamente qualche frase sui tuoi interessi lavorativi.\n' \

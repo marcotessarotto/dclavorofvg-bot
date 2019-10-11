@@ -92,7 +92,7 @@ class TelegramUser(models.Model):
 
     user_id = models.BigIntegerField(verbose_name="telegram user id")  # Telegram used id
 
-    regionefvg_id = models.BigIntegerField(default=-1,verbose_name="non usare questo campo")  # for internal use
+    regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
 
     has_accepted_privacy_rules = models.BooleanField(default=False, verbose_name="ha accettato il regolamento privacy?")
     # L : through a parameter passed to /start
@@ -116,6 +116,8 @@ class TelegramUser(models.Model):
     receive_intership_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui tirocini?")
 
     receive_courses_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui corsi?")
+
+    receive_recruiting_days_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui recruiting day?")
 
     def categories_str(self):
         result = ''
