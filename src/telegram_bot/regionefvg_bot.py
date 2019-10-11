@@ -867,7 +867,7 @@ def comment_handler(update, context):
     # Testo del messaggio cui il commento fornisce una risposta
     # (c'è il codice dell'articolo)
     reply_data = update.message.reply_to_message.text.split()
-    orm_add_comment(update.message.text, reply_data[2], update.message.from_user.id)
+    orm_add_comment(update.message.text, reply_data[2], update.message.chat.id)
 
     context.bot.send_message(
         chat_id=update.message.chat_id,

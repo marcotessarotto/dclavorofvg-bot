@@ -210,7 +210,7 @@ class NewsItem(models.Model):
         app_label = "backoffice"
 
     def __str__(self):
-        return 'art. ' + str(self.id) + ' (' + \
+        return 'news #' + str(self.id) + ' (' + \
                str(self.title) + ')'
 
 
