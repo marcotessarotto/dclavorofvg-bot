@@ -3,6 +3,7 @@ from src.telegram_bot.ormlayer import *
 import feedparser
 import os
 import django
+import datetime
 
 try:
     from ..backoffice.definitions import RSS_FEED
@@ -25,8 +26,9 @@ def _orm_get_system_parameter(param_name):
 
 
 def get_feed_entries_from_url(url):
+    from datetime import datetime
 
-    now = datetime.datetime.now()
+    now = datetime.now()
 
     feed = feedparser.parse(url)
 
@@ -38,6 +40,12 @@ def get_feed_entries_from_url(url):
         rss_title = item["title"]
         rss_link = item["link"]
         updated_parsed = item["updated_parsed"]
+
+
+        from time import mktime
+
+        dt = datetime.fromtimestamp(mktime(updated_parsed))
+        print(dt)
 
         d = updated_parsed - datetime.timedelta(days=10)
 
@@ -53,7 +61,6 @@ def get_feed_entries_from_url(url):
         print(updated_parsed)
 
         # orm_get_or_create_news_from_rss(rss_id, rss_title, rss_link, updated_parsed)
-
 
 
 rss_link = _orm_get_system_parameter(RSS_FEED)

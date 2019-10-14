@@ -1,5 +1,9 @@
+import datetime
+
 import feedparser
 
+a = datetime.datetime.now()
+print(a)
 
 def get_feed_entries_from_url(url):
 
