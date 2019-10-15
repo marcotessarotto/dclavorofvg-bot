@@ -2,21 +2,36 @@
 # Colonna 1 -> Nome categoria
 # Colonna 2 -> Checked/Unchecked
 # Colonna 3 -> Emoji
+# DEFAULT_CATEGORY_DICT = {
+#     '01': ['Lavoro', u'\U0001F4BC'],
+#     '02': ['Studio e formazione', u'\U0001F4DA'],
+#     '03': ['Mobilità all’estero', u'\U00002708'],
+#     '04': ['Associazionismo e partecipazione', u'\U0001F465'],
+#     '05': ['Casa e servizi alla persona', u'\U0001F3E0'],
+#     '06': ['Eventi e tempo libero', u'\U0001F3AD'],
+#     '07': ['Star bene', u'\U0001F9D8'],
+#     '08': ['Giovani eccellenze in FVG', u'\U0001F393'],
+#     '09': ['La regione FVG per i giovani', u'\U0001F91D'],
+#     '10': ['Studi e ricerche mondo giovani', u'\U0001F4DD'],
+#     '11': ['Garanzia giovani', u'\U0001F3DB'],
+#     '12': ['Offerte di lavoro', u'\U0001F3D7'],
+#     '13': ['Collocamento mirato', u'\U0001F305'],
+# }
+
 DEFAULT_CATEGORY_DICT = {
-    '01': ['Lavoro', u'\U0001F4BC'],
-    '02': ['Studio e formazione', u'\U0001F4DA'],
-    '03': ['Mobilità all’estero', u'\U00002708'],
-    '04': ['Associazionismo e partecipazione', u'\U0001F465'],
-    '05': ['Casa e servizi alla persona', u'\U0001F3E0'],
-    '06': ['Eventi e tempo libero', u'\U0001F3AD'],
-    '07': ['Star bene', u'\U0001F9D8'],
-    '08': ['Giovani eccellenze in FVG', u'\U0001F393'],
-    '09': ['La regione FVG per i giovani', u'\U0001F91D'],
-    '10': ['Studi e ricerche mondo giovani', u'\U0001F4DD'],
-    '11': ['Garanzia giovani', u'\U0001F3DB'],
-    '12': ['Offerte di lavoro', u'\U0001F3D7'],
-    '13': ['Collocamento mirato', u'\U0001F305'],
+    '01': ['Lavoro', u'\U0001F4BC', 'lavoro'],
+    '02': ['Studio e formazione', u'\U0001F4DA', 'formazione'],
+    '03': ['Mobilità all’estero', u'\U00002708', 'estero'],
+    '06': ['Eventi e recruiting', u'\U0001F3AD', 'eventi'],
+    '12': ['Offerte di lavoro', u'\U0001F3D7', 'offerte_lavoro'],
+    '13': ['Collocamento mirato', u'\U0001F305', 'collocamento_mirato'],
+    '15': ['Informazioni di servizio (variazioni orari CPI...)', '-', 'info_servizio'],
+    '16': ['Bandi e avvisi dai CPI	', '-', 'bandi'],
+    '17': ['Statistiche sul mondo del lavoro', '-', 'statistiche'],
+    '18': ['Politiche del lavoro', '-', 'politiche_lavoro'],
+    '19': ['Tirocini', '-', 'tirocini'],
 }
+
 # https://unicode.org/emoji/charts/full-emoji-list.html
 
 help_keyword_list =  ['aiuto', 'help', '?']

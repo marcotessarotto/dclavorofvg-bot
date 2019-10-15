@@ -284,6 +284,14 @@ def orm_get_categories():
     return queryset
 
 
+def orm_lookup_category_by_custom_command(custom_telegram_command):
+    queryset = Category.objects.filter(custom_telegram_command=custom_telegram_command)
+    if len(queryset) == 0:
+        return None
+    else:
+        return queryset[0]
+
+
 def orm_get_category_group(group_name: str) -> CategoriesGroup:
     """
 

@@ -24,6 +24,9 @@ class Category(models.Model):
     name = models.TextField(max_length=256)
     emoji = models.CharField(max_length=9, blank=True, null=True)
 
+    is_telegram_command = models.BooleanField(default=True, verbose_name="comando telegram dedicato?")
+    custom_telegram_command = models.CharField(max_length=64, blank=True, null=True)
+
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -115,13 +118,13 @@ class TelegramUser(models.Model):
 
     number_of_received_news_items = models.BigIntegerField(default=0, verbose_name="numero di news ricevute")
 
-    receive_intership_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui tirocini?")
-
-    receive_courses_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui corsi?")
-
-    receive_recruiting_days_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui recruiting day?")
-
-    receive_targeted_placement_information = models.BooleanField(default=False, verbose_name="vuole ricevere informazioni dal collocamento mirato?")
+    # receive_intership_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui tirocini?")
+    #
+    # receive_courses_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui corsi?")
+    #
+    # receive_recruiting_days_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui recruiting day?")
+    #
+    # receive_targeted_placement_information = models.BooleanField(default=False, verbose_name="vuole ricevere informazioni dal collocamento mirato?")
 
     def categories_str(self):
         result = ''

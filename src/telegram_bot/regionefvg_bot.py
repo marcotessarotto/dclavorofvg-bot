@@ -352,6 +352,27 @@ def callback_choice(update, choice: str):
     print("callback_choice dt=" + str(c.microseconds) + " microseconds")
 
 
+def _get_category_status(update, context, custom_telegram_command):
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+
+    if check_user_privacy_approval(telegram_user, update, context):
+        # privacy not yet approved by user
+        return
+
+    category = orm_lookup_category_by_custom_command(custom_telegram_command)
+
+    if category is None:
+        #
+        return
+
+    queryset = telegram_user.categories.filter(key=category.key)
+
+    if len(queryset) == 0:
+        return False
+    else:
+        return True
+
+
 def _change_categories(update, context, category_group_name):
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
 
@@ -396,6 +417,20 @@ def _set_all_categories(update, context, add_or_remove_all: bool):
             UI_message_i_have_removed_all_your_categories ,
             parse_mode='HTML'
         )
+
+
+def custom_command_handler(update, context):
+    custom_telegram_command = update.message.text[1:]
+    print(custom_telegram_command)
+
+    status = _get_category_status(update, context, custom_telegram_command)
+
+    update.message.reply_text(
+        "status : " + str(status),
+        parse_mode='HTML'
+    )
+
+    # TODO: complete with dialog (subscribe? yes/no)
 
 
 def vacancies_command_handler(update, context):
@@ -1014,17 +1049,31 @@ def main():
     dp.add_handler(CommandHandler(UI_PRIVACY_COMMAND, privacy_command_handler))
     dp.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
 
+    categories = orm_get_categories()
+    for cat in categories:
+        if not cat.is_telegram_command:
+            continue
+        if cat.custom_telegram_command is None:
+            continue
+        if cat.custom_telegram_command in [UI_HELP_COMMAND, UI_START_COMMAND, UI_HELP_COMMAND_ALT, UI_START_COMMAND_ALT, UI_PRIVACY_COMMAND,
+                                           UI_ME_COMMAND, UI_DETACH_BOT, UI_RESEND_LAST_NEWS_COMMAND, UI_CHOOSE_CATEGORIES_COMMAND,
+                                           UI_DEBUG_COMMAND]:
+            continue
+
+        dp.add_handler(CommandHandler(cat.custom_telegram_command, custom_command_handler))
+
+
     # TODO: add automatically bot commands derived from categories group name
-    dp.add_handler(CommandHandler(UI_VACANCIES_COMMAND, vacancies_command_handler))
-    dp.add_handler(CommandHandler(UI_YOUNG_COMMAND, young_categories_command_handler))
+    # dp.add_handler(CommandHandler(UI_VACANCIES_COMMAND, vacancies_command_handler))
+    # dp.add_handler(CommandHandler(UI_YOUNG_COMMAND, young_categories_command_handler))
 
     # these are 'standard' commands (add all categories / remove all categories)
     dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, all_categories_command_handler))
     dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, no_categories_command_handler))
 
-    dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
-    dp.add_handler(CommandHandler(UI_COURSES_COMMAND, courses_command_handler))
-    dp.add_handler(CommandHandler(UI_RECRUITING_DAY_COMMAND, recruiting_day_command_handler))
+    # dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
+    # dp.add_handler(CommandHandler(UI_COURSES_COMMAND, courses_command_handler))
+    # dp.add_handler(CommandHandler(UI_RECRUITING_DAY_COMMAND, recruiting_day_command_handler))
 
     dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
 
