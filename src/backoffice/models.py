@@ -33,7 +33,7 @@ class Category(models.Model):
 
     def __str__(self):
         return str(self.key) + ' (' + \
-               str(self.name) + ') ' + self.emoji
+               str(self.name) + ') ' + str(self.emoji)
 
     # fills the Category table (if it is empty) with some default cateogries stored in the dict
     @staticmethod
