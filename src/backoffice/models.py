@@ -21,8 +21,9 @@ class Category(models.Model):
     """ Classe CATEGORY: rappresenta le informazioni legate alle categorie """
 
     key = models.CharField(max_length=2)
-    name = models.TextField(max_length=256)
+    name = models.CharField(max_length=256)
     emoji = models.CharField(max_length=9, blank=True, null=True)
+    description = models.CharField(max_length=256, blank=True, null=True, verbose_name="descrizione")
 
     is_telegram_command = models.BooleanField(default=True, verbose_name="comando telegram dedicato?")
     custom_telegram_command = models.CharField(max_length=64, blank=True, null=True)

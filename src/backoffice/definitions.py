@@ -152,6 +152,8 @@ UI_message_intership_settings_modified_false = 'NON riceverai informazioni sui t
 UI_message_ok_internship_info = 'Tirocini: Sì'
 UI_message_no_internship_info = 'Tirocini: No'
 
+UI_message_ok_suffix = ": Sì"
+UI_message_no_suffix = ": No"
 
 UI_message_receive_courses_question = 'vuoi ricevere notizie sui CORSI organizzati dalla Regione?'
 UI_message_courses_settings_modified = 'ok, impostazioni sui corsi modificate.'
@@ -177,6 +179,17 @@ UI_message_do_you_need_examples_on_me_command = 'Vuoi qualche esempio?'
 UI_message_let_me_ask_you_some_questions = 'Avanti con le domande!'
 UI_message_me_stop_questions = 'Basta così!'
 
+
+UI_message_do_you_want_news_about = "Vuoi ricevere news su <b>{0}</b>?"
+UI_message_continue_sending_news_about = "Continuo a mandarti news su <b>{0}</b>?"
+
+UI_message_you_are_subscribed_to_news_category = "In questo momento sei iscritto alle news su <b>{0}</b>."
+UI_message_you_are_not_subscribed_to_news_category = "In questo momento non sei iscritto alle news su <b>{0}</b>."
+
+UI_message_stop_receive_info_about = "Smetto di mandarti news su <b>{0}</b>?"
+
+UI_message_custom_settings_modified_true = 'OK, riceverai le news su {0}'
+UI_message_custom_settings_modified_false = 'NON riceverai le news su {0}'
 
 
 UI_OK = 'OK'

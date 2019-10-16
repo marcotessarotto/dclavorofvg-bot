@@ -220,6 +220,26 @@ def orm_change_user_intership_setting(telegram_user_id, intership_setting):
         cache.set(key_name, telegram_user, timeout=60)
 
 
+def orm_change_user_custom_setting(telegram_user_id, category_name, category_setting):
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    categories = orm_get_categories_valid_command()
+
+    cat = next((cat for cat in categories if cat.name == category_name), None)
+
+    if cat is None:
+        return False
+
+    if category_setting:
+        telegram_user.categories.add(cat)
+    else:
+        telegram_user.categories.remove(cat)
+
+    telegram_user.save()
+
+    return True
+
+
 def orm_change_user_courses_setting(telegram_user_id, courses_setting):
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
@@ -275,9 +295,25 @@ def orm_get_all_telegram_users():
     return queryset_user
 
 
+_skip_list = [UI_HELP_COMMAND, UI_START_COMMAND, UI_HELP_COMMAND_ALT, UI_START_COMMAND_ALT, UI_PRIVACY_COMMAND,
+                                           UI_ME_COMMAND, UI_DETACH_BOT, UI_RESEND_LAST_NEWS_COMMAND, UI_CHOOSE_CATEGORIES_COMMAND,
+                                           UI_DEBUG_COMMAND]
+
+
+def orm_get_categories_valid_command():
+    a = datetime.datetime.now()
+    queryset = Category.objects.filter(is_telegram_command=True, custom_telegram_command__isnull=False)\
+        .exclude(custom_telegram_command__in=_skip_list)\
+        .order_by('key')
+    b = datetime.datetime.now()
+    c = b - a
+    print("orm_get_categories_valid_command dt=" + str(c.microseconds) + " microseconds")
+    return queryset
+
+
 def orm_get_categories():
     a = datetime.datetime.now()
-    queryset = Category.objects.all().order_by('id')
+    queryset = Category.objects.all().order_by('key')
     b = datetime.datetime.now()
     c = b - a
     print("orm_get_categories dt=" + str(c.microseconds) + " microseconds")

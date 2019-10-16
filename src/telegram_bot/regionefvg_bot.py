@@ -77,6 +77,8 @@ def help_command_handler(update, context):
         parse_mode='HTML'
     )
 
+    # show custom commands
+
 
 def privacy_command_handler(update, context):
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
@@ -287,12 +289,24 @@ def inline_keyboard(user):
 
     all_categories = orm_get_categories()
 
+    # a = datetime.datetime.now()
+    # test = list(set(all_categories.all()).difference(user.categories.all()))
+    # b = datetime.datetime.now()
+    # c = b - a
+    # print("inline_keyboard(1) dt=" + str(c.microseconds) + " microseconds")
+    # print(test)
+
+    user_categories_set = set(user.categories.all())
+
+    # a = datetime.datetime.now()
     for cat in all_categories:
-        queryset = user.categories.filter(key=cat.key)
 
-        label = cat.name + ' ' + cat.emoji
+        if cat.emoji is not None:
+            label = cat.name + ' ' + cat.emoji
+        else:
+            label = cat.name
 
-        if len(queryset) != 0:
+        if cat in user_categories_set:
             label = u'\U00002705' + ' ' + label.upper()
         else:
             label = u'\U0000274C' + ' ' + label
@@ -301,6 +315,9 @@ def inline_keyboard(user):
             text=label,
             callback_data='choice ' + cat.key)]
         )
+    # b = datetime.datetime.now()
+    # c = b - a
+    # print("inline_keyboard(2) dt=" + str(c.microseconds) + " microseconds")
 
     # add close button
     keyboard.append(
@@ -421,16 +438,70 @@ def _set_all_categories(update, context, add_or_remove_all: bool):
 
 def custom_command_handler(update, context):
     custom_telegram_command = update.message.text[1:]
-    print(custom_telegram_command)
+
+    categories = orm_get_categories_valid_command()
+
+    cat = next( (cat for cat in categories if cat.custom_telegram_command == custom_telegram_command), None)
+
+    #if custom_telegram_command not in [cat.custom_telegram_command for cat in categories]:
+    if cat is None:
+        update.message.reply_text(
+            "TODO: messaggio di aiuto",
+            parse_mode='HTML'
+        )
+        return
 
     status = _get_category_status(update, context, custom_telegram_command)
 
     update.message.reply_text(
-        "status : " + str(status),
+        (UI_message_you_are_subscribed_to_news_category if status else UI_message_you_are_not_subscribed_to_news_category).format(cat.name),
         parse_mode='HTML'
     )
 
-    # TODO: complete with dialog (subscribe? yes/no)
+    if status:
+        msg = UI_message_continue_sending_news_about.format(cat.name)
+    else:
+        msg = UI_message_do_you_want_news_about.format(cat.name)
+
+    custom_command_ok_keyboard = telegram.KeyboardButton(text=cat.name + UI_message_ok_suffix)
+    custom_command_no_keyboard = telegram.KeyboardButton(text=cat.name + UI_message_no_suffix)
+
+    custom_keyboard = [[custom_command_ok_keyboard, custom_command_no_keyboard]]
+
+    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+
+    update.message.reply_text(
+        msg,
+        parse_mode='HTML',
+        reply_markup=reply_markup
+    )
+
+
+def process_custom_telegram_command(update, context, param):
+
+    if param.endswith(UI_message_ok_suffix):
+        custom_telegram_command = param[:len(param) - len(UI_message_ok_suffix)]
+        category_setting = True
+    elif param.endswith(UI_message_no_suffix):
+        custom_telegram_command = param[:len(param) - len(UI_message_no_suffix)]
+        category_setting = False
+    else:
+        return False
+
+    print(custom_telegram_command)
+
+    telegram_user_id = update.message.chat.id
+
+    res = orm_change_user_custom_setting(telegram_user_id, custom_telegram_command, category_setting)
+
+    if res:
+        update.message.reply_text(
+            (UI_message_custom_settings_modified_true if category_setting else UI_message_custom_settings_modified_false).format(custom_telegram_command),
+            parse_mode='HTML'
+        )
+        return True
+    else:
+        return False
 
 
 def vacancies_command_handler(update, context):
@@ -919,12 +990,15 @@ def generic_message_handler(update, context):
 
     print("generic_message_handler - message_text = " + message_text)
 
-    if process_intership_message(update, context, message_text):
+    if process_custom_telegram_command(update, context, message_text):
         return
-    elif process_courses_message(update, context, message_text):
-        return
-    elif process_recruiting_day_message(update, context, message_text):
-        return
+
+    # if process_intership_message(update, context, message_text):
+    #     return
+    # elif process_courses_message(update, context, message_text):
+    #     return
+    # elif process_recruiting_day_message(update, context, message_text):
+    #     return
 
     id_utente = update.message.chat.id
 
@@ -1049,21 +1123,10 @@ def main():
     dp.add_handler(CommandHandler(UI_PRIVACY_COMMAND, privacy_command_handler))
     dp.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
 
-    categories = orm_get_categories()
-    for cat in categories:
-        if not cat.is_telegram_command:
-            continue
-        if cat.custom_telegram_command is None:
-            continue
-        if cat.custom_telegram_command in [UI_HELP_COMMAND, UI_START_COMMAND, UI_HELP_COMMAND_ALT, UI_START_COMMAND_ALT, UI_PRIVACY_COMMAND,
-                                           UI_ME_COMMAND, UI_DETACH_BOT, UI_RESEND_LAST_NEWS_COMMAND, UI_CHOOSE_CATEGORIES_COMMAND,
-                                           UI_DEBUG_COMMAND]:
-            continue
+    # categories = orm_get_categories_valid_command()
+    # for cat in categories:
+    #     dp.add_handler(CommandHandler(cat.custom_telegram_command, unknown_command_handler))
 
-        dp.add_handler(CommandHandler(cat.custom_telegram_command, custom_command_handler))
-
-
-    # TODO: add automatically bot commands derived from categories group name
     # dp.add_handler(CommandHandler(UI_VACANCIES_COMMAND, vacancies_command_handler))
     # dp.add_handler(CommandHandler(UI_YOUNG_COMMAND, young_categories_command_handler))
 
@@ -1090,6 +1153,8 @@ def main():
 
     dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
 
+    # catch all unknown commands (including custom commands associated to categories)
+    dp.add_handler(MessageHandler(Filters.command, custom_command_handler))
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
     dp.add_error_handler(error_callback)
