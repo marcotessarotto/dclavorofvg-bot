@@ -155,83 +155,83 @@ def callback_privacy(update, context, param):
 
 
 # not used at the moment
-def callback_internship(update, context, param):
-    telegram_user_id = update.callback_query.from_user.id
-
-    if param == UI_OK:
-        intership_setting = True
-    else:
-        intership_setting = False
-
-    orm_change_user_intership_setting(telegram_user_id, intership_setting)
-
-    update.callback_query.edit_message_text(
-        UI_message_intership_settings_modified,
-        parse_mode='HTML'
-    )
-
-
-def process_intership_message(update, context, param):
-
-    if param == UI_message_ok_internship_info:
-        intership_setting = True
-    elif param == UI_message_no_internship_info:
-        intership_setting = False
-    else:
-        return False
-
-    telegram_user_id = update.message.chat.id
-
-    orm_change_user_intership_setting(telegram_user_id, intership_setting)
-
-    update.message.reply_text(
-        UI_message_intership_settings_modified_true if intership_setting else UI_message_intership_settings_modified_false,
-        parse_mode='HTML'
-    )
-
-    return True
+# def callback_internship(update, context, param):
+#     telegram_user_id = update.callback_query.from_user.id
+#
+#     if param == UI_OK:
+#         intership_setting = True
+#     else:
+#         intership_setting = False
+#
+#     orm_change_user_intership_setting(telegram_user_id, intership_setting)
+#
+#     update.callback_query.edit_message_text(
+#         UI_message_intership_settings_modified,
+#         parse_mode='HTML'
+#     )
 
 
-def process_courses_message(update, context, param):
+# def process_intership_message(update, context, param):
+#
+#     if param == UI_message_ok_internship_info:
+#         intership_setting = True
+#     elif param == UI_message_no_internship_info:
+#         intership_setting = False
+#     else:
+#         return False
+#
+#     telegram_user_id = update.message.chat.id
+#
+#     orm_change_user_intership_setting(telegram_user_id, intership_setting)
+#
+#     update.message.reply_text(
+#         UI_message_intership_settings_modified_true if intership_setting else UI_message_intership_settings_modified_false,
+#         parse_mode='HTML'
+#     )
+#
+#     return True
 
-    if param == UI_message_ok_course_info:
-        courses_setting = True
-    elif param == UI_message_no_course_info:
-        courses_setting = False
-    else:
-        return False
 
-    telegram_user_id = update.message.chat.id
+# def process_courses_message(update, context, param):
+#
+#     if param == UI_message_ok_course_info:
+#         courses_setting = True
+#     elif param == UI_message_no_course_info:
+#         courses_setting = False
+#     else:
+#         return False
+#
+#     telegram_user_id = update.message.chat.id
+#
+#     orm_change_user_courses_setting(telegram_user_id, courses_setting)
+#
+#     update.message.reply_text(
+#         UI_message_courses_settings_modified_true if courses_setting else UI_message_courses_settings_modified_false,
+#         parse_mode='HTML'
+#     )
+#
+#     return True
 
-    orm_change_user_courses_setting(telegram_user_id, courses_setting)
 
-    update.message.reply_text(
-        UI_message_courses_settings_modified_true if courses_setting else UI_message_courses_settings_modified_false,
-        parse_mode='HTML'
-    )
-
-    return True
-
-
-def process_recruiting_day_message(update, context, param):
-
-    if param == UI_message_ok_recruiting_days_info:
-        recruiting_days_setting = True
-    elif param == UI_message_no_recruiting_days_info:
-        recruiting_days_setting = False
-    else:
-        return False
-
-    telegram_user_id = update.message.chat.id
-
-    orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting)
-
-    update.message.reply_text(
-        UI_message_recruiting_days_settings_modified_true if recruiting_days_setting else UI_message_recruiting_days_settings_modified_false,
-        parse_mode='HTML'
-    )
-
-    return True
+# def process_recruiting_day_message(update, context, param):
+#
+#     if param == UI_message_ok_recruiting_days_info:
+#         recruiting_days_setting = True
+#     elif param == UI_message_no_recruiting_days_info:
+#         recruiting_days_setting = False
+#     else:
+#         return False
+#
+#     telegram_user_id = update.message.chat.id
+#
+#     orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting)
+#
+#     update.message.reply_text(
+#         UI_message_recruiting_days_settings_modified_true if recruiting_days_setting else UI_message_recruiting_days_settings_modified_false,
+#         parse_mode='HTML'
+#     )
+#
+#     return True
 
 
 def callback(update, context):
@@ -488,7 +488,7 @@ def process_custom_telegram_command(update, context, param):
     else:
         return False
 
-    print(custom_telegram_command)
+    # print(custom_telegram_command)
 
     telegram_user_id = update.message.chat.id
 
@@ -522,49 +522,49 @@ def no_categories_command_handler(update, context):
     _set_all_categories(update, context, False)
 
 
-def internship_command_handler(update, context):
-    intership_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_internship_info)
-    intership_no_keyboard = telegram.KeyboardButton(text=UI_message_no_internship_info)
-
-    custom_keyboard = [[intership_ok_keyboard, intership_no_keyboard]]
-
-    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
-
-    update.message.reply_text(
-        UI_message_receive_internship_question,
-        parse_mode='HTML',
-        reply_markup=reply_markup
-    )
-
-
-def courses_command_handler(update, context):
-    course_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_course_info)
-    course_no_keyboard = telegram.KeyboardButton(text=UI_message_no_course_info)
-
-    custom_keyboard = [[course_ok_keyboard, course_no_keyboard]]
-
-    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
-
-    update.message.reply_text(
-        UI_message_receive_courses_question,
-        parse_mode='HTML',
-        reply_markup=reply_markup
-    )
+# def internship_command_handler(update, context):
+#     intership_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_internship_info)
+#     intership_no_keyboard = telegram.KeyboardButton(text=UI_message_no_internship_info)
+#
+#     custom_keyboard = [[intership_ok_keyboard, intership_no_keyboard]]
+#
+#     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+#
+#     update.message.reply_text(
+#         UI_message_receive_internship_question,
+#         parse_mode='HTML',
+#         reply_markup=reply_markup
+#     )
 
 
-def recruiting_day_command_handler(update, context):
-    recruiting_days_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_recruiting_days_info)
-    recruiting_days_no_keyboard = telegram.KeyboardButton(text=UI_message_no_recruiting_days_info)
+# def courses_command_handler(update, context):
+#     course_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_course_info)
+#     course_no_keyboard = telegram.KeyboardButton(text=UI_message_no_course_info)
+#
+#     custom_keyboard = [[course_ok_keyboard, course_no_keyboard]]
+#
+#     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+#
+#     update.message.reply_text(
+#         UI_message_receive_courses_question,
+#         parse_mode='HTML',
+#         reply_markup=reply_markup
+#     )
 
-    custom_keyboard = [[recruiting_days_ok_keyboard, recruiting_days_no_keyboard]]
 
-    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
-
-    update.message.reply_text(
-        UI_message_receive_recruiting_days_question,
-        parse_mode='HTML',
-        reply_markup=reply_markup
-    )
+# def recruiting_day_command_handler(update, context):
+#     recruiting_days_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_recruiting_days_info)
+#     recruiting_days_no_keyboard = telegram.KeyboardButton(text=UI_message_no_recruiting_days_info)
+#
+#     custom_keyboard = [[recruiting_days_ok_keyboard, recruiting_days_no_keyboard]]
+#
+#     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+#
+#     update.message.reply_text(
+#         UI_message_receive_recruiting_days_question,
+#         parse_mode='HTML',
+#         reply_markup=reply_markup
+#     )
 
 
 

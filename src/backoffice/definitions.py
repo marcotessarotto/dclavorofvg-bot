@@ -145,30 +145,30 @@ UI_message_comment_to_news_item = 'Commento alla news {0}'
 
 UI_message_comment_successful = 'Commento caricato con successo!'
 
-UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
-UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'
-UI_message_intership_settings_modified_true = 'OK, riceverai informazioni sui tirocini'
-UI_message_intership_settings_modified_false = 'NON riceverai informazioni sui tirocini'
-UI_message_ok_internship_info = 'Tirocini: Sì'
-UI_message_no_internship_info = 'Tirocini: No'
+# UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
+# UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'
+# UI_message_intership_settings_modified_true = 'OK, riceverai informazioni sui tirocini'
+# UI_message_intership_settings_modified_false = 'NON riceverai informazioni sui tirocini'
+# UI_message_ok_internship_info = 'Tirocini: Sì'
+# UI_message_no_internship_info = 'Tirocini: No'
 
 UI_message_ok_suffix = ": Sì"
 UI_message_no_suffix = ": No"
 
-UI_message_receive_courses_question = 'vuoi ricevere notizie sui CORSI organizzati dalla Regione?'
-UI_message_courses_settings_modified = 'ok, impostazioni sui corsi modificate.'
-UI_message_courses_settings_modified_true = 'OK, riceverai informazioni sui corsi'
-UI_message_courses_settings_modified_false = 'NON riceverai informazioni sui corsi'
-UI_message_ok_course_info = 'Corsi: Sì'
-UI_message_no_course_info = 'Corsi: No'
+# UI_message_receive_courses_question = 'vuoi ricevere notizie sui CORSI organizzati dalla Regione?'
+# UI_message_courses_settings_modified = 'ok, impostazioni sui corsi modificate.'
+# UI_message_courses_settings_modified_true = 'OK, riceverai informazioni sui corsi'
+# UI_message_courses_settings_modified_false = 'NON riceverai informazioni sui corsi'
+# UI_message_ok_course_info = 'Corsi: Sì'
+# UI_message_no_course_info = 'Corsi: No'
 
 
-UI_message_receive_recruiting_days_question = 'vuoi ricevere notizie sui RECRUITING DAY organizzati dalla Regione?'
-UI_message_recruiting_days_settings_modified = 'ok, impostazioni sui recruiting day modificate.'
-UI_message_recruiting_days_settings_modified_true = 'OK, riceverai informazioni sui recruiting day'
-UI_message_recruiting_days_settings_modified_false = 'NON riceverai informazioni sui recruiting day'
-UI_message_ok_recruiting_days_info = 'Recruiting day: Sì'
-UI_message_no_recruiting_days_info = 'Recruiting day: No'
+# UI_message_receive_recruiting_days_question = 'vuoi ricevere notizie sui RECRUITING DAY organizzati dalla Regione?'
+# UI_message_recruiting_days_settings_modified = 'ok, impostazioni sui recruiting day modificate.'
+# UI_message_recruiting_days_settings_modified_true = 'OK, riceverai informazioni sui recruiting day'
+# UI_message_recruiting_days_settings_modified_false = 'NON riceverai informazioni sui recruiting day'
+# UI_message_ok_recruiting_days_info = 'Recruiting day: Sì'
+# UI_message_no_recruiting_days_info = 'Recruiting day: No'
 
 
 UI_message_help_me_provide_better_results = 'Aiutami a darti risultati migliori!\nScrivimi liberamente qualche frase sui tuoi interessi lavorativi.\n' \
