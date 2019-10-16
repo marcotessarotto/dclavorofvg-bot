@@ -130,7 +130,10 @@ class TelegramUser(models.Model):
     def categories_str(self):
         result = ''
         for cat in self.categories.all():
-            result += '- ' + cat.name + '  ' + cat.emoji + '\n'
+            if cat.emoji is not None:
+                result += '- ' + cat.name + '  ' + cat.emoji + '\n'
+            else:
+                result += '- ' + cat.name + '\n'
         return result
 
     enabled = models.BooleanField(default=True, verbose_name="abilitato")
