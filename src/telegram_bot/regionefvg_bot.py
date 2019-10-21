@@ -25,7 +25,6 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 
 from src.gfvgbo.settings import MEDIA_ROOT
 
-# Spiega quando (e perché) le cose non funzionano come ci si aspetta
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -80,6 +79,15 @@ def help_command_handler(update, context):
     )
 
     # show custom commands
+    categories = orm_get_categories_valid_command()
+    msg = ''
+    for cat in categories:
+        msg = msg + '/' + cat.custom_telegram_command + ' : ' + UI_message_receive_info_about_category.format(cat.name) + '\n'
+
+    update.message.reply_text(
+        msg,
+        parse_mode='HTML'
+    )
 
 
 def privacy_command_handler(update, context):
@@ -439,31 +447,33 @@ def _set_all_categories(update, context, add_or_remove_all: bool):
 
 
 def custom_command_handler(update, context):
-    custom_telegram_command = update.message.text[1:]
+
+    original_command = update.message.text
+
+    print("custom_command_handler: " + original_command)
+
+    custom_telegram_command = original_command[1:]
 
     categories = orm_get_categories_valid_command()
 
-    cat = next( (cat for cat in categories if cat.custom_telegram_command == custom_telegram_command), None)
+    cat = next((cat for cat in categories if cat.custom_telegram_command == custom_telegram_command), None)
 
     #if custom_telegram_command not in [cat.custom_telegram_command for cat in categories]:
     if cat is None:
         update.message.reply_text(
-            "TODO: messaggio di aiuto",
+            UI_message_no_matching_category_command,
             parse_mode='HTML'
         )
         return
 
     status = _get_category_status(update, context, custom_telegram_command)
 
-    update.message.reply_text(
-        (UI_message_you_are_subscribed_to_news_category if status else UI_message_you_are_not_subscribed_to_news_category).format(cat.name),
-        parse_mode='HTML'
-    )
+    msg = (UI_message_you_are_subscribed_to_news_category if status else UI_message_you_are_not_subscribed_to_news_category).format(cat.name)
 
     if status:
-        msg = UI_message_continue_sending_news_about.format(cat.name)
+        msg = msg + UI_message_continue_sending_news_about.format(cat.name)
     else:
-        msg = UI_message_do_you_want_news_about.format(cat.name)
+        msg = msg + UI_message_do_you_want_news_about.format(cat.name)
 
     custom_command_ok_keyboard = telegram.KeyboardButton(text=cat.name + UI_message_ok_suffix)
     custom_command_no_keyboard = telegram.KeyboardButton(text=cat.name + UI_message_no_suffix)

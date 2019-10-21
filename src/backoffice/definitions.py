@@ -40,10 +40,6 @@ bot_default_help_msg = """Con il mio aiuto puoi ricevere news ed offerte di lavo
 
 Aiutami a fornirti risultati migliori per te! Usa il comando /me
 
-Per definire quali offerte di lavoro vuoi ricevere, usa il comando <b>/offerte_di_lavoro</b>.
-
-Se sei interessato principalmente alle proposte per i giovani, usa il comando <b>/giovani</b>.
-
 Se vuoi ricevere tutte le news, usa il comando <b>/tutte_le_news</b>.
 
 Se non vuoi ricevere nessuna news, usa il comando <b>/nessuna_news</b>.
@@ -94,17 +90,17 @@ UI_HELP_COMMAND = 'help'
 UI_HELP_COMMAND_ALT = 'aiuto'
 UI_PRIVACY_COMMAND = 'privacy'
 UI_UNDO_PRIVACY_COMMAND = 'undo_privacy'
-UI_VACANCIES_COMMAND = 'offerte_di_lavoro'
-UI_YOUNG_COMMAND = 'giovani'
+# UI_VACANCIES_COMMAND = 'offerte_di_lavoro'
+# UI_YOUNG_COMMAND = 'giovani'
 UI_ALL_CATEGORIES_COMMAND = 'tutte_le_news'
 UI_NO_CATEGORIES_COMMAND = 'nessuna_news'
 UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_DEBUG_COMMAND = 'debug'
 UI_DETACH_BOT = 'fine'
-UI_INTERNSHIP_COMMAND = 'tirocini'
-UI_COURSES_COMMAND = 'corsi'
-UI_RECRUITING_DAY_COMMAND = 'recruiting_day'
+# UI_INTERNSHIP_COMMAND = 'tirocini'
+# UI_COURSES_COMMAND = 'corsi'
+# UI_RECRUITING_DAY_COMMAND = 'recruiting_day'
 UI_ME_COMMAND = 'me'
 
 
@@ -183,14 +179,17 @@ UI_message_me_stop_questions = 'Basta così!'
 UI_message_do_you_want_news_about = "Vuoi ricevere news su <b>{0}</b>?"
 UI_message_continue_sending_news_about = "Continuo a mandarti news su <b>{0}</b>?"
 
-UI_message_you_are_subscribed_to_news_category = "In questo momento sei iscritto alle news su <b>{0}</b>."
-UI_message_you_are_not_subscribed_to_news_category = "In questo momento non sei iscritto alle news su <b>{0}</b>."
+UI_message_you_are_subscribed_to_news_category = "In questo momento sei iscritto alle news su <b>{0}</b>. "
+UI_message_you_are_not_subscribed_to_news_category = "In questo momento non sei iscritto alle news su <b>{0}</b>. "
 
 UI_message_stop_receive_info_about = "Smetto di mandarti news su <b>{0}</b>?"
 
 UI_message_custom_settings_modified_true = 'OK, riceverai le news su {0}'
 UI_message_custom_settings_modified_false = 'NON riceverai le news su {0}'
 
+UI_message_receive_info_about_category = 'ricevi informazioni sulla categoria \'{0}\''
+
+UI_message_no_matching_category_command = 'non capisco il comando! /aiuto per i comandi del bot.'
 
 UI_OK = 'OK'
 UI_NO = 'No'
@@ -210,7 +209,6 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 '''
 help - mostra i comandi disponibili
 offerte_di_lavoro - che tipo di  offerte di lavoro vuoi ricevere?
-giovani - iscriviti a ricevere news sul tema dei giovani e lavoro
 scegli  - scegli che tipo di news vuoi ricevere
 privacy - accetta il regolamento sulla privacy di questo bot
 tirocini - ricevi (o no) info sui tirocini
@@ -219,3 +217,4 @@ me - aiutami a fornirti risultati su misura per te
 impostazioni - mostra tutte le impostazioni utente
 '''
 
+# giovani - iscriviti a ricevere news sul tema dei giovani e lavoro

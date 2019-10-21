@@ -92,10 +92,27 @@ class NewsItemSentToUser(models.Model):
 
 
 # ****************************************************************************************
+
+DEGREE_LEVELS = (
+    ('-', 'non dichiarata'),
+    ('a', 'scuola elementare'),
+    ('b', 'scuola media'),
+    ('c', 'superiori'),
+    ('d', '' ),
+    ('e','' ),
+    ('f','' ),
+    ('g','' ),
+    ('h','' ),
+)
+
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 
     user_id = models.BigIntegerField(verbose_name="telegram user id")  # Telegram used id
+
+    age = models.IntegerField(default=-1, verbose_name="età",)
+
+    degree_level = models.CharField(max_length=1, choices=DEGREE_LEVELS, default='-')
 
     regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
 
@@ -103,7 +120,7 @@ class TelegramUser(models.Model):
 
     has_accepted_privacy_rules = models.BooleanField(default=False, verbose_name="ha accettato il regolamento privacy?")
     # L : through a parameter passed to /start
-    # U : user must accept privacy rules
+    # U : user has accepted privacy rules through bot UI
     privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True, verbose_name="meccanismo di accettazione privacy (U: tramite il bot)")
     privacy_acceptance_timestamp = models.DateTimeField(blank=True, null=True)
 
@@ -147,6 +164,9 @@ class TelegramUser(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def study_title_verbose(self):
+        return dict(COERENZA_CON_LA_MISSION)[self.coerenza_con_la_mission]
 
     class Meta:
         verbose_name = "Utente Telegram"

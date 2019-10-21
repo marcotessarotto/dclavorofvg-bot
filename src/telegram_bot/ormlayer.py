@@ -14,7 +14,7 @@ use_cache = True
 
 
 def orm_add_telegram_user(user):
-    """ Aggiunge un nuovo utente, se non già registrato; restituisce l'istanza dell'utente """
+    """ creates a new user, if not existing; returns istance """
 
     telegram_user = orm_get_telegram_user(user.id)
 
@@ -27,22 +27,17 @@ def orm_add_telegram_user(user):
         new_telegram_user.language_code = user.language_code
         new_telegram_user.save()
 
-        # Selezione tutte le categorie (opzione di default)
+        # select all news categories
         for k in Category.objects.all():
             new_telegram_user.categories.add(k)
-            k.save()
 
         new_telegram_user.save()
 
-        print('\nnew telegram user:'
-              ' ' + str(new_telegram_user.user_id) +
-              ' ' + str(new_telegram_user.username) +
-              '  ' + str(new_telegram_user.first_name) + ' ' + str(new_telegram_user.last_name))
+        print("orm_add_telegram_user: new user " + str(new_telegram_user.user_id))
 
         return new_telegram_user
-
     else:
-        print('telegram user: ' + str(telegram_user.user_id))
+        print("orm_add_telegram_user: existing user " + str(telegram_user.user_id))
         return telegram_user
 
 
@@ -53,31 +48,31 @@ def orm_log_news_sent_to_user(news_item, telegram_user):
     item.save()
 
 
-def orm_add_news_item(title, text, link):
-    """ Aggiunge un nuovo articolo """
-
-    news_id = ''
-
-    # Seleziona un id casule di 5 cifre
-    # import random
-    # for i in range(5):
-    #     news_id += str(random.randint(0, 9))
-
-    # Se l'id è già preso riprova la selezione casuale
-    # queryset = NewsItem.objects.filter(news_id=news_id)
-    # if len(queryset) != 0:
-    #     orm_add_newsitem(title, text, link)
-
-    news = NewsItem()
-    # news.news_id = news_id
-    news.title = title
-    news.text = text
-    news.link = link
-    news.save()
-
-    print('\nNUOVO ARTICOLO: ' + str(news))
-
-    return news
+# def orm_add_news_item(title, text, link):
+#     """ Aggiunge un nuovo articolo """
+#
+#     news_id = ''
+#
+#     # Seleziona un id casule di 5 cifre
+#     # import random
+#     # for i in range(5):
+#     #     news_id += str(random.randint(0, 9))
+#
+#     # Se l'id è già preso riprova la selezione casuale
+#     # queryset = NewsItem.objects.filter(news_id=news_id)
+#     # if len(queryset) != 0:
+#     #     orm_add_newsitem(title, text, link)
+#
+#     news = NewsItem()
+#     # news.news_id = news_id
+#     news.title = title
+#     news.text = text
+#     news.link = link
+#     news.save()
+#
+#     print('\nNUOVO ARTICOLO: ' + str(news))
+#
+#     return news
 
 
 def _orm_get_news_item(news_id):
