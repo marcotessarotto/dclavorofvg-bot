@@ -32,7 +32,7 @@ DEFAULT_CATEGORY_DICT = {
     '19': ['Tirocini', '-', 'tirocini'],
 }
 
-DEBUG_MSG = False
+DEBUG_MSG = True
 
 # https://unicode.org/emoji/charts/full-emoji-list.html
 
@@ -145,6 +145,8 @@ UI_message_write_a_comment = 'Scrivi un commento'
 UI_message_comment_to_news_item = 'Commento alla news {0}'
 
 UI_message_comment_successful = 'Commento caricato con successo!'
+
+UI_message_thank_you = 'Grazie!'
 
 # UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
 # UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'

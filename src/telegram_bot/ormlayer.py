@@ -217,7 +217,7 @@ def orm_get_user_expected_input(obj) -> str:
     return res
 
 
-def orm_set_user_expected_input(obj, expected_input):
+def orm_set_telegram_user_expected_input(obj, expected_input):
     if obj is None:
         return None
 
@@ -233,7 +233,14 @@ def orm_set_user_expected_input(obj, expected_input):
         _update_user_in_cache(telegram_user)
 
 
-def orm_parse_user_age(telegram_user : TelegramUser, message_text: str):
+def orm_set_telegram_user_educational_level(telegram_user: TelegramUser, choice: str):
+
+    telegram_user.educational_level = choice
+    telegram_user.save()
+    _update_user_in_cache(telegram_user)
+
+
+def orm_parse_user_age(telegram_user: TelegramUser, message_text: str):
     try:
         age = int(message_text)
 

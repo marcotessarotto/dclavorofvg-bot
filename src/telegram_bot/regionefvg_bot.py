@@ -1,23 +1,24 @@
-import os
 
 # cd Scrivania/regionefvg_bot
 # export PYTHONPATH=.:src/telegram_bot
 # python src/telegram_bot/regionefvg_bot.py
 
-from email import message
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
+    ChatAction
 
 from src.telegram_bot.ormlayer import *
 
 try:
     from ..backoffice.definitions import *
+    from ..backoffice.models import EDUCATIONAL_LEVELS
 except:
     from src.backoffice.definitions import *
+    from src.backoffice.models import EDUCATIONAL_LEVELS
 
-from telegram.ext import *
-from telegram import *
+# from telegram.ext import *
 
-import telegram.bot
-from telegram.ext import messagequeue as mq
+from telegram.ext import messagequeue as mq, Updater, CommandHandler, MessageHandler, Filters, CallbackContext, \
+    CallbackQueryHandler
 
 import logging
 
@@ -191,9 +192,9 @@ def detach_from_bot(update, context):
 
 
 def ask_age(update, context):
-    if DEBUG_MSG:
-        print("ask_age update:")
-        my_print(update, 4)
+    # if DEBUG_MSG:
+    #     print("ask_age update:")
+    #     my_print(update, 4)
 
     telegram_user_id = update.callback_query.from_user.id
 
@@ -202,7 +203,32 @@ def ask_age(update, context):
         parse_mode='HTML'
     )
 
-    orm_set_user_expected_input(telegram_user_id, 'a')
+    orm_set_telegram_user_expected_input(telegram_user_id, 'a')
+    return
+
+
+def ask_educational_level(update, context):
+    telegram_user_id = update.message.chat.id
+
+    keyboard = []
+
+    for row in EDUCATIONAL_LEVELS:
+        # print(row)
+        keyboard.append([InlineKeyboardButton(
+            text=row[1],
+            callback_data='education_level ' + row[0])]
+        )
+
+    # keyboard.append(
+    #     [InlineKeyboardButton(text=UI_CLOSE_UC, callback_data='choice OK')]
+    # )
+
+    context.bot.send_message(
+        chat_id=telegram_user_id,
+        text='Per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:',
+        parse_mode='HTML',
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 
 
 def callback_privacy(update, context, param):
@@ -293,8 +319,8 @@ def callback(update, context):
     elif keyword == 'privacy':
         callback_privacy(update, context, data[1])
 
-    # elif keyword == 'internship':
-    #     callback_internship(update, context, data[1])
+    elif keyword == 'education_level':
+        callback_education_level(update, context, data[1])
 
 
 # SEZIONE SCELTA CATEGORIE
@@ -363,6 +389,25 @@ def inline_keyboard(user):
     )
 
     return keyboard
+
+
+def callback_education_level(update, context, choice: str):
+    for line in EDUCATIONAL_LEVELS:
+        if line[0] == choice:
+            el = line[1]
+            break
+
+    telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
+
+    print("callback_education_level: " + choice + " " + el)
+
+    update.callback_query.edit_message_text(
+        text='Grazie, hai scelto ' + el
+    )
+
+    orm_set_telegram_user_educational_level(telegram_user, choice)
+
+    return
 
 
 def callback_choice(update, choice: str):
@@ -509,12 +554,12 @@ def custom_command_handler(update, context):
     else:
         msg = msg + UI_message_do_you_want_news_about.format(cat.name)
 
-    custom_command_ok_keyboard = telegram.KeyboardButton(text=cat.name + UI_message_ok_suffix)
-    custom_command_no_keyboard = telegram.KeyboardButton(text=cat.name + UI_message_no_suffix)
+    custom_command_ok_keyboard = KeyboardButton(text=cat.name + UI_message_ok_suffix)
+    custom_command_no_keyboard = KeyboardButton(text=cat.name + UI_message_no_suffix)
 
     custom_keyboard = [[custom_command_ok_keyboard, custom_command_no_keyboard]]
 
-    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     update.message.reply_text(
         msg,
@@ -603,12 +648,12 @@ def me_command_handler(update, context):
     #     # reply_markup=reply_markup
     # )
 
-    me_continue_keyboard = telegram.KeyboardButton(text=UI_message_let_me_ask_you_some_questions)
-    me_stop_keyboard = telegram.KeyboardButton(text=UI_message_me_stop_questions)
+    me_continue_keyboard = KeyboardButton(text=UI_message_let_me_ask_you_some_questions)
+    me_stop_keyboard = KeyboardButton(text=UI_message_me_stop_questions)
 
     custom_keyboard = [[me_continue_keyboard, me_stop_keyboard]]
 
-    reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
 
     update.message.reply_text(
         UI_message_help_me_provide_better_results,
@@ -622,7 +667,7 @@ def intersection(lst1, lst2):
     return lst3
 
 
-def news_dispatcher(context: telegram.ext.CallbackContext):
+def news_dispatcher(context: CallbackContext):
     a = datetime.datetime.now()
 
     list_of_news = orm_get_fresh_news_to_send()
@@ -999,7 +1044,9 @@ def comment_handler(update, context):
 
 
 def generic_message_handler(update, context):
-    # print("generic_message_handler - " + str(update))
+    if DEBUG_MSG:
+        print("generic_message_handler update:")
+        my_print(update, 4)
 
     message_text = update.message.text
 
@@ -1030,8 +1077,14 @@ def generic_message_handler(update, context):
     if expected_input == 'a':
         # expecting age from user
         if orm_parse_user_age(telegram_user, message_text):
+            update.message.reply_text(
+                UI_message_thank_you,
+                parse_mode='HTML'
+            )
+
             # now ask educational level
             # TODO
+            ask_educational_level(update, context)
 
             return
 
@@ -1041,7 +1094,7 @@ def generic_message_handler(update, context):
             parse_mode='HTML'
         )
     else:
-        global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=telegram.ChatAction.TYPING)
+        global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
 
 
 # def callback_minute(context: telegram.ext.CallbackContext):
@@ -1054,7 +1107,7 @@ def generic_message_handler(update, context):
 #                                  text='One message every 10 minutes')
 
 
-class MQBot(telegram.bot.Bot):
+class MQBot(Bot):
     '''A subclass of Bot which delegates send method handling to MQ'''
 
     def __init__(self, *args, is_queued_def=True, mqueue=None, **kwargs):
