@@ -144,30 +144,32 @@ def orm_get_comment(user_id):
 
 
 def orm_get_telegram_user(telegram_user_id):
-    """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser """
+    """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser 
+    :rtype: TelegramUser
+    """
 
     def _orm_get_telegram_user():
 
         queryset_user = TelegramUser.objects.filter(user_id=telegram_user_id)
 
         if len(queryset_user) == 0:
-            result = None
+            res = None
         else:
-            result = queryset_user[0]
+            res = queryset_user[0]
 
-        return result
+        return res
 
     def _orm_get_telegram_user_cache():
 
         key_name = "user" + str(telegram_user_id)
 
-        result = cache.get(key_name)
+        res = cache.get(key_name)
 
-        if result is None:
-            result = _orm_get_telegram_user()
-            cache.set(key_name, result, timeout=60)
+        if res is None:
+            res = _orm_get_telegram_user()
+            cache.set(key_name, res, timeout=60)
 
-        return result
+        return res
 
     a = datetime.datetime.now()
 
@@ -185,6 +187,51 @@ def orm_get_telegram_user(telegram_user_id):
     return result
 
 
+def _update_user_in_cache(telegram_user):
+    if use_cache:
+        key_name = "user" + str(telegram_user.user_id)
+        cache.set(key_name, telegram_user, timeout=60)
+
+
+def orm_get_user_expected_input(obj) -> str:
+    """returns user's next expected input and resets it to 'no input expected'"""
+    if obj is None:
+        return None
+
+    if hasattr(obj, '__dict__'):
+        telegram_user = obj
+    else:
+        telegram_user = orm_get_telegram_user(obj)
+
+    if telegram_user is not None:
+        res = telegram_user.chat_state
+        telegram_user.chat_state = '-'
+        telegram_user.save()
+        _update_user_in_cache(telegram_user)
+    else:
+        res = None
+
+    print("orm_get_user_expected_input(" + str(obj) + "): " + str(res))
+
+    return res
+
+
+def orm_set_user_expected_input(obj, expected_input):
+    if obj is None:
+        return None
+
+    if hasattr(obj, '__dict__'):
+        telegram_user = obj
+    else:
+        telegram_user = orm_get_telegram_user(obj)
+
+    if telegram_user is not None:
+        print("orm_set_user_expected_input: user " + str(telegram_user.user_id) + ", setting chat_state to " + expected_input)
+        telegram_user.chat_state = expected_input
+        telegram_user.save()
+        _update_user_in_cache(telegram_user)
+
+
 def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
@@ -198,21 +245,19 @@ def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
 
     telegram_user.save()
 
-    if use_cache:
-        key_name = "user" + str(telegram_user.user_id)
-        cache.set(key_name, telegram_user, timeout=60)
+    _update_user_in_cache(telegram_user)
 
 
-def orm_change_user_intership_setting(telegram_user_id, intership_setting):
-    telegram_user = orm_get_telegram_user(telegram_user_id)
-
-    telegram_user.receive_intership_information = intership_setting
-
-    telegram_user.save()
-
-    if use_cache:
-        key_name = "user" + str(telegram_user.user_id)
-        cache.set(key_name, telegram_user, timeout=60)
+# def orm_change_user_intership_setting(telegram_user_id, intership_setting):
+#     telegram_user = orm_get_telegram_user(telegram_user_id)
+#
+#     telegram_user.receive_intership_information = intership_setting
+#
+#     telegram_user.save()
+#
+#     if use_cache:
+#         key_name = "user" + str(telegram_user.user_id)
+#         cache.set(key_name, telegram_user, timeout=60)
 
 
 def orm_change_user_custom_setting(telegram_user_id, category_name, category_setting):
@@ -235,28 +280,28 @@ def orm_change_user_custom_setting(telegram_user_id, category_name, category_set
     return True
 
 
-def orm_change_user_courses_setting(telegram_user_id, courses_setting):
-    telegram_user = orm_get_telegram_user(telegram_user_id)
+# def orm_change_user_courses_setting(telegram_user_id, courses_setting):
+#     telegram_user = orm_get_telegram_user(telegram_user_id)
+#
+#     telegram_user.receive_courses_information = courses_setting
+#
+#     telegram_user.save()
+#
+#     if use_cache:
+#         key_name = "user" + str(telegram_user.user_id)
+#         cache.set(key_name, telegram_user, timeout=60)
 
-    telegram_user.receive_courses_information = courses_setting
 
-    telegram_user.save()
-
-    if use_cache:
-        key_name = "user" + str(telegram_user.user_id)
-        cache.set(key_name, telegram_user, timeout=60)
-
-
-def orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting):
-    telegram_user = orm_get_telegram_user(telegram_user_id)
-
-    telegram_user.receive_recruiting_days_information = recruiting_days_setting
-
-    telegram_user.save()
-
-    if use_cache:
-        key_name = "user" + str(telegram_user.user_id)
-        cache.set(key_name, telegram_user, timeout=60)
+# def orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting):
+#     telegram_user = orm_get_telegram_user(telegram_user_id)
+#
+#     telegram_user.receive_recruiting_days_information = recruiting_days_setting
+#
+#     telegram_user.save()
+#
+#     if use_cache:
+#         key_name = "user" + str(telegram_user.user_id)
+#         cache.set(key_name, telegram_user, timeout=60)
 
 
 def orm_update_user_category_settings(user, category_key):

@@ -3,7 +3,7 @@ import os
 # cd Scrivania/regionefvg_bot
 # export PYTHONPATH=.:src/telegram_bot
 # python src/telegram_bot/regionefvg_bot.py
-import pprint
+
 from email import message
 
 from src.telegram_bot.ormlayer import *
@@ -32,7 +32,6 @@ logging.basicConfig(
 )
 
 global_bot_instance = None
-pp = pprint.PrettyPrinter(indent=4)
 
 
 def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
@@ -47,12 +46,30 @@ def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
         return False
 
 
+def my_print(obj, indent):
+    mydic = obj.__dict__
+    for i in mydic:
+        name = str(i)
+        val = mydic[i]
+        if val is not None:
+
+            if name == "message" or name == "callback_query":
+                print(" " * indent + name + " : ")
+                my_print(val, indent + 4)
+            else:
+                print(" " * indent + name + " : " + str(val))
+        else:
+            # print(" " * indent + name + " : None")
+            pass
+
+
 def start_command_handler(update, context):
 
     if DEBUG_MSG:
-        print(update)
+        print("start_command_handler update:")
+        my_print(update, 4)
 
-    print(context.args)  # parametro via start; max 64 caratteri
+    print("start args:" + str(context.args))  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
     # print("update.message.from_user = " + str(update.message.from_user))
@@ -70,10 +87,10 @@ def start_command_handler(update, context):
         # privacy not yet approved by user
         return privacy_command_handler(update, context)
 
-    update.message.reply_text(
-        orm_get_system_parameter(UI_bot_help_message),
-        parse_mode='HTML'
-    )
+    # update.message.reply_text(
+    #     orm_get_system_parameter(UI_bot_help_message),
+    #     parse_mode='HTML'
+    # )
 
 
 def help_command_handler(update, context):
@@ -150,15 +167,25 @@ def detach_from_bot(update, context):
 
 def ask_age(update, context):
     if DEBUG_MSG:
-        print(update)
+        print("ask_age update:")
+        my_print(update, 4)
+
+    telegram_user_id = update.callback_query.from_user.id
 
     update.callback_query.edit_message_text(
         'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?',
         parse_mode='HTML'
     )
 
+    orm_set_user_expected_input(telegram_user_id, 'a')
+
 
 def callback_privacy(update, context, param):
+
+    if DEBUG_MSG:
+        print("callback_privacy update:")
+        my_print(update, 4)
+
     telegram_user_id = update.callback_query.from_user.id
 
     if param == UI_ACCEPT_UC:
@@ -1010,6 +1037,23 @@ def comment_handler(update, context):
     )
 
 
+def parse_user_age(telegram_user : TelegramUser, message_text: str):
+    try:
+        age = int(message_text)
+
+        if age < 15:
+            return False
+    except ValueError:
+        print("wrong format for age! " + message_text)
+        return False
+
+    telegram_user.age = age
+    telegram_user.save()
+    print("parse_user_age: age set for user " + str(telegram_user.user_id) + " to " + str(age))
+
+    return True
+
+
 def generic_message_handler(update, context):
     # print("generic_message_handler - " + str(update))
 
@@ -1027,7 +1071,18 @@ def generic_message_handler(update, context):
     # elif process_recruiting_day_message(update, context, message_text):
     #     return
 
-    id_utente = update.message.chat.id
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    expected_input = orm_get_user_expected_input(telegram_user)
+
+    if expected_input == 'a':
+        # expecting age from user
+        if parse_user_age(telegram_user, message_text):
+            # now ask educational level
+            # TODO
+
+            return
 
     if message_text.lower() in help_keyword_list or len(message_text) <= 2:
         update.message.reply_text(
@@ -1035,7 +1090,7 @@ def generic_message_handler(update, context):
             parse_mode='HTML'
         )
     else:
-        global_bot_instance.send_chat_action(chat_id=id_utente, action=telegram.ChatAction.TYPING)
+        global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=telegram.ChatAction.TYPING)
 
 
 # def callback_minute(context: telegram.ext.CallbackContext):

@@ -114,6 +114,8 @@ class TelegramUser(models.Model):
 
     educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-')
 
+    chat_state = models.CharField(max_length=1, default = '-', blank=True,)
+
     regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
 
     rss_id = models.CharField(max_length=256, blank=True, null=True, editable=False) # used if news comes from rss feed
