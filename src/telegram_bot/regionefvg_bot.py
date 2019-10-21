@@ -46,6 +46,16 @@ def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
         return False
 
 
+def check_user_is_enabled(telegram_user: TelegramUser, update, context):
+    if not telegram_user.enabled:
+        update.message.reply_text(
+            UI_message_disabled_account
+        )
+        return True
+    else:
+        return False
+
+
 def my_print(obj, indent):
     mydic = obj.__dict__
     for i in mydic:
@@ -76,10 +86,7 @@ def start_command_handler(update, context):
 
     telegram_user = orm_add_telegram_user(update.message.from_user)
 
-    if not telegram_user.enabled:
-        update.message.reply_text(
-            UI_message_disabled_account
-        )
+    if check_user_is_enabled(telegram_user, update, context):
         return
 
     bot_presentation = orm_get_system_parameter(UI_bot_presentation)
@@ -108,6 +115,18 @@ def help_command_handler(update, context):
     )
 
     # show custom commands
+    # categories = orm_get_categories_valid_command()
+    # msg = ''
+    # for cat in categories:
+    #     msg = msg + '/' + cat.custom_telegram_command + ' : ' + UI_message_receive_info_about_category.format(cat.name) + '\n'
+    #
+    # update.message.reply_text(
+    #     msg,
+    #     parse_mode='HTML'
+    # )
+
+
+def help_categories(update, context):
     categories = orm_get_categories_valid_command()
     msg = ''
     for cat in categories:
@@ -250,48 +269,6 @@ def callback_privacy(update, context, param):
 #     return True
 
 
-# def process_courses_message(update, context, param):
-#
-#     if param == UI_message_ok_course_info:
-#         courses_setting = True
-#     elif param == UI_message_no_course_info:
-#         courses_setting = False
-#     else:
-#         return False
-#
-#     telegram_user_id = update.message.chat.id
-#
-#     orm_change_user_courses_setting(telegram_user_id, courses_setting)
-#
-#     update.message.reply_text(
-#         UI_message_courses_settings_modified_true if courses_setting else UI_message_courses_settings_modified_false,
-#         parse_mode='HTML'
-#     )
-#
-#     return True
-
-
-# def process_recruiting_day_message(update, context, param):
-#
-#     if param == UI_message_ok_recruiting_days_info:
-#         recruiting_days_setting = True
-#     elif param == UI_message_no_recruiting_days_info:
-#         recruiting_days_setting = False
-#     else:
-#         return False
-#
-#     telegram_user_id = update.message.chat.id
-#
-#     orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting)
-#
-#     update.message.reply_text(
-#         UI_message_recruiting_days_settings_modified_true if recruiting_days_setting else UI_message_recruiting_days_settings_modified_false,
-#         parse_mode='HTML'
-#     )
-#
-#     return True
-
-
 def callback(update, context):
     """ Gestisce i callback_data inviati dalle inline_keyboard """
 
@@ -327,6 +304,9 @@ def choose_news_categories(update, context):
     """ Permette all'utente di scegliere tra le categorie disponibili """
 
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
+
+    if check_user_is_enabled(telegram_user, update, context):
+        return
 
     if check_user_privacy_approval(telegram_user, update, context):
         # privacy not yet approved by user
@@ -503,10 +483,7 @@ def custom_command_handler(update, context):
     telegram_user_id = update.message.chat.id
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
-    if not telegram_user.enabled:
-        update.message.reply_text(
-            UI_message_disabled_account
-        )
+    if check_user_is_enabled(telegram_user, update, context):
         return
 
     custom_telegram_command = original_command[1:]
@@ -515,7 +492,7 @@ def custom_command_handler(update, context):
 
     cat = next((cat for cat in categories if cat.custom_telegram_command == custom_telegram_command), None)
 
-    #if custom_telegram_command not in [cat.custom_telegram_command for cat in categories]:
+    # if custom_telegram_command not in [cat.custom_telegram_command for cat in categories]:
     if cat is None:
         update.message.reply_text(
             UI_message_no_matching_category_command,
@@ -546,31 +523,31 @@ def custom_command_handler(update, context):
     )
 
 
-def process_custom_telegram_command(update, context, param):
-
-    if param.endswith(UI_message_ok_suffix):
-        custom_telegram_command = param[:len(param) - len(UI_message_ok_suffix)]
-        category_setting = True
-    elif param.endswith(UI_message_no_suffix):
-        custom_telegram_command = param[:len(param) - len(UI_message_no_suffix)]
-        category_setting = False
-    else:
-        return False
-
-    # print(custom_telegram_command)
-
-    telegram_user_id = update.message.chat.id
-
-    res = orm_change_user_custom_setting(telegram_user_id, custom_telegram_command, category_setting)
-
-    if res:
-        update.message.reply_text(
-            (UI_message_custom_settings_modified_true if category_setting else UI_message_custom_settings_modified_false).format(custom_telegram_command),
-            parse_mode='HTML'
-        )
-        return True
-    else:
-        return False
+# def process_custom_telegram_command(update, context, param):
+#
+#     if param.endswith(UI_message_ok_suffix):
+#         custom_telegram_command = param[:len(param) - len(UI_message_ok_suffix)]
+#         category_setting = True
+#     elif param.endswith(UI_message_no_suffix):
+#         custom_telegram_command = param[:len(param) - len(UI_message_no_suffix)]
+#         category_setting = False
+#     else:
+#         return False
+#
+#     # print(custom_telegram_command)
+#
+#     telegram_user_id = update.message.chat.id
+#
+#     res = orm_change_user_custom_setting(telegram_user_id, custom_telegram_command, category_setting)
+#
+#     if res:
+#         update.message.reply_text(
+#             (UI_message_custom_settings_modified_true if category_setting else UI_message_custom_settings_modified_false).format(custom_telegram_command),
+#             parse_mode='HTML'
+#         )
+#         return True
+#     else:
+#         return False
 
 
 def vacancies_command_handler(update, context):
@@ -604,37 +581,6 @@ def no_categories_command_handler(update, context):
 #         parse_mode='HTML',
 #         reply_markup=reply_markup
 #     )
-
-
-# def courses_command_handler(update, context):
-#     course_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_course_info)
-#     course_no_keyboard = telegram.KeyboardButton(text=UI_message_no_course_info)
-#
-#     custom_keyboard = [[course_ok_keyboard, course_no_keyboard]]
-#
-#     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
-#
-#     update.message.reply_text(
-#         UI_message_receive_courses_question,
-#         parse_mode='HTML',
-#         reply_markup=reply_markup
-#     )
-
-
-# def recruiting_day_command_handler(update, context):
-#     recruiting_days_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_recruiting_days_info)
-#     recruiting_days_no_keyboard = telegram.KeyboardButton(text=UI_message_no_recruiting_days_info)
-#
-#     custom_keyboard = [[recruiting_days_ok_keyboard, recruiting_days_no_keyboard]]
-#
-#     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
-#
-#     update.message.reply_text(
-#         UI_message_receive_recruiting_days_question,
-#         parse_mode='HTML',
-#         reply_markup=reply_markup
-#     )
-
 
 
 def me_command_handler(update, context):
@@ -1059,8 +1005,18 @@ def generic_message_handler(update, context):
 
     print("generic_message_handler - message_text = " + message_text)
 
-    if process_custom_telegram_command(update, context, message_text):
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    if check_user_is_enabled(telegram_user, update, context):
         return
+
+    if check_user_privacy_approval(telegram_user, update, context):
+        # privacy not yet approved by user
+        return
+
+    # if process_custom_telegram_command(update, context, message_text):
+    #     return
 
     # if process_intership_message(update, context, message_text):
     #     return
@@ -1068,9 +1024,6 @@ def generic_message_handler(update, context):
     #     return
     # elif process_recruiting_day_message(update, context, message_text):
     #     return
-
-    telegram_user_id = update.message.chat.id
-    telegram_user = orm_get_telegram_user(telegram_user_id)
 
     expected_input = orm_get_user_expected_input(telegram_user)
 
@@ -1230,6 +1183,9 @@ def main():
 
     # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories))
+
+    dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories))
+
 
     dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
 

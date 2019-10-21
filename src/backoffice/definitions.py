@@ -32,13 +32,13 @@ DEFAULT_CATEGORY_DICT = {
     '19': ['Tirocini', '-', 'tirocini'],
 }
 
-DEBUG_MSG = True
+DEBUG_MSG = False
 
 # https://unicode.org/emoji/charts/full-emoji-list.html
 
 help_keyword_list =  ['aiuto', 'help', '?']
 
-bot_default_help_msg = """Con il mio aiuto puoi ricevere news ed offerte di lavoro personalizzate sulle tue esigenze.
+bot_default_help_msg = """Ti aiuto a ricevere news ed offerte di lavoro personalizzate sulle tue esigenze.
 
 Aiutami a fornirti risultati migliori per te! Usa il comando /me
 
@@ -104,6 +104,7 @@ UI_DETACH_BOT = 'fine'
 # UI_COURSES_COMMAND = 'corsi'
 # UI_RECRUITING_DAY_COMMAND = 'recruiting_day'
 UI_ME_COMMAND = 'me'
+UI_CATEGORIES_HELP = "help_categorie"
 
 
 UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori."

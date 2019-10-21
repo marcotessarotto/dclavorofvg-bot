@@ -13,6 +13,12 @@ from src.backoffice.models import *
 use_cache = True
 
 
+def _update_user_in_cache(telegram_user):
+    if use_cache:
+        key_name = "user" + str(telegram_user.user_id)
+        cache.set(key_name, telegram_user, timeout=60)
+
+
 def orm_add_telegram_user(user):
     """ creates a new user, if not existing; returns istance """
 
@@ -32,7 +38,8 @@ def orm_add_telegram_user(user):
             new_telegram_user.categories.add(k)
 
         new_telegram_user.save()
-
+        _
+        _update_user_in_cache(new_telegram_user)
         print("orm_add_telegram_user: new user " + str(new_telegram_user.user_id))
 
         return new_telegram_user
@@ -187,12 +194,6 @@ def orm_get_telegram_user(telegram_user_id):
     return result
 
 
-def _update_user_in_cache(telegram_user):
-    if use_cache:
-        key_name = "user" + str(telegram_user.user_id)
-        cache.set(key_name, telegram_user, timeout=60)
-
-
 def orm_get_user_expected_input(obj) -> str:
     """returns user's next expected input and resets it to 'no input expected'"""
     if obj is None:
@@ -236,7 +237,7 @@ def orm_parse_user_age(telegram_user : TelegramUser, message_text: str):
     try:
         age = int(message_text)
 
-        if age < 15:
+        if age < 14:
             return False
     except ValueError:
         print("wrong format for age! " + message_text)
@@ -322,27 +323,27 @@ def orm_change_user_custom_setting(telegram_user_id, category_name, category_set
 #         cache.set(key_name, telegram_user, timeout=60)
 
 
-def orm_update_user_category_settings(user, category_key):
+def orm_update_user_category_settings(telegram_user, category_key):
     """ Aggiorna le categorie selezionate dall'utente"""
 
-    print("orm_update_user_category_settings category_key=" + str(category_key) + " user_id=" + str(user.user_id))
+    print("orm_update_user_category_settings category_key=" + str(category_key) + " user_id=" + str(telegram_user.user_id))
 
-    queryset_cat = user.categories.filter(key=category_key)
+    queryset_cat = telegram_user.categories.filter(key=category_key)
 
     if len(queryset_cat) != 0:  # category is present in user settings, we have to remove it
         cat = queryset_cat[0]
-        user.categories.remove(cat)
-        user.save()
-        cat.save()
+        telegram_user.categories.remove(cat)
+        telegram_user.save()
+        # cat.save()
 
         print('RIMOZIONE ' + str(cat))
 
     else:  # category is not present in user settings, we have to add it
         cat = Category.objects.filter(key=category_key)[0]
 
-        user.categories.add(cat)
-        user.save()
-        cat.save()
+        telegram_user.categories.add(cat)
+        telegram_user.save()
+        # cat.save()
 
         print('AGGIUNTA ' + str(cat))
 
