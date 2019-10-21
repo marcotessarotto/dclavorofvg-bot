@@ -93,17 +93,17 @@ class NewsItemSentToUser(models.Model):
 
 # ****************************************************************************************
 
-DEGREE_LEVELS = (
+EDUCATIONAL_LEVELS = (
     ('-', 'non dichiarata'),
+    ('0', 'nessun titolo di studio'),
     ('a', 'scuola elementare'),
     ('b', 'scuola media'),
-    ('c', 'superiori'),
-    ('d', '' ),
-    ('e','' ),
-    ('f','' ),
-    ('g','' ),
-    ('h','' ),
+    ('c', 'scuola superiore'),
+    ('d', 'corsi pre-universitari/brevi corsi professionali' ),
+    ('e', 'laurea/laurea magistrale' ),
+    ('f', 'dottorato di ricerca' ),
 )
+
 
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
@@ -112,7 +112,7 @@ class TelegramUser(models.Model):
 
     age = models.IntegerField(default=-1, verbose_name="età",)
 
-    degree_level = models.CharField(max_length=1, choices=DEGREE_LEVELS, default='-')
+    educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-')
 
     regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
 
@@ -165,8 +165,8 @@ class TelegramUser(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def study_title_verbose(self):
-        return dict(COERENZA_CON_LA_MISSION)[self.coerenza_con_la_mission]
+    def educational_level_verbose(self):
+        return dict(EDUCATIONAL_LEVELS)[self.educational_level]
 
     class Meta:
         verbose_name = "Utente Telegram"

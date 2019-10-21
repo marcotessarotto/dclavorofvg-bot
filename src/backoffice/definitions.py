@@ -32,6 +32,8 @@ DEFAULT_CATEGORY_DICT = {
     '19': ['Tirocini', '-', 'tirocini'],
 }
 
+DEBUG_MSG = True
+
 # https://unicode.org/emoji/charts/full-emoji-list.html
 
 help_keyword_list =  ['aiuto', 'help', '?']

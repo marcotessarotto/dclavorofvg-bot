@@ -3,6 +3,7 @@ import os
 # cd Scrivania/regionefvg_bot
 # export PYTHONPATH=.:src/telegram_bot
 # python src/telegram_bot/regionefvg_bot.py
+import pprint
 from email import message
 
 from src.telegram_bot.ormlayer import *
@@ -31,6 +32,7 @@ logging.basicConfig(
 )
 
 global_bot_instance = None
+pp = pprint.PrettyPrinter(indent=4)
 
 
 def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
@@ -46,6 +48,10 @@ def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
 
 
 def start_command_handler(update, context):
+
+    if DEBUG_MSG:
+        print(update)
+
     print(context.args)  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
@@ -142,9 +148,18 @@ def detach_from_bot(update, context):
     pass
 
 
+def ask_age(update, context):
+    if DEBUG_MSG:
+        print(update)
+
+    update.callback_query.edit_message_text(
+        'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?',
+        parse_mode='HTML'
+    )
+
+
 def callback_privacy(update, context, param):
     telegram_user_id = update.callback_query.from_user.id
-    # print("callback_privacy - id_utente = " + str(id_utente))
 
     if param == UI_ACCEPT_UC:
         privacy_setting = True
@@ -154,17 +169,17 @@ def callback_privacy(update, context, param):
     orm_change_user_privacy_setting(telegram_user_id, privacy_setting)
 
     if privacy_setting:
-        # comandi a disposizione
         update.callback_query.edit_message_text(
-            UI_message_thank_you_for_accepting_privacy_rules + orm_get_system_parameter(UI_bot_help_message),
+            UI_message_thank_you_for_accepting_privacy_rules, # + orm_get_system_parameter(UI_bot_help_message)
             parse_mode='HTML'
         )
+
+        ask_age(update, context)
     else:
         update.callback_query.edit_message_text(
             text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue)
 
 
-# not used at the moment
 # def callback_internship(update, context, param):
 #     telegram_user_id = update.callback_query.from_user.id
 #
