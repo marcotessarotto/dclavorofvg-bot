@@ -76,6 +76,12 @@ def start_command_handler(update, context):
 
     telegram_user = orm_add_telegram_user(update.message.from_user)
 
+    if not telegram_user.enabled:
+        update.message.reply_text(
+            UI_message_disabled_account
+        )
+        return
+
     bot_presentation = orm_get_system_parameter(UI_bot_presentation)
 
     update.message.reply_text(
@@ -493,6 +499,15 @@ def custom_command_handler(update, context):
     original_command = update.message.text
 
     print("custom_command_handler: " + original_command)
+
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    if not telegram_user.enabled:
+        update.message.reply_text(
+            UI_message_disabled_account
+        )
+        return
 
     custom_telegram_command = original_command[1:]
 
@@ -1037,23 +1052,6 @@ def comment_handler(update, context):
     )
 
 
-def parse_user_age(telegram_user : TelegramUser, message_text: str):
-    try:
-        age = int(message_text)
-
-        if age < 15:
-            return False
-    except ValueError:
-        print("wrong format for age! " + message_text)
-        return False
-
-    telegram_user.age = age
-    telegram_user.save()
-    print("parse_user_age: age set for user " + str(telegram_user.user_id) + " to " + str(age))
-
-    return True
-
-
 def generic_message_handler(update, context):
     # print("generic_message_handler - " + str(update))
 
@@ -1078,7 +1076,7 @@ def generic_message_handler(update, context):
 
     if expected_input == 'a':
         # expecting age from user
-        if parse_user_age(telegram_user, message_text):
+        if orm_parse_user_age(telegram_user, message_text):
             # now ask educational level
             # TODO
 

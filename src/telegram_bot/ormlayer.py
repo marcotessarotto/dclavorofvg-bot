@@ -232,6 +232,24 @@ def orm_set_user_expected_input(obj, expected_input):
         _update_user_in_cache(telegram_user)
 
 
+def orm_parse_user_age(telegram_user : TelegramUser, message_text: str):
+    try:
+        age = int(message_text)
+
+        if age < 15:
+            return False
+    except ValueError:
+        print("wrong format for age! " + message_text)
+        return False
+
+    telegram_user.age = age
+    telegram_user.save()
+    _update_user_in_cache(telegram_user)
+    print("parse_user_age: age set for user " + str(telegram_user.user_id) + " to " + str(age))
+
+    return True
+
+
 def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
     telegram_user = orm_get_telegram_user(telegram_user_id)
 

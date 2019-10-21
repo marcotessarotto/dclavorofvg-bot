@@ -106,6 +106,8 @@ UI_DETACH_BOT = 'fine'
 UI_ME_COMMAND = 'me'
 
 
+UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori."
+
 UI_message_read_and_accept_privacy_rules_as_follows = "Per proseguire con l'utilizzo di questo bot, " \
                  "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
 
