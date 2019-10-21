@@ -54,6 +54,7 @@ class Category(models.Model):
             k.key = key
             k.name = DEFAULT_CATEGORY_DICT[key][0]
             k.emoji = DEFAULT_CATEGORY_DICT[key][1]
+            k.custom_telegram_command = DEFAULT_CATEGORY_DICT[key][2]
             k.save()
 
         return True

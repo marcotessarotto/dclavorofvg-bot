@@ -33,9 +33,11 @@ logging.basicConfig(
 
 global_bot_instance = None
 
+
 def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
     """return True if user has not yet approved the bot's privacy policy"""
-    if not telegram_user.has_accepted_privacy_rules:
+
+    if telegram_user is None or not telegram_user.has_accepted_privacy_rules:
         print("check_user_privacy_approval - PRIVACY NOT APPROVED  telegram_user_id=" + str(telegram_user.user_id))
 
         update.message.reply_text(UI_message_accept_privacy_rules_to_continue)
