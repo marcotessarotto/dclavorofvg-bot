@@ -198,14 +198,9 @@ def ask_age(update, context):
 
     telegram_user_id = update.callback_query.from_user.id
 
-    # update.callback_query.edit_message_text(
-    #     'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?',
-    #     parse_mode='HTML'
-    # )
-
     context.bot.send_message(
         chat_id=telegram_user_id,
-        text='Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?',
+        text=UI_message_what_is_your_age,
         parse_mode='HTML',
     )
 
@@ -231,7 +226,7 @@ def ask_educational_level(update, context):
 
     context.bot.send_message(
         chat_id=telegram_user_id,
-        text='Ultima cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:',
+        text=UI_message_what_is_your_educational_level,
         parse_mode='HTML',
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
@@ -239,9 +234,9 @@ def ask_educational_level(update, context):
 
 def callback_privacy(update, context, param):
 
-    if DEBUG_MSG:
-        print("callback_privacy update:")
-        my_print(update, 4)
+    # if DEBUG_MSG:
+    #     print("callback_privacy update:")
+    #     my_print(update, 4)
 
     telegram_user_id = update.callback_query.from_user.id
 
@@ -1046,17 +1041,24 @@ def callback_feedback(update, data):
 
     feed = data[0]
     news_id = data[1]
+    comment_enabled = data[2]
+    print("comment_enabled = " + str(comment_enabled))
     orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)  # Aggiunge il nuovo feedback
 
-    # Attivazione tastiera con pulsante 'commenta'
-    update.callback_query.edit_message_text(
-        text=UI_message_thank_you_for_feedback,
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton(
-                text=UI_message_write_a_comment,
-                callback_data='comment ' + news_id)]
-        ])
-    )
+    if comment_enabled:
+        # Attivazione tastiera con pulsante 'commenta'
+        update.callback_query.edit_message_text(
+            text=UI_message_thank_you_for_feedback,
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton(
+                    text=UI_message_write_a_comment,
+                    callback_data='comment ' + news_id)]
+            ])
+        )
+    else:
+        update.callback_query.edit_message_text(
+            text=UI_message_thank_you_for_feedback,
+        )
 
 
 def callback_comment(update, context, news_id):

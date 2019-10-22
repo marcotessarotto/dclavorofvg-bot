@@ -43,16 +43,11 @@ bot_default_help_msg = """Ti aiuto a ricevere news ed offerte di lavoro personal
 Aiutami a fornirti risultati migliori per te! Usa il comando /me
 
 Se vuoi ricevere tutte le news, usa il comando <b>/tutte_le_news</b>.
-
 Se non vuoi ricevere nessuna news, usa il comando <b>/nessuna_news</b>.
 
 Per specificare più in dettaglio le aree di interesse, usa il comando <b>/scegli</b>.
 
-Per ricevere (o no) info sui tirocini: <b>/tirocini</b>.
-
-Per ricevere (o no) info sui corsi: <b>/corsi</b>.
-
-Per ricevere (o no) info sui recruiting day: <b>/recruiting_day</b>.
+<b>/help_categorie</b>  
 
 Questi sono i comandi a disposizione:
 
@@ -198,6 +193,10 @@ UI_message_custom_settings_modified_false = 'NON riceverai le news su {0}'
 UI_message_receive_info_about_category = 'ricevi informazioni sulla categoria \'{0}\''
 
 UI_message_no_matching_category_command = 'non capisco il comando! /aiuto per i comandi del bot.'
+
+UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?'
+
+UI_message_what_is_your_educational_level = 'Ultima cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:'
 
 UI_OK = 'OK'
 UI_NO = 'No'
