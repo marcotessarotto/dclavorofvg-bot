@@ -4,6 +4,7 @@ import traceback
 import logging
 
 # from spacy.lang.fr.tokenizer_exceptions import verb
+
 from .definitions import *
 
 
@@ -114,7 +115,7 @@ class TelegramUser(models.Model):
 
     educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-', verbose_name="titolo di studio più elevato")
 
-    chat_state = models.CharField(max_length=1, default = '-', blank=True,)
+    chat_state = models.CharField(max_length=1, default = '-', blank=True, editable=False)
 
     regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
 
@@ -123,7 +124,7 @@ class TelegramUser(models.Model):
     has_accepted_privacy_rules = models.BooleanField(default=False, verbose_name="ha accettato il regolamento privacy?")
     # L : through a parameter passed to /start
     # U : user has accepted privacy rules through bot UI
-    privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True, verbose_name="meccanismo di accettazione privacy (U: tramite il bot)")
+    privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True, editable=False, verbose_name="meccanismo di accettazione privacy (U: tramite il bot)")
     privacy_acceptance_timestamp = models.DateTimeField(blank=True, null=True)
 
     username = models.CharField(max_length=32, blank=True, null=True)
@@ -139,13 +140,7 @@ class TelegramUser(models.Model):
 
     number_of_received_news_items = models.BigIntegerField(default=0, verbose_name="numero di news ricevute")
 
-    # receive_intership_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui tirocini?")
-    #
-    # receive_courses_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui corsi?")
-    #
-    # receive_recruiting_days_information = models.BooleanField(default=True, verbose_name="vuole ricevere informazioni sui recruiting day?")
-    #
-    # receive_targeted_placement_information = models.BooleanField(default=False, verbose_name="vuole ricevere informazioni dal collocamento mirato?")
+    resend_news_timestamp = models.DateTimeField(blank=True, null=True, editable=False)
 
     def categories_str(self):
         result = ''

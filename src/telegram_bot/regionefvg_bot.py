@@ -198,9 +198,15 @@ def ask_age(update, context):
 
     telegram_user_id = update.callback_query.from_user.id
 
-    update.callback_query.edit_message_text(
-        'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?',
-        parse_mode='HTML'
+    # update.callback_query.edit_message_text(
+    #     'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?',
+    #     parse_mode='HTML'
+    # )
+
+    context.bot.send_message(
+        chat_id=telegram_user_id,
+        text='Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?',
+        parse_mode='HTML',
     )
 
     orm_set_telegram_user_expected_input(telegram_user_id, 'a')
@@ -225,7 +231,7 @@ def ask_educational_level(update, context):
 
     context.bot.send_message(
         chat_id=telegram_user_id,
-        text='Per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:',
+        text='Ultima cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:',
         parse_mode='HTML',
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
@@ -247,6 +253,7 @@ def callback_privacy(update, context, param):
     orm_change_user_privacy_setting(telegram_user_id, privacy_setting)
 
     if privacy_setting:
+        # message and buttons are replaced by this text
         update.callback_query.edit_message_text(
             UI_message_thank_you_for_accepting_privacy_rules, # + orm_get_system_parameter(UI_bot_help_message)
             parse_mode='HTML'
@@ -402,7 +409,7 @@ def callback_education_level(update, context, choice: str):
     print("callback_education_level: " + choice + " " + el)
 
     update.callback_query.edit_message_text(
-        text='Grazie, hai scelto ' + el
+        text='Grazie, hai scelto ' + el + ' come livello studio.\nOra sono pronto ad iniziare!'
     )
 
     orm_set_telegram_user_educational_level(telegram_user, choice)
@@ -531,6 +538,10 @@ def custom_command_handler(update, context):
     if check_user_is_enabled(telegram_user, update, context):
         return
 
+    if check_user_privacy_approval(telegram_user, update, context):
+        # privacy not yet approved by user
+        return
+
     custom_telegram_command = original_command[1:]
 
     categories = orm_get_categories_valid_command()
@@ -595,14 +606,7 @@ def custom_command_handler(update, context):
 #         return False
 
 
-def vacancies_command_handler(update, context):
-    _change_categories(update, context, 'offerte_lavoro')
-
-    # TODO mostrare quante news (nell'ultima settimana) l'utente avrebbe ricevuto, con questi settings
-
-
-def young_categories_command_handler(update, context):
-    _change_categories(update, context, 'giovani')
+# TODO mostrare quante news (nell'ultima settimana) l'utente avrebbe ricevuto, con questi settings
 
 
 def all_categories_command_handler(update, context):
@@ -719,7 +723,8 @@ def news_dispatcher(context: CallbackContext):
 # SEZIONE INVIO NEWS
 # ****************************************************************************************
 
-def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user, intersection_result, request_feedback=True, title_only=False):
+def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: TelegramUser, intersection_result, request_feedback=True,
+                               title_only=False, ask_comment=False):
     print(
         "send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
@@ -865,16 +870,19 @@ def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user, int
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(  # dislike button
                     text=u'\u2717',
-                    callback_data='feedback - ' + str(news_item.id)
+                    callback_data='feedback - ' + str(news_item.id) + ' ' + str(ask_comment)
                 ),
                 InlineKeyboardButton(  # like button
                     text=u'\u2713',
-                    callback_data='feedback + ' + str(news_item.id)
+                    callback_data='feedback + ' + str(news_item.id) + ' ' + str(ask_comment)
                 )
             ]])
         )
 
     orm_log_news_sent_to_user(news_item, telegram_user)
+
+
+    orm_inc_telegram_user_number_received_news_items(telegram_user)
 
     b = datetime.datetime.now()
 
@@ -886,12 +894,24 @@ def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user, int
 def resend_last_processed_news(update, context):
     print("resend_last_processed_news")
     # print(update)
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
 
-    telegram_user = orm_get_telegram_user(update.message.chat.id)
+    if check_user_is_enabled(telegram_user, update, context):
+        return
 
     if check_user_privacy_approval(telegram_user, update, context):
         # privacy not yet approved by user
         return
+
+    now = datetime.datetime.now()
+
+    if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(hours=1):
+        print("resend_last_processed_news: too frequent! skipping")
+        return
+
+    telegram_user.resend_news_timestamp = now
+    orm_update_telegram_user(telegram_user)
 
     news_query = orm_get_last_processed_news()
 
@@ -987,9 +1007,37 @@ def resend_last_processed_news(update, context):
 
 
 def debug_command_handler(update, context):
+
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    if check_user_is_enabled(telegram_user, update, context):
+        return
+
+    if not telegram_user.is_admin:
+        return
+
     # debug only
     print("debug_command_handler")
     news_dispatcher(context)
+    pass
+
+
+def debug2_command_handler(update, context):
+
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    if check_user_is_enabled(telegram_user, update, context):
+        return
+
+    if not telegram_user.is_admin:
+        return
+
+    print("debug2_command_handler")
+
+    orm_change_user_privacy_setting(telegram_user_id, False)
+
     pass
 
 
@@ -1053,6 +1101,7 @@ def generic_message_handler(update, context):
     print("generic_message_handler - message_text = " + message_text)
 
     telegram_user_id = update.message.chat.id
+    print(telegram_user_id)
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
     if check_user_is_enabled(telegram_user, update, context):
@@ -1077,13 +1126,12 @@ def generic_message_handler(update, context):
     if expected_input == 'a':
         # expecting age from user
         if orm_parse_user_age(telegram_user, message_text):
-            update.message.reply_text(
-                UI_message_thank_you,
-                parse_mode='HTML'
-            )
+            # update.message.reply_text(
+            #     UI_message_thank_you,
+            #     parse_mode='HTML'
+            # )
 
             # now ask educational level
-            # TODO
             ask_educational_level(update, context)
 
             return
@@ -1239,8 +1287,8 @@ def main():
 
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories))
 
-
     dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
+    dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

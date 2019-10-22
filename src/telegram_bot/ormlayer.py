@@ -38,7 +38,7 @@ def orm_add_telegram_user(user):
             new_telegram_user.categories.add(k)
 
         new_telegram_user.save()
-        _
+
         _update_user_in_cache(new_telegram_user)
         print("orm_add_telegram_user: new user " + str(new_telegram_user.user_id))
 
@@ -240,6 +240,12 @@ def orm_set_telegram_user_educational_level(telegram_user: TelegramUser, choice:
     _update_user_in_cache(telegram_user)
 
 
+def orm_update_telegram_user(telegram_user: TelegramUser):
+    if telegram_user is not None:
+        telegram_user.save()
+        _update_user_in_cache(telegram_user)
+
+
 def orm_parse_user_age(telegram_user: TelegramUser, message_text: str):
     try:
         age = int(message_text)
@@ -406,6 +412,13 @@ def orm_get_category_group(group_name: str) -> CategoriesGroup:
         return queryset[0]
 
 
+def orm_inc_telegram_user_number_received_news_items(telegram_user: TelegramUser):
+    telegram_user.number_of_received_news_items = telegram_user.number_of_received_news_items + 1
+    telegram_user.save()
+
+    _update_user_in_cache(telegram_user)
+
+
 def orm_set_telegram_user_categories(telegram_user_id: int, categories: object) -> TelegramUser:
     """assign categories to user.categories (replacing exiting user categories); if categories is None, all user's categories are removed"""
 
@@ -415,6 +428,9 @@ def orm_set_telegram_user_categories(telegram_user_id: int, categories: object) 
 
     if categories is not None:
         telegram_user.categories.set(categories.all())
+
+    telegram_user.save()
+    _update_user_in_cache(telegram_user)
 
     return telegram_user
 
