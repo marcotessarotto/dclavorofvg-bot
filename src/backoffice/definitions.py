@@ -25,7 +25,7 @@ DEFAULT_CATEGORY_DICT = {
     '06': ['Eventi e recruiting', u'\U0001F3AD', 'eventi'],
     '12': ['Offerte di lavoro', u'\U0001F3D7', 'offerte_lavoro'],
     '13': ['Collocamento mirato', u'\U0001F305', 'collocamento_mirato'],
-    '15': ['Informazioni di servizio (variazioni orari CPI...)', '-', 'info_servizio'],
+    '15': ['Informazioni di servizio sui CPI', '-', 'info_servizio'],
     '16': ['Bandi e avvisi dai CPI	', '-', 'bandi'],
     '17': ['Statistiche sul mondo del lavoro', '-', 'statistiche'],
     '18': ['Politiche del lavoro', '-', 'politiche_lavoro'],
@@ -95,6 +95,7 @@ UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_DEBUG_COMMAND = 'debug' # admin only
 UI_DEBUG2_COMMAND = 'debug2' # admin only
+UI_DEBUG3_COMMAND = 'debug3' # admin only
 UI_SEND_NEWS_COMMAND = 'news' # admin only
 UI_DETACH_BOT = 'fine'
 # UI_INTERNSHIP_COMMAND = 'tirocini'

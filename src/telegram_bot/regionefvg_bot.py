@@ -34,6 +34,38 @@ logging.basicConfig(
 
 global_bot_instance = None
 
+file_id_dict = {}
+
+
+def _process_message_lookup_file_id(message, _file_path):
+    _file_id = None
+    try:
+        _file_id = message.document.file_id
+    except AttributeError:
+        try:
+            if message.photo is not None:
+                _file_id = message.photo[0].file_id
+                # print(type(_file_id))
+                # print(_file_id.file_id)
+        except AttributeError:
+            print("_process_message_lookup_file_id: cannot find file_id")
+            my_print(message, 4)
+            return None
+
+    if _file_id is not None:
+        file_id_dict[_file_path] = _file_id
+
+    print("process_message_for_file_id: " + str(_file_id) + " for " + _file_path)
+
+    pass
+
+
+def _get_file_id_for_file_path(_file_path):
+    if _file_path in file_id_dict:
+        return file_id_dict[_file_path]
+    else:
+        return None
+
 
 def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
     """return True if user has not yet approved the bot's privacy policy"""
@@ -795,6 +827,10 @@ def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: Tel
     # print("len(body_html_content) = " + str(len(body_html_content)))
     # print("len(link_html_content) = " + str(len(link_html_content)))
 
+    file1_is_image = False
+    file_id = None # is file already present on Telegram servers?
+
+    # file1 is present, check if it is an image
     if news_item.file1 is not None:
         # print(news_item.file1.file_field.name)
         # example: uploads/2019/10/03/500px-Tux_chico.svg_VtRyDrN.png
@@ -803,59 +839,94 @@ def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: Tel
 
         print("send_news_to_telegram_user - fs path of image to send: " + image_path)
 
+        import mimetypes
+        file_mime_type = mimetypes.guess_type(image_path)[0]
+        # print(file_mime_type)
+        file1_is_image = file_mime_type.startswith('image')
+        print("is_image = " + str(file1_is_image))
+
+        file_id = _get_file_id_for_file_path(image_path)
+        print("file_id present on telegram server? " + str(file_id is not None))
+
+    if file1_is_image:
+
         # LIMIT on caption len: 1024 bytes! or we get MEDIA_CAPTION_TOO_LONG from Telegram
         # https://core.telegram.org/bots/api#sendphoto
 
         if len(html_content) > 1024:
-            # print("reducing html_content, too long!")
-            # html_content = html_content[:1024]
-            context.bot.send_photo(
+            # first, send image associated with news item
+            message = context.bot.send_photo(
                 chat_id=telegram_user.user_id,
-                photo=open(image_path, 'rb'),
+                photo=file_id if file_id is not None else open(image_path, 'rb'),
                 caption='',
                 parse_mode='HTML'
             )
+            _process_message_lookup_file_id(message, image_path)
+
+            # second, send content of news item
             context.bot.send_message(
                 chat_id=telegram_user.user_id,
                 text=html_content,
                 parse_mode='HTML'
             )
         else:
-            context.bot.send_photo(
+            message = context.bot.send_photo(
                 chat_id=telegram_user.user_id,
-                photo=open(image_path, 'rb'),
+                photo=file_id if file_id is not None else open(image_path, 'rb'),
                 caption=html_content,
                 parse_mode='HTML'
             )
-    else:
+            _process_message_lookup_file_id(message, image_path)
 
+    else:
+        # write body of news item
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=html_content,
             parse_mode='HTML'
         )
 
+    # file1 is defined but it is not an image
+    if news_item.file1 is not None and not file1_is_image:
+        message = context.bot.send_document(
+            chat_id=telegram_user.user_id,
+            document=file_id if file_id is not None else open(image_path, 'rb'),
+            caption='',
+            parse_mode='HTML'
+        )
+        _process_message_lookup_file_id(message, image_path)
+
+        if DEBUG_MSG:
+            print("send_news_to_telegram_user message:")
+            my_print(message, 4)
+
     if news_item.file2 is not None:
         file_path = MEDIA_ROOT + news_item.file2.file_field.name
         print("send_news_to_telegram_user - fs path of file2 to send: " + file_path)
 
-        context.bot.send_document(
+        file_id = _get_file_id_for_file_path(file_path)
+
+        message = context.bot.send_document(
             chat_id=telegram_user.user_id,
-            document=open(file_path, 'rb'),
+            document=file_id if file_id is not None else open(file_path, 'rb'),
             caption='',
             parse_mode='HTML'
         )
+        _process_message_lookup_file_id(message, file_path)
 
     if news_item.file3 is not None:
         file_path = MEDIA_ROOT + news_item.file3.file_field.name
         print("send_news_to_telegram_user - fs path of file3 to send: " + file_path)
 
-        context.bot.send_document(
+        file_id = _get_file_id_for_file_path(file_path)
+
+        message = context.bot.send_document(
             chat_id=telegram_user.user_id,
-            document=open(file_path, 'rb'),
+            document=file_id if file_id is not None else open(file_path, 'rb'),
             caption='',
             parse_mode='HTML'
         )
+        _process_message_lookup_file_id(message, file_path)
 
     # keyboard with 'like' and 'dislike' buttons
     if request_feedback:
@@ -1041,11 +1112,7 @@ def debug2_command_handler(update, context):
     pass
 
 
-def sendnews_command_handler(update, context):
-
-    # if DEBUG_MSG:
-    #     print("sendnews_command_handler update:")
-    #     my_print(update, 4)
+def debug3_command_handler(update, context):
 
     telegram_user_id = update.message.chat.id
     telegram_user = orm_get_telegram_user(telegram_user_id)
@@ -1053,6 +1120,39 @@ def sendnews_command_handler(update, context):
     if check_user_is_enabled(telegram_user, update, context):
         return
 
+    if not telegram_user.is_admin:
+        return
+
+    fp = '/opt/media/dclavorofvg-bot/uploads/2019/10/23/external-content.duckduckgo.com.jpeg'
+
+    f = open(fp, 'rb')
+
+    m = context.bot.send_photo(telegram_user_id, f)
+
+    _process_message_lookup_file_id(m, fp)
+
+    # if DEBUG_MSG:
+    #     print("debug3_command_handler message:")
+    #     # my_print(m, 4)
+    #     print(m)
+    #     print(m.photo)
+
+
+def debug_sendnews_command_handler(update, context):
+
+    # if DEBUG_MSG:
+    #     print("sendnews_command_handler update:")
+    #     my_print(update, 4)
+
+    # takes content after /news command as content of the news to send
+
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    if check_user_is_enabled(telegram_user, update, context):
+        return
+
+    # admin only
     if not telegram_user.is_admin:
         return
 
@@ -1317,7 +1417,8 @@ def main():
 
     dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
-    dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, sendnews_command_handler))
+    dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
+    dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, debug_sendnews_command_handler))
 
 
     # catch all unknown commands (including custom commands associated to categories)
