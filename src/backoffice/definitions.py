@@ -93,8 +93,9 @@ UI_ALL_CATEGORIES_COMMAND = 'tutte_le_news'
 UI_NO_CATEGORIES_COMMAND = 'nessuna_news'
 UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
-UI_DEBUG_COMMAND = 'debug'
-UI_DEBUG2_COMMAND = 'debug2'
+UI_DEBUG_COMMAND = 'debug' # admin only
+UI_DEBUG2_COMMAND = 'debug2' # admin only
+UI_SEND_NEWS_COMMAND = 'news' # admin only
 UI_DETACH_BOT = 'fine'
 # UI_INTERNSHIP_COMMAND = 'tirocini'
 # UI_COURSES_COMMAND = 'corsi'
@@ -102,6 +103,7 @@ UI_DETACH_BOT = 'fine'
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "help_categorie"
 
+UI_message_category = "categoria "
 
 UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori."
 

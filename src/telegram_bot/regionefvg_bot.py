@@ -1036,6 +1036,27 @@ def debug2_command_handler(update, context):
     pass
 
 
+def sendnews_command_handler(update, context):
+
+    # if DEBUG_MSG:
+    #     print("sendnews_command_handler update:")
+    #     my_print(update, 4)
+
+    telegram_user_id = update.message.chat.id
+    telegram_user = orm_get_telegram_user(telegram_user_id)
+
+    if check_user_is_enabled(telegram_user, update, context):
+        return
+
+    if not telegram_user.is_admin:
+        return
+
+    data = update.message.text[len(UI_SEND_NEWS_COMMAND)+1:].strip()
+    print("sendnews_command_handler: " + data)
+
+    orm_add_news_item(data, telegram_user)
+
+
 def callback_feedback(update, data):
     """ Gestisce i feedback sugli articoli """
 
@@ -1291,6 +1312,8 @@ def main():
 
     dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
+    dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, sendnews_command_handler))
+
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

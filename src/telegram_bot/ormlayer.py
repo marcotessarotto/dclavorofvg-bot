@@ -55,6 +55,30 @@ def orm_log_news_sent_to_user(news_item, telegram_user):
     item.save()
 
 
+def orm_add_news_item(content: str, telegram_user: TelegramUser):
+    news = NewsItem()
+
+    news.title = 'news da ' + str(telegram_user.username)
+
+    if content.startswith('http'):
+        data = content.split()
+        news.link = data[0]
+
+        if data[1:] is not None:
+            news.text = ' '.join(data[1:])
+
+    else:
+        news.text = content
+
+    cat = telegram_user.categories.all()[0]
+
+    news.save()
+
+    if cat is not None:
+        news.categories.add(cat)
+        news.save()
+
+
 # def orm_add_news_item(title, text, link):
 #     """ Aggiunge un nuovo articolo """
 #
@@ -184,6 +208,10 @@ def orm_get_telegram_user(telegram_user_id):
         result = _orm_get_telegram_user_cache()
     else:
         result = _orm_get_telegram_user()
+
+    # if result is None:
+    #     result = orm_add_telegram_user(...)
+    #     _update_user_in_cache(result)
 
     b = datetime.datetime.now()
 

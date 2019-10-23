@@ -37,7 +37,7 @@ class Category(models.Model):
         app_label = 'backoffice'
 
     def __str__(self):
-        return str(self.key) + ' (' + \
+        return UI_message_category + str(self.key) + ' (' + \
                str(self.name) + ') ' + str(self.emoji)
 
     # fills the Category table (if it is empty) with some default cateogries stored in the dict
@@ -84,7 +84,8 @@ class NewsItemSentToUser(models.Model):
     flags = models.CharField(max_length=4, blank=True, null=True, )
 
     def __str__(self):
-        return str(self.id) + " user=" + str(self.telegram_user.id) + " news_id=" + str(self.news_item.id) + " " + str(self.flags)
+        return str(self.id) + " - user(id=" + str(self.telegram_user.id) + "/telegram_id=" + str(self.telegram_user.user_id) + "), " \
+                              "news_id=" + str(self.news_item.id) + ", flags=" + str(self.flags)
 
     class Meta:
         verbose_name = 'NewsItemSentToUser'
