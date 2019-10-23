@@ -903,6 +903,11 @@ def resend_last_processed_news(update, context):
 
     if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(hours=1):
         print("resend_last_processed_news: too frequent! skipping")
+        context.bot.send_message(
+            chat_id=telegram_user.user_id,
+            text=UI_message_already_resent_news,
+            parse_mode='HTML'
+        )
         return
 
     telegram_user.resend_news_timestamp = now

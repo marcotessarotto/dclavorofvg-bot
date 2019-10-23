@@ -146,6 +146,8 @@ UI_message_comment_successful = 'Commento caricato con successo!'
 
 UI_message_thank_you = 'Grazie!'
 
+UI_message_already_resent_news = 'Ti ho già rimandato le news poco fa, scorri in alto per vederle. (il limite è di un reinvio all\'ora)'
+
 # UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
 # UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'
 # UI_message_intership_settings_modified_true = 'OK, riceverai informazioni sui tirocini'
