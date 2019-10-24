@@ -959,29 +959,11 @@ def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: Tel
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
 
-        # message = context.bot.send_document(
-        #     chat_id=telegram_user.user_id,
-        #     document=file_id if file_id is not None else open(file_path, 'rb'),
-        #     caption='',
-        #     parse_mode='HTML'
-        # )
-        # _lookup_file_id_in_message(message, file_path, file_id)
-
     if news_item.file3 is not None:
         file_path = MEDIA_ROOT + news_item.file3.file_field.name
         print("send_news_to_telegram_user - fs path of file3 to send: " + file_path)
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
-
-        # file_id = _get_file_id_for_file_path(file_path)
-        #
-        # message = context.bot.send_document(
-        #     chat_id=telegram_user.user_id,
-        #     document=file_id if file_id is not None else open(file_path, 'rb'),
-        #     caption='',
-        #     parse_mode='HTML'
-        # )
-        # _lookup_file_id_in_message(message, file_path, file_id)
 
     # keyboard with 'like' and 'dislike' buttons
     if request_feedback:
