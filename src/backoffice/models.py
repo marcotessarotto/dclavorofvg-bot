@@ -96,7 +96,7 @@ class NewsItemSentToUser(models.Model):
 # ****************************************************************************************
 
 EDUCATIONAL_LEVELS = (
-    ('-', 'non dichiarata'),
+    ('-', 'non dichiarato'),
     ('0', 'nessun titolo di studio'),
     ('a', 'scuola elementare'),
     ('b', 'scuola media'),
@@ -104,6 +104,7 @@ EDUCATIONAL_LEVELS = (
     ('d', 'corsi pre-universitari/brevi corsi professionali' ),
     ('e', 'laurea/laurea magistrale' ),
     ('f', 'dottorato di ricerca' ),
+    ('g', 'altro')
 )
 
 
@@ -112,7 +113,7 @@ class TelegramUser(models.Model):
 
     user_id = models.BigIntegerField(verbose_name="telegram user id")  # Telegram used id
 
-    age = models.IntegerField(default=-1, verbose_name="età",)
+    age = models.IntegerField(default=-1, verbose_name="età")
 
     educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-', verbose_name="titolo di studio più elevato")
 
@@ -152,13 +153,13 @@ class TelegramUser(models.Model):
                 result += '- ' + cat.name + '\n'
         return result
 
-    enabled = models.BooleanField(default=True, verbose_name="abilitato")
+    enabled = models.BooleanField(default=True, verbose_name="utente abilitato all'uso del bot")
 
     # when loading TelegramUser, use defer()
     # https://docs.djangoproject.com/en/2.2/ref/models/querysets/#defer
     #news_item_sent_to_user = models.ManyToManyField(NewsItemSentToUser, blank=True)
 
-    is_admin = models.BooleanField(default=False, verbose_name="amministratore del bot?")
+    is_admin = models.BooleanField(default=False, verbose_name="amministratore del bot")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -176,7 +177,21 @@ class TelegramUser(models.Model):
                str(self.first_name) + ' ' + str(self.last_name) + ')'
 
 
-# ****************************************************************************************
+class UserFreeText(models.Model):  #
+    text = models.CharField(max_length=1024, blank=True, null=True)
+    telegram_user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return 'UserFreeText ' + str(self.telegram_user.user_id) + ' : ' + self.text
+
+    class Meta:
+        verbose_name = "frasi libere"
+        verbose_name_plural = "frasi libere degli Utenti Telegram"
+        app_label = "backoffice"
+
+
 class NewsFile(models.Model):
     file_field = models.FileField(upload_to='uploads/%Y/%m/%d/')
     upload_date = models.DateTimeField(auto_now_add=True)
@@ -323,7 +338,7 @@ class SystemParameter(models.Model):
     def update_system_parameters():
         # if len(SystemParameter.objects.all()) == 0:
 
-        SystemParameter.add_default_param(UI_PRIVACY, "TODO: inserire regolamento privacy del bot/portale/...", "regolamento della privacy")
+        SystemParameter.add_default_param(UI_PRIVACY, "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/allegati/informativa_dir_lavoro_servizi_messaggistica102019.pdf", "regolamento della privacy")
 
         SystemParameter.add_default_param(UI_select_news_categories, "Seleziona le categorie di news a cui sei interessato:")
 

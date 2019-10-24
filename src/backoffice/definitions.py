@@ -149,6 +149,12 @@ UI_message_thank_you = 'Grazie!'
 
 UI_message_already_resent_news = 'Ti ho già rimandato le news poco fa, scorri in alto per vederle. (il limite è di un reinvio all\'ora)'
 
+UI_message_cheers = "Wow! Complimenti per l'età! :)"
+
+UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto \'{0}\' come livello studio.\n\n' \
+                                                    'Ora puoi scegliere il tipo di news che vuoi ricevere.\n' \
+                                                    'Per farlo, puoi usare il comando /scegli '
+
 # UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
 # UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'
 # UI_message_intership_settings_modified_true = 'OK, riceverai informazioni sui tirocini'
@@ -201,7 +207,7 @@ UI_message_no_matching_category_command = 'non capisco il comando! /aiuto per i 
 
 UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?'
 
-UI_message_what_is_your_educational_level = 'Ultima cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:'
+UI_message_what_is_your_educational_level = 'Ancora una cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:'
 
 UI_OK = 'OK'
 UI_NO = 'No'

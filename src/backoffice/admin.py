@@ -89,6 +89,8 @@ admin.site.register(NewsFile)
 
 admin.site.register(NewsItemSentToUser)
 
+admin.site.register(UserFreeText)
+
 
 @admin.register(CategoriesGroup)
 class CategoriesGroupAdmin(admin.ModelAdmin):

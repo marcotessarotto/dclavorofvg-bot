@@ -303,6 +303,9 @@ def ask_age(update, context):
         parse_mode='HTML',
     )
 
+    # instead of storing data in TelegramUser, we could use context.user_data:
+    # context.user_data['excepted_input'] = "age"
+
     orm_set_telegram_user_expected_input(telegram_user_id, 'a')
     return
 
@@ -503,7 +506,7 @@ def callback_education_level(update, context, choice: str):
     print("callback_education_level: " + choice + " " + el)
 
     update.callback_query.edit_message_text(
-        text='Grazie, hai scelto ' + el + ' come livello studio.\nOra sono pronto ad iniziare!'
+        text=UI_message_you_have_provided_your_education_level.format(el)
     )
 
     orm_set_telegram_user_educational_level(telegram_user, choice)
@@ -512,16 +515,14 @@ def callback_education_level(update, context, choice: str):
 
 
 def callback_choice(update, choice: str):
-    """ Gestisce i pulsanti premuti nella inline_keyboard """
-
     a = datetime.datetime.now()
 
     telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
-    if choice == 'OK':  # 'OK'  Stampa le categorie scelte
+    if choice == 'OK':  # show choosen categories
         choosen_categories = telegram_user.categories_str()
 
-        # ALERT: Non è stata scelta alcuna categoria!
+        # no category has been choosen
         if choosen_categories == '':
             # update.callback_query.answer(
             #     text=UI_message_you_have_choosen_no_categories,
@@ -1258,9 +1259,9 @@ def comment_handler(update, context):
 
 
 def generic_message_handler(update, context):
-    if DEBUG_MSG:
-        print("generic_message_handler update:")
-        my_print(update, 4)
+    # if DEBUG_MSG:
+    #     print("generic_message_handler update:")
+    #     my_print(update, 4)
 
     message_text = update.message.text
 
@@ -1277,30 +1278,26 @@ def generic_message_handler(update, context):
         # privacy not yet approved by user
         return
 
-    # if process_custom_telegram_command(update, context, message_text):
-    #     return
-
-    # if process_intership_message(update, context, message_text):
-    #     return
-    # elif process_courses_message(update, context, message_text):
-    #     return
-    # elif process_recruiting_day_message(update, context, message_text):
-    #     return
-
     expected_input = orm_get_user_expected_input(telegram_user)
 
-    if expected_input == 'a':
-        # expecting age from user
-        if orm_parse_user_age(telegram_user, message_text):
-            # update.message.reply_text(
-            #     UI_message_thank_you,
-            #     parse_mode='HTML'
-            # )
+    if expected_input == 'a':  # expecting age from user
+        age = orm_parse_user_age(telegram_user, message_text)
 
-            # now ask educational level
-            ask_educational_level(update, context)
+        if age >= 80:
+            update.message.reply_text(
+                UI_message_cheers,
+                parse_mode='HTML'
+            )
 
-            return
+        # update.message.reply_text(
+        #     UI_message_thank_you,
+        #     parse_mode='HTML'
+        # )
+
+        # now ask educational level
+        ask_educational_level(update, context)
+
+        return
 
     if message_text.lower() in help_keyword_list or len(message_text) <= 2:
         update.message.reply_text(
@@ -1309,6 +1306,8 @@ def generic_message_handler(update, context):
         )
     else:
         global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
+        # generic user utterance
+        orm_store_free_text(message_text, telegram_user)
 
 
 # def callback_minute(context: telegram.ext.CallbackContext):

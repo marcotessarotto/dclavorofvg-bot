@@ -268,6 +268,13 @@ def orm_set_telegram_user_educational_level(telegram_user: TelegramUser, choice:
     _update_user_in_cache(telegram_user)
 
 
+def orm_store_free_text(message_text, telegram_user):
+    user_free_text = UserFreeText()
+    user_free_text.text = message_text[:1024]
+    user_free_text.telegram_user = telegram_user
+    user_free_text.save()
+
+
 def orm_update_telegram_user(telegram_user: TelegramUser):
     if telegram_user is not None:
         telegram_user.save()
@@ -278,18 +285,18 @@ def orm_parse_user_age(telegram_user: TelegramUser, message_text: str):
     try:
         age = int(message_text)
 
-        if age < 14:
-            return False
+        if age < 0:
+            return -1
     except ValueError:
         print("wrong format for age! " + message_text)
-        return False
+        return -1
 
     telegram_user.age = age
     telegram_user.save()
     _update_user_in_cache(telegram_user)
     print("parse_user_age: age set for user " + str(telegram_user.user_id) + " to " + str(age))
 
-    return True
+    return age
 
 
 def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
