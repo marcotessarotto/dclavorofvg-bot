@@ -198,10 +198,16 @@ class RssFeedItem(models.Model):
     rss_link = models.CharField(max_length=1024, blank=True, null=True)
     updated_parsed = models.DateTimeField(blank=True, null=True, editable=False, )
 
+    category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE)
+
+    processed = models.BooleanField(default=False, editable=True,
+                                    verbose_name="trasformato in news: ")
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
 
     def __str__(self):
-        return 'RssFeedItem ' + str(self.id) + ' : ' + str(self.updated_parsed) + ' ' + str(self.rss_title)
+        return 'RssFeedItem ' + str(self.id) + ' : ' + str(self.updated_parsed.strftime(
+            "%d/%m/%y")) + ' - ' + str(self.category) + ' - ' + str(self.rss_title)
 
     class Meta:
         verbose_name = "RssFeedItem"
