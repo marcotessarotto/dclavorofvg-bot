@@ -91,6 +91,8 @@ admin.site.register(NewsItemSentToUser)
 
 admin.site.register(UserFreeText)
 
+admin.site.register(RssFeedItem)
+
 
 @admin.register(CategoriesGroup)
 class CategoriesGroupAdmin(admin.ModelAdmin):

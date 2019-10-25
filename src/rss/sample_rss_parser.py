@@ -28,10 +28,13 @@ def get_feed_entries_from_url(url):
     #
     # return feed
 
+url1 = "http://www.regione.fvg.it/rafvg/cms/RAFVG/rss/formazione-lavoro"
+url2 = "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/?rss=y"
+url3 = "http://www.regione.fvg.it/rafvg/cms/RAFVG/rss/istruzione-ricerca"
 
-get_feed_entries_from_url("http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/?rss=y")
+get_feed_entries_from_url(url2)
 
-
+# http://www.regione.fvg.it/rafvg/cms/RAFVG/rss/formazione-lavoro
 """
 {
 	'title': 'L. 68/99 - Collocamento mirato di Udine: adesioni per due posti di operatore pluriservizi di sala e cucina.',

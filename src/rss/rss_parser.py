@@ -1,9 +1,12 @@
 from src.telegram_bot.ormlayer import *
 
+from datetime import timedelta
+from time import mktime
+
 import feedparser
 import os
 import django
-import datetime
+
 
 try:
     from ..backoffice.definitions import RSS_FEED
@@ -29,9 +32,9 @@ def get_feed_entries_from_url(url):
     from datetime import datetime
 
     now = datetime.now()
+    ten_days_ago = now - timedelta(days=10)
 
     feed = feedparser.parse(url)
-
     # print (feed)
 
     for item in feed.entries:
@@ -40,27 +43,23 @@ def get_feed_entries_from_url(url):
         rss_title = item["title"]
         rss_link = item["link"]
         updated_parsed = item["updated_parsed"]
+        # print(updated_parsed)
 
+        updated_parsed_dt = datetime.fromtimestamp(mktime(updated_parsed))
 
-        from time import mktime
-
-        dt = datetime.fromtimestamp(mktime(updated_parsed))
-        print(dt)
-
-        d = updated_parsed - datetime.timedelta(days=10)
-
-        if d < now:
+        if updated_parsed_dt < ten_days_ago:
             print("too old!")
             continue
 
-        print(item)
-        print(rss_title)
-        print(item["title_detail"])
-        print(rss_link)
-        print(rss_id)
-        print(updated_parsed)
+        res = orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed_dt)
 
-        # orm_get_or_create_news_from_rss(rss_id, rss_title, rss_link, updated_parsed)
+        # print(item)
+        print("rss_title: " + rss_title)
+        print("title_detail: " + str(item["title_detail"]))
+        print("rss_link: " + rss_link)
+        print("rss_id: " + rss_id)
+        print("updated_parsed: " + str(updated_parsed_dt))
+        print()
 
 
 rss_link = _orm_get_system_parameter(RSS_FEED)

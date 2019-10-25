@@ -548,3 +548,22 @@ def orm_get_system_parameter(param_name):
 
     return result
 
+
+def orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed):
+    queryset = RssFeedItem.objects.filter(rss_id=rss_id)
+
+    if len(queryset) != 0:
+        print("orm_create_news_from_rss_feed_item: item already processed, rss_id=" + str(rss_id))
+        return None
+
+    rss_feed_item = RssFeedItem()
+    rss_feed_item.rss_id = rss_id
+    rss_feed_item.rss_title = rss_title
+    rss_feed_item.rss_link = rss_link
+    rss_feed_item.updated_parsed = updated_parsed
+
+    rss_feed_item.save()
+
+    return rss_feed_item
+
+

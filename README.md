@@ -2,7 +2,7 @@
 Telegram bot and backoffice for Direzione centrale lavoro, formazione, istruzione e famiglia, Regione Autonoma Friuli Venezia Giulia 
 
 
-this project has been developed on Linux Debian 10
+this project is being developed on Linux Debian 10
 
 *project requirements:*
 

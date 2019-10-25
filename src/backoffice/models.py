@@ -192,6 +192,22 @@ class UserFreeText(models.Model):  #
         app_label = "backoffice"
 
 
+class RssFeedItem(models.Model):
+    rss_id = models.CharField(max_length=1024, blank=True, null=True)
+    rss_title = models.CharField(max_length=1024, blank=True, null=True)
+    rss_link = models.CharField(max_length=1024, blank=True, null=True)
+    updated_parsed = models.DateTimeField(blank=True, null=True, editable=False, )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
+
+    def __str__(self):
+        return 'RssFeedItem ' + str(self.id) + ' : ' + str(self.updated_parsed) + ' ' + str(self.rss_title)
+
+    class Meta:
+        verbose_name = "RssFeedItem"
+        app_label = "backoffice"
+
+
 class NewsFile(models.Model):
     file_field = models.FileField(upload_to='uploads/%Y/%m/%d/')
     upload_date = models.DateTimeField(auto_now_add=True)
