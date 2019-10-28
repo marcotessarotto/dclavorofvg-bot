@@ -1,12 +1,12 @@
-
+import os
 
 from src.telegram_bot.print_utils import my_print
 
-import os
-import django
-# init of django environment must be done before importing django models
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
-django.setup()
+# import os
+# import django
+# # init of django environment must be done before importing django models
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
+# django.setup()
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
     ChatAction
@@ -522,6 +522,29 @@ def _set_all_categories(update, context, add_or_remove_all: bool):
         )
 
 
+def show_news_by_id(update, context, command: str, telegram_user: TelegramUser):
+    if not command.startswith(UI_SHOW_NEWS):
+        return False
+
+    param = command[len(UI_SHOW_NEWS):]
+
+    print("show_news_by_id: " + param)
+
+    try:
+        news_id = int(param)
+
+        if news_id < 0:
+            return False
+    except ValueError:
+        return False
+
+    news_item = orm_get_news_item(news_id)
+    if news_item is not None:
+        send_news_to_telegram_user(context, news_item, telegram_user)
+
+    return True
+
+
 def custom_command_handler(update, context):
 
     original_command = update.message.text
@@ -533,6 +556,9 @@ def custom_command_handler(update, context):
         return
 
     custom_telegram_command = original_command[1:]
+
+    if show_news_by_id(update, context, custom_telegram_command, telegram_user):
+        return
 
     categories = orm_get_categories_valid_command()
 
@@ -1104,7 +1130,7 @@ def main():
 
     # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
-    dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
+    # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
 
 
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories))

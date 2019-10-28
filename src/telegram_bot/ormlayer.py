@@ -481,6 +481,11 @@ def orm_get_last_processed_news(last_days=10):
     return news_query
 
 
+def orm_get_news_item(news_id: int) -> NewsItem:
+    news_query = NewsItem.objects.filter(id=news_id)
+    return news_query[0] if len(news_query) > 0 else None
+
+
 def orm_get_fresh_news_to_send():
     news_query = NewsItem.objects.filter(processed=False)
 
@@ -510,7 +515,7 @@ def orm_get_fresh_news_to_send():
     return result
 
 
-def orm_get_system_parameter(param_name):
+def orm_get_system_parameter(param_name) -> str:
 
     def _orm_get_system_parameter(param_name):
 

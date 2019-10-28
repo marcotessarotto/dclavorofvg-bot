@@ -132,7 +132,7 @@ def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _fil
     _lookup_file_id_in_message(_message, _file_path, _file_id)
 
 
-def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: TelegramUser, intersection_result, request_feedback=True,
+def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: TelegramUser, intersection_result=None, request_feedback=True,
                                title_only=False, ask_comment=False):
     print(
         "send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
