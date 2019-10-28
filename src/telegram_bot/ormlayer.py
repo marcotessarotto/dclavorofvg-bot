@@ -470,14 +470,13 @@ def orm_set_telegram_user_categories(telegram_user_id: int, categories: object) 
     return telegram_user
 
 
-def orm_get_last_processed_news():
+def orm_get_last_processed_news(last_days=10):
     now = datetime.datetime.now()
 
-    d = now - datetime.timedelta(days=10)
+    d = now - datetime.timedelta(days=last_days)
 
     news_query = NewsItem.objects.filter(processed=True).filter(processed_timestamp__gte=d).order_by('-processed_timestamp')
 
-    # should check if job offer is still active or not
     return news_query
 
 

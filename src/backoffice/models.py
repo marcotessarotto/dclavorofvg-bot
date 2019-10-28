@@ -194,14 +194,14 @@ class UserFreeText(models.Model):  #
 
 class RssFeedItem(models.Model):
     rss_id = models.CharField(max_length=1024, blank=True, null=True)
-    rss_title = models.CharField(max_length=1024, blank=True, null=True)
-    rss_link = models.CharField(max_length=1024, blank=True, null=True)
+    rss_title = models.CharField(max_length=1024, blank=True, null=True, verbose_name="titolo")
+    rss_link = models.CharField(max_length=1024, blank=True, null=True, verbose_name="link")
     updated_parsed = models.DateTimeField(blank=True, null=True, editable=False, )
 
-    category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, blank=True, null=True, on_delete=models.CASCADE, verbose_name="categoria")
 
     processed = models.BooleanField(default=False, editable=True,
-                                    verbose_name="trasformato in news: ")
+                                    verbose_name="trasformato in news")
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
 

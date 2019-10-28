@@ -6,7 +6,6 @@ from django.forms import (
 
 from .models import *
 
-
 admin.site.site_header = 'backoffice LavoroFVG'
 
 
@@ -81,7 +80,7 @@ class NewsItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(Comment)
-class FeedbackOnNewsItemAdmin(admin.ModelAdmin):
+class CommentAdmin(admin.ModelAdmin):
     list_display = ('text', 'news', 'user')
 
 
@@ -91,7 +90,15 @@ admin.site.register(NewsItemSentToUser)
 
 admin.site.register(UserFreeText)
 
-admin.site.register(RssFeedItem)
+
+@admin.register(RssFeedItem)
+class RssFeedItemAdmin(admin.ModelAdmin):
+    list_display = ('data_pubblicazione', 'category', 'processed', 'rss_title',)
+    ordering = ('-updated_parsed',)
+    list_filter = ('processed', )
+    def data_pubblicazione(self, obj):
+        return str(obj.updated_parsed.strftime(
+            "%d/%m/%y"))
 
 
 @admin.register(CategoriesGroup)

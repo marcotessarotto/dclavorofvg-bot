@@ -37,7 +37,7 @@ def get_feed_entries_from_url(url):
     feed = feedparser.parse(url)
     # print (feed)
 
-    for item in feed.entries:
+    for item in reversed(feed.entries):
 
         rss_id = item["id"]
         rss_title = item["title"]
