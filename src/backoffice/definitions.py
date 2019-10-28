@@ -70,7 +70,7 @@ UI_bot_help_message = "UI_bot_help_message"
 UI_bot_presentation = "UI_presentazione_bot"
 UI_PRIVACY = "UI_PRIVACY"
 UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
-UI_select_news_categories = "UI_seleziona_le_categorie_di_news"
+# UI_select_news_categories = "UI_seleziona_le_categorie_di_news"
 RSS_FEED = "RSS_FEED"
 
 param_show_match_category_news = "news_mostra_match_categoria"
@@ -97,7 +97,8 @@ UI_DEBUG_COMMAND = 'debug' # admin only
 UI_DEBUG2_COMMAND = 'debug2' # admin only
 UI_DEBUG3_COMMAND = 'debug3' # admin only
 UI_SEND_NEWS_COMMAND = 'news' # admin only
-UI_DETACH_BOT = 'fine'
+# UI_DETACH_BOT = 'fine'
+UI_SHOW_NEWS = 'mostra'
 # UI_INTERNSHIP_COMMAND = 'tirocini'
 # UI_COURSES_COMMAND = 'corsi'
 # UI_RECRUITING_DAY_COMMAND = 'recruiting_day'
@@ -151,9 +152,12 @@ UI_message_already_resent_news = 'Ti ho già rimandato le news poco fa, scorri i
 
 UI_message_cheers = "Wow! Complimenti per l'età! :)"
 
-UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto \'{0}\' come livello studio.\n\n' \
-                                                    'Ora puoi scegliere il tipo di news che vuoi ricevere.\n' \
-                                                    'Per farlo, puoi usare il comando /scegli '
+UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto \'{0}\' come livello studio.\n\n'
+
+UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il tipo di news che vuoi ricevere.\n' \
+                                                    'Per farlo, usa il comando /scegli.'
+
+UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:"
 
 # UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
 # UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'

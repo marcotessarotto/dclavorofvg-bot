@@ -362,7 +362,7 @@ class SystemParameter(models.Model):
 
         SystemParameter.add_default_param(UI_PRIVACY, "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/allegati/informativa_dir_lavoro_servizi_messaggistica102019.pdf", "regolamento della privacy")
 
-        SystemParameter.add_default_param(UI_select_news_categories, "Seleziona le categorie di news a cui sei interessato:")
+        # SystemParameter.add_default_param(UI_select_news_categories, "Seleziona le categorie di news a cui sei interessato:")
 
         SystemParameter.add_default_param(UI_bot_presentation, "Benvenuto al bot Telegram della Direzione centrale lavoro, formazione, istruzione e famiglia - Regione Autonoma Friuli Venezia Giulia :)", "è mostrato nel comando /start")
 

@@ -1,11 +1,11 @@
 import datetime
-import os
-import django
+# import os
+# import django
 from django.utils.timezone import now
 from django.core.cache import cache
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
-django.setup()
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
+# django.setup()
 
 from src.backoffice.models import *
 
@@ -282,14 +282,15 @@ def orm_update_telegram_user(telegram_user: TelegramUser):
 
 
 def orm_parse_user_age(telegram_user: TelegramUser, message_text: str):
+    """parse age from text sent by user; returns age, -1 for value error"""
     try:
         age = int(message_text)
 
         if age < 0:
-            return -1
+            age = -1
     except ValueError:
         print("wrong format for age! " + message_text)
-        return -1
+        age = -1
 
     telegram_user.age = age
     telegram_user.save()
@@ -403,7 +404,7 @@ def orm_get_all_telegram_users():
 
 
 _skip_list = [UI_HELP_COMMAND, UI_START_COMMAND, UI_HELP_COMMAND_ALT, UI_START_COMMAND_ALT, UI_PRIVACY_COMMAND,
-                                           UI_ME_COMMAND, UI_DETACH_BOT, UI_RESEND_LAST_NEWS_COMMAND, UI_CHOOSE_CATEGORIES_COMMAND,
+                                           UI_ME_COMMAND, UI_RESEND_LAST_NEWS_COMMAND, UI_CHOOSE_CATEGORIES_COMMAND,
                                            UI_DEBUG_COMMAND]
 
 
