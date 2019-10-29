@@ -802,13 +802,6 @@ def main():
     dp.add_handler(CommandHandler(UI_PRIVACY_COMMAND, privacy_command_handler))
     dp.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
 
-    # categories = orm_get_categories_valid_command()
-    # for cat in categories:
-    #     dp.add_handler(CommandHandler(cat.custom_telegram_command, unknown_command_handler))
-
-    # dp.add_handler(CommandHandler(UI_VACANCIES_COMMAND, vacancies_command_handler))
-    # dp.add_handler(CommandHandler(UI_YOUNG_COMMAND, young_categories_command_handler))
-
     # these are 'standard' commands (add all categories / remove all categories)
     dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, set_all_categories_command_handler))
     dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, set_no_categories_command_handler))

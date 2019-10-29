@@ -87,8 +87,6 @@ UI_HELP_COMMAND = 'help'
 UI_HELP_COMMAND_ALT = 'aiuto'
 UI_PRIVACY_COMMAND = 'privacy'
 UI_UNDO_PRIVACY_COMMAND = 'undo_privacy'
-# UI_VACANCIES_COMMAND = 'offerte_di_lavoro'
-# UI_YOUNG_COMMAND = 'giovani'
 UI_ALL_CATEGORIES_COMMAND = 'tutte_le_news'
 UI_NO_CATEGORIES_COMMAND = 'nessuna_news'
 UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
@@ -97,17 +95,13 @@ UI_DEBUG_COMMAND = 'debug' # admin only
 UI_DEBUG2_COMMAND = 'debug2' # admin only
 UI_DEBUG3_COMMAND = 'debug3' # admin only
 UI_SEND_NEWS_COMMAND = 'news' # admin only
-# UI_DETACH_BOT = 'fine'
-UI_SHOW_NEWS = 'mostra_'
-# UI_INTERNSHIP_COMMAND = 'tirocini'
-# UI_COURSES_COMMAND = 'corsi'
-# UI_RECRUITING_DAY_COMMAND = 'recruiting_day'
+UI_SHOW_NEWS = 'mostra_' # id of news item is appended
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "help_categorie"
 
 UI_message_category = "categoria "
 
-UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori."
+UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori del bot."
 
 UI_message_read_and_accept_privacy_rules_as_follows = "Per proseguire con l'utilizzo di questo bot, " \
                  "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
@@ -123,7 +117,7 @@ UI_message_thank_you_for_accepting_privacy_rules = "Grazie per avere accettato i
 
 UI_message_you_have_not_accepted_privacy_rules_cannot_continue = "Non hai accettato il regolamento della privacy di questo bot. Non posso proseguire."
 
-UI_message_you_have_choosen_no_categories = 'Non hai scelto alcuna categoria.\n'
+UI_message_you_have_choosen_no_categories = 'Non hai scelto alcuna categoria! Sei proprio sicuro? Non riceverai notizie!\n'
 
 UI_message_you_have_choosen_the_following_categories = 'Grazie, hai scelto le seguenti categorie:\n\n'
 
@@ -159,31 +153,8 @@ UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il 
 
 UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:"
 
-# UI_message_receive_internship_question = 'vuoi ricevere notizie sui TIROCINI?'
-# UI_message_intership_settings_modified = 'ok, impostazioni sui tirocini modificate.'
-# UI_message_intership_settings_modified_true = 'OK, riceverai informazioni sui tirocini'
-# UI_message_intership_settings_modified_false = 'NON riceverai informazioni sui tirocini'
-# UI_message_ok_internship_info = 'Tirocini: Sì'
-# UI_message_no_internship_info = 'Tirocini: No'
-
 UI_message_ok_suffix = ": Sì"
 UI_message_no_suffix = ": No"
-
-# UI_message_receive_courses_question = 'vuoi ricevere notizie sui CORSI organizzati dalla Regione?'
-# UI_message_courses_settings_modified = 'ok, impostazioni sui corsi modificate.'
-# UI_message_courses_settings_modified_true = 'OK, riceverai informazioni sui corsi'
-# UI_message_courses_settings_modified_false = 'NON riceverai informazioni sui corsi'
-# UI_message_ok_course_info = 'Corsi: Sì'
-# UI_message_no_course_info = 'Corsi: No'
-
-
-# UI_message_receive_recruiting_days_question = 'vuoi ricevere notizie sui RECRUITING DAY organizzati dalla Regione?'
-# UI_message_recruiting_days_settings_modified = 'ok, impostazioni sui recruiting day modificate.'
-# UI_message_recruiting_days_settings_modified_true = 'OK, riceverai informazioni sui recruiting day'
-# UI_message_recruiting_days_settings_modified_false = 'NON riceverai informazioni sui recruiting day'
-# UI_message_ok_recruiting_days_info = 'Recruiting day: Sì'
-# UI_message_no_recruiting_days_info = 'Recruiting day: No'
-
 
 UI_message_help_me_provide_better_results = 'Aiutami a darti risultati migliori!\nScrivimi liberamente qualche frase sui tuoi interessi lavorativi.\n' \
                                             'Quello che mi dirai lo darò in pasto alla mia Intelligenza Artificiale :)'
@@ -192,7 +163,6 @@ UI_message_do_you_need_examples_on_me_command = 'Vuoi qualche esempio?'
 
 UI_message_let_me_ask_you_some_questions = 'Avanti con le domande!'
 UI_message_me_stop_questions = 'Basta così!'
-
 
 UI_message_do_you_want_news_about = "Vuoi ricevere news su <b>{0}</b>?"
 UI_message_continue_sending_news_about = "Continuo a mandarti news su <b>{0}</b>?"
@@ -215,7 +185,6 @@ UI_message_what_is_your_educational_level = 'Ancora una cosa: per fornirti un se
 
 UI_OK = 'OK'
 UI_NO = 'No'
-
 
 CALLBACK_INTERNSHIP_OK = 'internship ' + UI_OK
 CALLBACK_INTERNSHIP_NO = 'internship ' + UI_NO
