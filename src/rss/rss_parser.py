@@ -62,8 +62,10 @@ def get_feed_entries_from_url(url):
         print()
 
 
-rss_link = _orm_get_system_parameter(RSS_FEED)
+rss_feed = _orm_get_system_parameter(RSS_FEED)
 
-if rss_link:
-    get_feed_entries_from_url(rss_link)
+print("rss_link: " + str(rss_feed))
+
+if rss_feed:
+    get_feed_entries_from_url(rss_feed)
     pass

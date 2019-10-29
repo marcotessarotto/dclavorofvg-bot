@@ -245,6 +245,13 @@ def orm_get_user_expected_input(obj) -> str:
     return res
 
 
+def orm_has_user_seen_news_item(telegram_user: TelegramUser, news_item: NewsItem) -> bool:
+
+    queryset = NewsItemSentToUser.objects.filter(telegram_user=telegram_user).filter(news_item=news_item)
+
+    return True if len(queryset) > 0 else False
+
+
 def orm_set_telegram_user_expected_input(obj, expected_input):
     if obj is None:
         return None

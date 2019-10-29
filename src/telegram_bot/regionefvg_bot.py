@@ -1,19 +1,15 @@
 import os
 
+from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 from src.telegram_bot.print_utils import my_print
-
-# import os
-# import django
-# # init of django environment must be done before importing django models
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
-# django.setup()
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
     ChatAction
 
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
-    _get_file_id_for_file_path, intersection
+    _get_file_id_for_file_path, intersection, show_news_by_id
 from src.telegram_bot.ormlayer import *
+from src.telegram_bot.user_utils import basic_user_checks, check_user_privacy_approval, check_if_user_is_disabled
 
 try:
     from ..backoffice.definitions import *
@@ -40,30 +36,7 @@ logging.basicConfig(
 global_bot_instance = None
 
 
-def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
-    """return True if user has not yet approved the bot's privacy policy"""
-
-    if telegram_user is None or not telegram_user.has_accepted_privacy_rules:
-        print("check_user_privacy_approval - PRIVACY NOT APPROVED  telegram_user_id=" + str(telegram_user.user_id))
-
-        update.message.reply_text(UI_message_accept_privacy_rules_to_continue)
-        return True
-    else:
-        return False
-
-
-def check_if_user_is_disabled(telegram_user: TelegramUser, update, context):
-    if not telegram_user.enabled:
-        update.message.reply_text(
-            UI_message_disabled_account
-        )
-        return True
-    else:
-        return False
-
-
 def start_command_handler(update, context):
-
     if DEBUG_MSG:
         print("start_command_handler update:")
         my_print(update, 4)
@@ -115,11 +88,12 @@ def help_command_handler(update, context):
     # )
 
 
-def help_categories(update, context):
+def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
     msg = ''
     for cat in categories:
-        msg = msg + '/' + cat.custom_telegram_command + ' : ' + UI_message_receive_info_about_category.format(cat.name) + '\n'
+        msg = msg + '/' + cat.custom_telegram_command + ' : ' + UI_message_receive_info_about_category.format(
+            cat.name) + '\n'
 
     update.message.reply_text(
         msg,
@@ -151,7 +125,8 @@ def privacy_command_handler(update, context):
 
     # https://stackoverflow.com/a/17311079/974287
     update.message.reply_text(
-        UI_message_you_have_accepted_privacy_rules_on_this_day + (telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR)),
+        UI_message_you_have_accepted_privacy_rules_on_this_day + (
+            telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR)),
         parse_mode='HTML'
     )
 
@@ -220,7 +195,6 @@ def ask_educational_level(update, context):
 
 
 def callback_privacy(update, context, param):
-
     # if DEBUG_MSG:
     #     print("callback_privacy update:")
     #     my_print(update, 4)
@@ -237,7 +211,7 @@ def callback_privacy(update, context, param):
     if privacy_setting:
         # message and buttons are replaced by this text
         update.callback_query.edit_message_text(
-            UI_message_thank_you_for_accepting_privacy_rules, # + orm_get_system_parameter(UI_bot_help_message)
+            UI_message_thank_you_for_accepting_privacy_rules,  # + orm_get_system_parameter(UI_bot_help_message)
             parse_mode='HTML'
         )
 
@@ -313,8 +287,24 @@ def callback(update, context):
 
 
 def show_news_command_handler(update, context):
-    """show a specific news (specified by id"""
-    pass
+    """show a specific news item (specified by id)"""
+
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
+        return
+
+    str_id = update.message.text.replace('/' + UI_SHOW_NEWS, '')
+    if str_id is '':
+        return
+
+    news_id = int(str_id)
+
+    print("show_news_command_handler: " + str(news_id))
+
+    if show_news_by_id(context, news_id, telegram_user):
+        return
+
+    # update.message.reply_text(id, parse_mode='Markdown')
 
 
 def choose_news_categories_command_handler(update, context):
@@ -425,10 +415,6 @@ def callback_choice(update, choice: str):
 
         # no category has been choosen
         if choosen_categories == '':
-            # update.callback_query.answer(
-            #     text=UI_message_you_have_choosen_no_categories,
-            #     show_alert=True
-            # )
             update.callback_query.edit_message_text(
                 text=UI_message_you_have_choosen_no_categories +
                      UI_message_you_can_modify_categories_with_command
@@ -455,98 +441,7 @@ def callback_choice(update, choice: str):
     print("callback_choice dt=" + str(c.microseconds) + " microseconds")
 
 
-def _get_category_status(update, context, custom_telegram_command):
-    telegram_user = orm_get_telegram_user(update.message.from_user.id)
-
-    if check_user_privacy_approval(telegram_user, update, context):
-        # privacy not yet approved by user
-        return
-
-    category = orm_lookup_category_by_custom_command(custom_telegram_command)
-
-    if category is None:
-        #
-        return
-
-    queryset = telegram_user.categories.filter(key=category.key)
-
-    if len(queryset) == 0:
-        return False
-    else:
-        return True
-
-
-def _change_categories(update, context, category_group_name):
-    telegram_user = orm_get_telegram_user(update.message.from_user.id)
-
-    if check_user_privacy_approval(telegram_user, update, context):
-        # privacy not yet approved by user
-        return
-
-    group = orm_get_category_group(category_group_name)
-
-    if group is None:
-        print("_change_categories - category group '" + category_group_name + "' is not defined")
-        return
-
-    telegram_user = orm_set_telegram_user_categories(update.message.chat.id, group.categories)
-
-    update.message.reply_text(
-        UI_message_i_have_changed_your_categories + telegram_user.categories_str(),
-        parse_mode='HTML'
-    )
-
-
-def _set_all_categories(update, context, add_or_remove_all: bool):
-    telegram_user = orm_get_telegram_user(update.message.from_user.id)
-
-    if check_user_privacy_approval(telegram_user, update, context):
-        # privacy not yet approved by user
-        return
-
-    if add_or_remove_all:
-        queryset = orm_get_categories()
-
-        telegram_user = orm_set_telegram_user_categories(update.message.chat.id, queryset)
-
-        update.message.reply_text(
-            UI_message_i_have_changed_your_categories + telegram_user.categories_str(),
-            parse_mode='HTML'
-        )
-    else:
-        telegram_user = orm_set_telegram_user_categories(update.message.chat.id, None)
-
-        update.message.reply_text(
-            UI_message_i_have_removed_all_your_categories ,
-            parse_mode='HTML'
-        )
-
-
-def show_news_by_id(update, context, command: str, telegram_user: TelegramUser):
-    if not command.startswith(UI_SHOW_NEWS):
-        return False
-
-    param = command[len(UI_SHOW_NEWS):]
-
-    print("show_news_by_id: " + param)
-
-    try:
-        news_id = int(param)
-
-        if news_id < 0:
-            return False
-    except ValueError:
-        return False
-
-    news_item = orm_get_news_item(news_id)
-    if news_item is not None:
-        send_news_to_telegram_user(context, news_item, telegram_user)
-
-    return True
-
-
 def custom_command_handler(update, context):
-
     original_command = update.message.text
 
     print("custom_command_handler: " + original_command)
@@ -557,8 +452,9 @@ def custom_command_handler(update, context):
 
     custom_telegram_command = original_command[1:]
 
-    if show_news_by_id(update, context, custom_telegram_command, telegram_user):
-        return
+    # see show_news_command_handler
+    # if show_news_by_id(update, context, custom_telegram_command, telegram_user):
+    #     return
 
     categories = orm_get_categories_valid_command()
 
@@ -574,7 +470,9 @@ def custom_command_handler(update, context):
 
     status = _get_category_status(update, context, custom_telegram_command)
 
-    msg = (UI_message_you_are_subscribed_to_news_category if status else UI_message_you_are_not_subscribed_to_news_category).format(cat.name)
+    msg = (
+        UI_message_you_are_subscribed_to_news_category if status else UI_message_you_are_not_subscribed_to_news_category).format(
+        cat.name)
 
     if status:
         msg = msg + UI_message_continue_sending_news_about.format(cat.name)
@@ -595,41 +493,11 @@ def custom_command_handler(update, context):
     )
 
 
-# def process_custom_telegram_command(update, context, param):
-#
-#     if param.endswith(UI_message_ok_suffix):
-#         custom_telegram_command = param[:len(param) - len(UI_message_ok_suffix)]
-#         category_setting = True
-#     elif param.endswith(UI_message_no_suffix):
-#         custom_telegram_command = param[:len(param) - len(UI_message_no_suffix)]
-#         category_setting = False
-#     else:
-#         return False
-#
-#     # print(custom_telegram_command)
-#
-#     telegram_user_id = update.message.chat.id
-#
-#     res = orm_change_user_custom_setting(telegram_user_id, custom_telegram_command, category_setting)
-#
-#     if res:
-#         update.message.reply_text(
-#             (UI_message_custom_settings_modified_true if category_setting else UI_message_custom_settings_modified_false).format(custom_telegram_command),
-#             parse_mode='HTML'
-#         )
-#         return True
-#     else:
-#         return False
-
-
-# TODO mostrare quante news (nell'ultima settimana) l'utente avrebbe ricevuto, con questi settings
-
-
-def all_categories_command_handler(update, context):
+def set_all_categories_command_handler(update, context):
     _set_all_categories(update, context, True)
 
 
-def no_categories_command_handler(update, context):
+def set_no_categories_command_handler(update, context):
     _set_all_categories(update, context, False)
 
 
@@ -649,7 +517,6 @@ def no_categories_command_handler(update, context):
 
 
 def me_command_handler(update, context):
-
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
 
     if check_user_privacy_approval(telegram_user, update, context):
@@ -697,7 +564,8 @@ def resend_last_processed_news(update, context):
 
     now = datetime.datetime.now()
 
-    if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(hours=1):
+    if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(
+            hours=1):
         print("resend_last_processed_news: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
@@ -735,7 +603,7 @@ def resend_last_processed_news(update, context):
         print("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
-                                   request_feedback=False, title_only= True)
+                                   request_feedback=False, title_only=True)
 
         counter = counter + 1
 
@@ -747,63 +615,7 @@ def resend_last_processed_news(update, context):
         )
 
 
-# def news(update, context):
-#     """ Invia un nuovo articolo """
-#
-#     folder_new = '/home/marco/Documents/github/dclavorofvg-bot/demo_new'
-#
-#     # fd = open(folder_new + '/category', 'r')
-#     # cat = fd.read()[:-1]
-#
-#     fd = open(folder_new + '/title', 'r')
-#     title = fd.read()[:-1]
-#
-#     fd = open(folder_new + '/body', 'r')
-#     body = fd.read()
-#
-#     fd = open(folder_new + '/link', 'r')
-#     link = fd.read()
-#     fd.close()
-#
-#     news_item = orm_add_newsitem(title, body, link)
-#     context.user_data['news_id'] = news_item.id
-#
-#     # Costruzione della descrizione
-#     caption = '<b>' + str(news_item.title) + \
-#               ' [' + news_item.id + ']</b>\n'
-#
-#     text = news_item.text.split()
-#     caption += str(" ".join(text[:30]))
-#
-#     # Aggiunta del link per approfondire
-#     caption += '... <a href=\"' + news_item.link + '\">continua</a>'
-#
-#     context.bot.send_photo(
-#         chat_id=update.message.chat_id,
-#         photo=open(folder_new + '/allegato_1.jpg', 'rb'),
-#         caption=caption,
-#         parse_mode='HTML'
-#     )
-#
-#     # Attivazione tastiera con pulsanti 'like' e 'dislike'
-#     context.bot.send_message(
-#         chat_id=update.message.chat_id,
-#         text="Ti è piaciuto l'articolo?",
-#         reply_markup=InlineKeyboardMarkup([[
-#             InlineKeyboardButton(  # Pulsante dislike
-#                 text=u'\u2717',
-#                 callback_data='feedback - ' + news_item.id
-#             ),
-#             InlineKeyboardButton(  # Pulsante like
-#                 text=u'\u2713',
-#                 callback_data='feedback + ' + news_item.id
-#             )
-#         ]])
-#     )
-
-
 def debug_command_handler(update, context):
-
     telegram_user_id = update.message.chat.id
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
@@ -820,7 +632,6 @@ def debug_command_handler(update, context):
 
 
 def debug2_command_handler(update, context):
-
     telegram_user_id = update.message.chat.id
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
@@ -838,7 +649,6 @@ def debug2_command_handler(update, context):
 
 
 def debug3_command_handler(update, context):
-
     telegram_user_id = update.message.chat.id
     telegram_user = orm_get_telegram_user(telegram_user_id)
 
@@ -866,7 +676,6 @@ def debug3_command_handler(update, context):
 
 
 def debug_sendnews_command_handler(update, context):
-
     # if DEBUG_MSG:
     #     print("sendnews_command_handler update:")
     #     my_print(update, 4)
@@ -883,7 +692,7 @@ def debug_sendnews_command_handler(update, context):
     if not telegram_user.is_admin:
         return
 
-    data = update.message.text[len(UI_SEND_NEWS_COMMAND)+1:].strip()
+    data = update.message.text[len(UI_SEND_NEWS_COMMAND) + 1:].strip()
     print("sendnews_command_handler: " + data)
 
     orm_add_news_item(data, telegram_user)
@@ -944,22 +753,6 @@ def comment_handler(update, context):
         chat_id=update.message.chat_id,
         text=UI_message_comment_successful
     )
-
-
-def basic_user_checks(update, context):
-    telegram_user_id = update.message.chat.id
-
-    telegram_user = orm_get_telegram_user(telegram_user_id)
-
-    must_return = False
-
-    if check_if_user_is_disabled(telegram_user, update, context):
-        must_return = True
-    if check_user_privacy_approval(telegram_user, update, context):
-        # privacy not yet approved by user
-        must_return = True
-
-    return telegram_user_id, telegram_user, must_return
 
 
 def generic_message_handler(update, context):
@@ -1111,8 +904,8 @@ def main():
     # dp.add_handler(CommandHandler(UI_YOUNG_COMMAND, young_categories_command_handler))
 
     # these are 'standard' commands (add all categories / remove all categories)
-    dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, all_categories_command_handler))
-    dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, no_categories_command_handler))
+    dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, set_all_categories_command_handler))
+    dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, set_no_categories_command_handler))
 
     # dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
     # dp.add_handler(CommandHandler(UI_COURSES_COMMAND, courses_command_handler))
@@ -1131,9 +924,10 @@ def main():
     # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
+    dp.add_handler(
+        MessageHandler(Filters.regex('^(' + UI_SHOW_NEWS + '[\\d]+)$') | Filters.command, show_news_command_handler))
 
-
-    dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories))
+    dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
     dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))

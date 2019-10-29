@@ -12,7 +12,8 @@ from src.backoffice.models import NewsItem, TelegramUser
 
 
 from src.telegram_bot.ormlayer import orm_get_fresh_news_to_send, orm_get_system_parameter, orm_get_all_telegram_users, \
-    orm_log_news_sent_to_user, orm_inc_telegram_user_number_received_news_items
+    orm_log_news_sent_to_user, orm_inc_telegram_user_number_received_news_items, orm_get_news_item, \
+    orm_has_user_seen_news_item
 from src.telegram_bot.print_utils import my_print
 
 
@@ -132,8 +133,8 @@ def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _fil
     _lookup_file_id_in_message(_message, _file_path, _file_id)
 
 
-def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: TelegramUser, intersection_result=None, request_feedback=True,
-                               title_only=False, ask_comment=False):
+def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: TelegramUser, intersection_result=None, request_feedback=True,
+                               title_only=False, ask_comment=False, news_item_already_shown_to_user=False):
     print(
         "send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
 
@@ -287,18 +288,20 @@ def send_news_to_telegram_user(context, news_item : NewsItem, telegram_user: Tel
             chat_id=telegram_user.user_id,
             text=orm_get_system_parameter(UI_request_for_news_item_feedback),
             reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton(  # like button
+                    text=u'\u2713',
+                    callback_data='feedback + ' + str(news_item.id) + ' ' + str(ask_comment)
+                ),
                 InlineKeyboardButton(  # dislike button
                     text=u'\u2717',
                     callback_data='feedback - ' + str(news_item.id) + ' ' + str(ask_comment)
                 ),
-                InlineKeyboardButton(  # like button
-                    text=u'\u2713',
-                    callback_data='feedback + ' + str(news_item.id) + ' ' + str(ask_comment)
-                )
             ]])
         )
 
-    orm_log_news_sent_to_user(news_item, telegram_user)
+    # we record this activity only once (if the news item has already been shown to user, do not log this activity)
+    if not news_item_already_shown_to_user:
+        orm_log_news_sent_to_user(news_item, telegram_user)
 
     orm_inc_telegram_user_number_received_news_items(telegram_user)
 
@@ -348,3 +351,17 @@ file_id_cache_dict = {}
 def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in lst2]
     return lst3
+
+
+def show_news_by_id(context, news_id: int, telegram_user: TelegramUser):
+
+    news_item = orm_get_news_item(news_id)
+    if news_item is None:
+        return False
+
+    news_item_already_shown_to_user = orm_has_user_seen_news_item(telegram_user, news_item)
+
+    send_news_to_telegram_user(context, news_item, telegram_user, request_feedback=not news_item_already_shown_to_user,
+                               news_item_already_shown_to_user=news_item_already_shown_to_user)
+
+    return True
