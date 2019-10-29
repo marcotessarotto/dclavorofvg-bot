@@ -76,17 +76,6 @@ def help_command_handler(update, context):
         parse_mode='HTML'
     )
 
-    # show custom commands
-    # categories = orm_get_categories_valid_command()
-    # msg = ''
-    # for cat in categories:
-    #     msg = msg + '/' + cat.custom_telegram_command + ' : ' + UI_message_receive_info_about_category.format(cat.name) + '\n'
-    #
-    # update.message.reply_text(
-    #     msg,
-    #     parse_mode='HTML'
-    # )
-
 
 def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
@@ -125,8 +114,9 @@ def privacy_command_handler(update, context):
 
     # https://stackoverflow.com/a/17311079/974287
     update.message.reply_text(
-        UI_message_you_have_accepted_privacy_rules_on_this_day + (
-            telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR)),
+        UI_message_you_have_accepted_privacy_rules_on_this_day +
+        (telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR)) + '\n' +
+        orm_get_system_parameter(UI_PRIVACY),
         parse_mode='HTML'
     )
 
@@ -140,18 +130,6 @@ def undo_privacy_command_handler(update, context):
         UI_message_your_privacy_acceptance_has_been_deleted,
         parse_mode='HTML'
     )
-
-    pass
-
-
-# def detach_from_bot(update, context):
-#     # TODO: l'utente si scollega dal bot
-#
-#     update.message.reply_text(
-#         'Ok! Bye!',
-#         parse_mode='HTML'
-#     )
-#     pass
 
 
 def ask_age(update, context):
@@ -221,43 +199,6 @@ def callback_privacy(update, context, param):
             text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue)
 
 
-# def callback_internship(update, context, param):
-#     telegram_user_id = update.callback_query.from_user.id
-#
-#     if param == UI_OK:
-#         intership_setting = True
-#     else:
-#         intership_setting = False
-#
-#     orm_change_user_intership_setting(telegram_user_id, intership_setting)
-#
-#     update.callback_query.edit_message_text(
-#         UI_message_intership_settings_modified,
-#         parse_mode='HTML'
-#     )
-
-
-# def process_intership_message(update, context, param):
-#
-#     if param == UI_message_ok_internship_info:
-#         intership_setting = True
-#     elif param == UI_message_no_internship_info:
-#         intership_setting = False
-#     else:
-#         return False
-#
-#     telegram_user_id = update.message.chat.id
-#
-#     orm_change_user_intership_setting(telegram_user_id, intership_setting)
-#
-#     update.message.reply_text(
-#         UI_message_intership_settings_modified_true if intership_setting else UI_message_intership_settings_modified_false,
-#         parse_mode='HTML'
-#     )
-#
-#     return True
-
-
 def callback(update, context):
     """ Gestisce i callback_data inviati dalle inline_keyboard """
 
@@ -299,7 +240,7 @@ def show_news_command_handler(update, context):
 
     news_id = int(str_id)
 
-    print("show_news_command_handler: " + str(news_id))
+    print("show_news_command_handler: " + str_id)
 
     if show_news_by_id(context, news_id, telegram_user):
         return
@@ -309,14 +250,8 @@ def show_news_command_handler(update, context):
 
 def choose_news_categories_command_handler(update, context):
     """ Permette all'utente di scegliere tra le categorie disponibili """
-
-    telegram_user = orm_get_telegram_user(update.message.from_user.id)
-
-    if check_if_user_is_disabled(telegram_user, update, context):
-        return
-
-    if check_user_privacy_approval(telegram_user, update, context):
-        # privacy not yet approved by user
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
         return
 
     context.bot.send_message(
@@ -452,10 +387,6 @@ def custom_command_handler(update, context):
 
     custom_telegram_command = original_command[1:]
 
-    # see show_news_command_handler
-    # if show_news_by_id(update, context, custom_telegram_command, telegram_user):
-    #     return
-
     categories = orm_get_categories_valid_command()
 
     cat = next((cat for cat in categories if cat.custom_telegram_command == custom_telegram_command), None)
@@ -494,33 +425,22 @@ def custom_command_handler(update, context):
 
 
 def set_all_categories_command_handler(update, context):
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
+        return
     _set_all_categories(update, context, True)
 
 
 def set_no_categories_command_handler(update, context):
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
+        return
     _set_all_categories(update, context, False)
 
 
-# def internship_command_handler(update, context):
-#     intership_ok_keyboard = telegram.KeyboardButton(text=UI_message_ok_internship_info)
-#     intership_no_keyboard = telegram.KeyboardButton(text=UI_message_no_internship_info)
-#
-#     custom_keyboard = [[intership_ok_keyboard, intership_no_keyboard]]
-#
-#     reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard=True, one_time_keyboard=True)
-#
-#     update.message.reply_text(
-#         UI_message_receive_internship_question,
-#         parse_mode='HTML',
-#         reply_markup=reply_markup
-#     )
-
-
 def me_command_handler(update, context):
-    telegram_user = orm_get_telegram_user(update.message.from_user.id)
-
-    if check_user_privacy_approval(telegram_user, update, context):
-        # privacy not yet approved by user
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
         return
 
     # update.message.reply_text(
@@ -551,15 +471,9 @@ def me_command_handler(update, context):
 
 def resend_last_processed_news(update, context):
     print("resend_last_processed_news")
-    # print(update)
-    telegram_user_id = update.message.chat.id
-    telegram_user = orm_get_telegram_user(telegram_user_id)
 
-    if check_if_user_is_disabled(telegram_user, update, context):
-        return
-
-    if check_user_privacy_approval(telegram_user, update, context):
-        # privacy not yet approved by user
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
         return
 
     now = datetime.datetime.now()
@@ -616,10 +530,8 @@ def resend_last_processed_news(update, context):
 
 
 def debug_command_handler(update, context):
-    telegram_user_id = update.message.chat.id
-    telegram_user = orm_get_telegram_user(telegram_user_id)
-
-    if check_if_user_is_disabled(telegram_user, update, context):
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
         return
 
     if not telegram_user.is_admin:
@@ -632,10 +544,8 @@ def debug_command_handler(update, context):
 
 
 def debug2_command_handler(update, context):
-    telegram_user_id = update.message.chat.id
-    telegram_user = orm_get_telegram_user(telegram_user_id)
-
-    if check_if_user_is_disabled(telegram_user, update, context):
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
         return
 
     if not telegram_user.is_admin:
@@ -649,10 +559,8 @@ def debug2_command_handler(update, context):
 
 
 def debug3_command_handler(update, context):
-    telegram_user_id = update.message.chat.id
-    telegram_user = orm_get_telegram_user(telegram_user_id)
-
-    if check_if_user_is_disabled(telegram_user, update, context):
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
         return
 
     if not telegram_user.is_admin:
@@ -682,10 +590,8 @@ def debug_sendnews_command_handler(update, context):
 
     # takes content after /news command as content of the news to send
 
-    telegram_user_id = update.message.chat.id
-    telegram_user = orm_get_telegram_user(telegram_user_id)
-
-    if check_if_user_is_disabled(telegram_user, update, context):
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
         return
 
     # admin only
@@ -907,14 +813,7 @@ def main():
     dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, set_all_categories_command_handler))
     dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, set_no_categories_command_handler))
 
-    # dp.add_handler(CommandHandler(UI_INTERNSHIP_COMMAND, internship_command_handler))
-    # dp.add_handler(CommandHandler(UI_COURSES_COMMAND, courses_command_handler))
-    # dp.add_handler(CommandHandler(UI_RECRUITING_DAY_COMMAND, recruiting_day_command_handler))
-
     dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
-
-    #
-    # dp.add_handler(CommandHandler(UI_DETACH_BOT, detach_from_bot))
 
     # Handlers per la sezione INVIO NEWS
     dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news))
