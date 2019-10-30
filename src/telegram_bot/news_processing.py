@@ -337,7 +337,7 @@ def _lookup_file_id_in_message(message, _file_path: str, file_id):
     if _file_id is not None:
         file_id_cache_dict[_file_path] = _file_id
 
-    logger.info("process_message_for_file_id: {0} for {1}".format(_file_id,_file_path))
+    logger.info("process_message_for_file_id: {0} for {1}".format(_file_id, _file_path))
 
     return
 

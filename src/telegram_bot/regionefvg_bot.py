@@ -20,8 +20,6 @@ from src.telegram_bot.user_utils import basic_user_checks, check_user_privacy_ap
 from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
-# from telegram.ext import *
-
 from telegram.ext import messagequeue as mq, Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
@@ -36,7 +34,7 @@ def start_command_handler(update, context):
         logger.info("start_command_handler update:")
         my_print(update, 4, logger)
 
-    logger.info("start args:" + str(context.args))  # parametro via start; max 64 caratteri
+    logger.info("start args: {0}".format(context.args))  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
     # logger.info("update.message.from_user = " + str(update.message.from_user))
@@ -90,7 +88,7 @@ def privacy_command_handler(update, context):
 
     privacy_state = telegram_user.has_accepted_privacy_rules
 
-    logger.info("privacy_command_handler - user id=" + str(telegram_user.id) + " privacy accepted: " + str(privacy_state))
+    logger.info("privacy_command_handler - user id={0} privacy accepted: {1}".format(telegram_user.id,privacy_state))
 
     if not privacy_state:
         #
@@ -119,7 +117,7 @@ def privacy_command_handler(update, context):
 def undo_privacy_command_handler(update, context):
     orm_change_user_privacy_setting(update.message.from_user.id, False)
 
-    logger.info("undo_privacy_command_handler - telegram user id=" + str(update.message.from_user.id))
+    logger.info("undo_privacy_command_handler - telegram user id={0}".format(update.message.from_user.id))
 
     update.message.reply_text(
         UI_message_your_privacy_acceptance_has_been_deleted,
@@ -235,7 +233,7 @@ def show_news_command_handler(update, context):
 
     news_id = int(str_id)
 
-    logger.info("show_news_command_handler: " + str_id)
+    logger.info("show_news_command_handler: {0}".format(str_id))
 
     if show_news_by_id(context, news_id, telegram_user):
         return
@@ -368,7 +366,7 @@ def callback_choice(update, choice: str):
 
     c = b - a
 
-    logger.debug("callback_choice dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("callback_choice dt={0} microseconds".format(c.microseconds))
 
 
 def custom_command_handler(update, context):
@@ -464,7 +462,7 @@ def me_command_handler(update, context):
     )
 
 
-def resend_last_processed_news(update, context):
+def resend_last_processed_news_command_handler(update, context):
     logger.info("resend_last_processed_news")
 
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
@@ -509,7 +507,7 @@ def resend_last_processed_news(update, context):
         if news_item.broadcast_message is not True and len(intersection_result) == 0:
             continue
 
-        logger.info("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
+        logger.info("resend_last_processed_news - sending news_item.id={0}".format(news_item.id))
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
                                    request_feedback=False, title_only=True)
@@ -565,7 +563,7 @@ def debug3_command_handler(update, context):
 
     file_id = _get_file_id_for_file_path(fp)
 
-    logger.info("debug3_command_handler: file_id found? " + str(file_id))
+    logger.info("debug3_command_handler: file_id found? {0}".format(file_id))
 
     m = context.bot.send_photo(telegram_user_id, file_id if file_id is not None else open(fp, 'rb'))
 
@@ -594,7 +592,7 @@ def debug_sendnews_command_handler(update, context):
         return
 
     data = update.message.text[len(UI_SEND_NEWS_COMMAND) + 1:].strip()
-    logger.info("sendnews_command_handler: " + data)
+    logger.info("sendnews_command_handler: {0}".format(data))
 
     orm_add_news_item(data, telegram_user)
 
@@ -605,7 +603,7 @@ def callback_feedback(update, data):
     feed = data[0]
     news_id = data[1]
     comment_enabled = data[2]
-    logger.info("comment_enabled = " + str(comment_enabled))
+    logger.info("comment_enabled = {0}".format(comment_enabled))
     orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)  # Aggiunge il nuovo feedback
 
     if comment_enabled:
@@ -728,27 +726,27 @@ def error_callback(update, error):
     except Unauthorized:
         # remove update.message.chat_id from conversation list
         # logger.error(error)
-        logging.error("Unauthorized")
+        logger.error("Unauthorized")
     except BadRequest:
         # handle malformed requests - read more below!
         # logger.error(error)
-        logging.error("BadRequest")
+        logger.error("BadRequest")
     except TimedOut:
         # handle slow connection problems
         # logger.error(error)
-        logging.error("TimedOut")
+        logger.error("TimedOut")
     except NetworkError:
         # handle other connection problems
         # logger.error(error)
-        logging.error("NetworkError")
+        logger.error("NetworkError")
     except ChatMigrated as e:
         # the chat_id of a group has changed, use e.new_chat_id instead
         # print(error)
-        logging.error("ChatMigrated")
+        logger.error("ChatMigrated")
     except TelegramError:
         # handle all other telegram related errors
         # print(error)
-        logging.error("TelegramError")
+        logger.error("TelegramError")
 
 
 def main():
@@ -806,7 +804,7 @@ def main():
     dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
 
     # Handlers per la sezione INVIO NEWS
-    dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news))
+    dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news_command_handler))
     dp.add_handler(MessageHandler(Filters.reply, comment_handler))
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 

@@ -1,10 +1,5 @@
 from django.db import models
 
-import traceback
-import logging
-
-# from spacy.lang.fr.tokenizer_exceptions import verb
-
 from .definitions import *
 
 

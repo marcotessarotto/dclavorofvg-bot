@@ -31,7 +31,6 @@ class CategoryAdmin(admin.ModelAdmin):
     ordering = ('key',)
 
     def add_default_categories(self, request):
-    # def add_default_categories(self, request, queryset):
         # fill_categories aggiunge le categorie di default soltanto se non ci sono Category
         result = Category.fill_categories()
 
