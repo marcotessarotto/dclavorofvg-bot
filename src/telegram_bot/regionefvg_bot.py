@@ -84,8 +84,8 @@ def privacy_command_handler(update, context):
     if not privacy_state:
         #
 
-        buttons = [[InlineKeyboardButton(text=UI_ACCEPT_UC, callback_data='privacy ' + UI_ACCEPT_UC),
-                    InlineKeyboardButton(text=UI_NOT_ACCEPT_UC, callback_data='privacy ' + UI_NOT_ACCEPT_UC)]
+        buttons = [[InlineKeyboardButton(text=UI_ACCEPT_UC, callback_data=f'privacy {UI_ACCEPT_UC}'),
+                    InlineKeyboardButton(text=UI_NOT_ACCEPT_UC, callback_data=f'privacy {UI_NOT_ACCEPT_UC}')]
                    ]
 
         context.bot.send_message(
@@ -99,7 +99,7 @@ def privacy_command_handler(update, context):
     # https://stackoverflow.com/a/17311079/974287
     update.message.reply_text(
         UI_message_you_have_accepted_privacy_rules_on_this_day +
-        (telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR)) + '\n' +
+        telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR) + '\n' +
         orm_get_system_parameter(UI_PRIVACY),
         parse_mode='HTML'
     )
@@ -357,13 +357,13 @@ def callback_choice(update, choice: str):
 
     c = b - a
 
-    logger.debug("callback_choice dt={0} microseconds".format(c.microseconds))
+    logger.debug(f"callback_choice dt={c.microseconds} microseconds")
 
 
 def custom_command_handler(update, context):
     original_command = update.message.text
 
-    logger.info("custom_command_handler: " + original_command)
+    logger.info(f"custom_command_handler: {original_command}")
 
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
@@ -462,8 +462,11 @@ def resend_last_processed_news_command_handler(update, context):
 
     now = datetime.datetime.now()
 
-    if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(
+    lrn = context.user_data.get('last_resend_news_timestamp')
+
+    if lrn is not None and lrn > now - datetime.timedelta(
             minutes=1):
+    # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(minutes=1):
         logger.warn("resend_last_processed_news: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
@@ -472,12 +475,14 @@ def resend_last_processed_news_command_handler(update, context):
         )
         return
 
-    telegram_user.resend_news_timestamp = now
-    orm_update_telegram_user(telegram_user)
+    # telegram_user.resend_news_timestamp = now
+    # orm_update_telegram_user(telegram_user)
+
+    context.user_data['last_resend_news_timestamp'] = now
 
     news_query = orm_get_last_processed_news()
 
-    logger.info("resend_last_processed_news - processed news items={0}".format(len(news_query)))
+    logger.info(f"resend_last_processed_news - processed news items={len(news_query)}")
 
     if len(news_query) == 0:
         context.bot.send_message(
@@ -498,7 +503,7 @@ def resend_last_processed_news_command_handler(update, context):
         if news_item.broadcast_message is not True and len(intersection_result) == 0:
             continue
 
-        logger.info("resend_last_processed_news - resending news_item.id={0} to user {1}".format(news_item.id, telegram_user.user_id))
+        logger.info(f"resend_last_processed_news - resending news_item.id={news_item.id} to user {telegram_user.user_id}")
 
         news_item_already_shown_to_user = orm_has_user_seen_news_item(telegram_user, news_item)
 
@@ -556,7 +561,7 @@ def debug3_command_handler(update, context):
 
     file_id = _get_file_id_for_file_path(fp)
 
-    logger.info("debug3_command_handler: file_id found? {0}".format(file_id))
+    logger.info(f"debug3_command_handler: file_id found? {file_id}")
 
     m = context.bot.send_photo(telegram_user_id, file_id if file_id is not None else open(fp, 'rb'))
 
@@ -600,7 +605,7 @@ def debug_sendnews_command_handler(update, context):
         return
 
     data = update.message.text[len(UI_SEND_NEWS_COMMAND) + 1:].strip()
-    logger.info("sendnews_command_handler: {0}".format(data))
+    logger.info(f"sendnews_command_handler: {data}")
 
     orm_add_news_item(data, telegram_user)
 
@@ -621,7 +626,7 @@ def callback_feedback(update, data):
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton(
                     text=UI_message_write_a_comment_button,
-                    callback_data='comment ' + news_id)]
+                    callback_data=f'comment {news_id}')]
             ])
         )
     else:
@@ -653,8 +658,8 @@ def comment_handler(update, context):
     # Testo del messaggio cui il commento fornisce una risposta
     # (c'è il codice dell'articolo)
 
-    logger.info("comment_handler: reply_to_message.text message={0}".format(update.message.reply_to_message.text))
-    logger.info("comment_handler: message.text message={0}".format(update.message.text))
+    logger.info(f"comment_handler: reply_to_message.text message={update.message.reply_to_message.text}")
+    logger.info(f"comment_handler: message.text message={update.message.text}")
 
     reply_data = update.message.reply_to_message.text.split()
     # logger.info(reply_data)
@@ -673,7 +678,7 @@ def generic_message_handler(update, context):
 
     message_text = update.message.text
 
-    logger.info("generic_message_handler - message_text = " + message_text)
+    logger.info(f"generic_message_handler - message_text = {message_text}")
 
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
@@ -790,7 +795,7 @@ def main():
 
     job_queue = updater.job_queue
 
-    logger.info("news check period: {0} s".format(NEWS_CHECK_PERIOD))
+    logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
     job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=0)  # callback_minute
 
     # Handler per servire TUTTE le inline_keyboard

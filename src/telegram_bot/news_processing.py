@@ -31,13 +31,13 @@ def news_dispatcher(context: CallbackContext):
         logger.info("news_dispatcher - nothing to do")
         return
     else:
-        logger.info("news_dispatcher - there are news to process: {0}".format(len(list_of_news)))
+        logger.info(f"news_dispatcher - there are news to process: {len(list_of_news)}")
 
     all_telegram_users = orm_get_all_telegram_users()
 
     for news_item in list_of_news:
 
-        logger.debug("news_dispatcher - elaboration of news item id={0}".format(news_item.id))
+        logger.debug(f"news_dispatcher - elaboration of news item id={news_item.id}")
 
         for telegram_user in all_telegram_users:
 
@@ -62,7 +62,7 @@ def news_dispatcher(context: CallbackContext):
 
     c = b - a
 
-    logger.debug("news_dispatcher - finished processing all news - dt={0} microseconds".format(c.microseconds))
+    logger.debug(f"news_dispatcher - finished processing all news - dt={c.microseconds} microseconds")
 
 
 def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _file_mime_type: str, caption=None):
@@ -134,7 +134,7 @@ def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _fil
 def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: TelegramUser, intersection_result=None, request_feedback=True,
                                title_only=False, ask_comment=False, news_item_already_shown_to_user=False):
     logger.info(
-        "send_news_to_telegram_user - news_item={0}, telegram_user={1}".format(news_item.id,telegram_user.user_id))
+        f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
 
     telegram_user_id = telegram_user.user_id
 
@@ -155,13 +155,9 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     # title/header
     if news_item.title_link is not None:
-        title_html_content = '<a href="' + news_item.title_link + '"> ' + \
-                             str(news_item.title) + \
-                             ' [' + str(news_item.id) + ']' + processed_timestamp_html + \
-                                                        ' </a>\n'
+        title_html_content = f'<a href="{news_item.title_link}"> {news_item.title}  [{news_item.id}] {processed_timestamp_html}'                                                        ' </a>\n'
     else:
-        title_html_content = '<b>' + str(news_item.title) + \
-                             ' [' + str(news_item.id) + ']' + processed_timestamp_html + '</b>\n'
+        title_html_content = f'<b>{news_item.title}  [{news_item.id}] {processed_timestamp_html} </b>\n'
 
     show_categories_in_news = SHOW_CATEGORIES_IN_NEWS  # orm_get_system_parameter(param_show_match_category_news).lower() == "true"
 
@@ -178,7 +174,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
             categories_html_content += '</i>\n'
         elif news_item.broadcast_message is True:
-            categories_html_content = '\n<i>' + UI_broadcast_message + '</i>\n'
+            categories_html_content = f'\n<i>{UI_broadcast_message}</i>\n'
         else:
             s = ''
             for cat in news_item.categories.all():
@@ -186,7 +182,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
             if len(s) > 0:
                 s = s[:-1]
-                categories_html_content = '<i>' + UI_message_news_item_category + ': ' + s + '</i>\n'
+                categories_html_content = f'<i>{UI_message_news_item_category}: {s}</i>\n'
 
     if title_only:
 
@@ -202,7 +198,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
         c = b - a
 
-        logger.debug("send_news_to_telegram_user - dt={0} microseconds".format(c.microseconds))
+        logger.debug(f"send_news_to_telegram_user - dt={c.microseconds} microseconds")
 
         return
 
@@ -223,12 +219,12 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     # optional link
     if news_item.link is not None:
-        link_html_content = '... <a href=\"' + news_item.link + '\">' + news_item.link_caption + '</a>'
+        link_html_content = f'... <a href=\"{news_item.link}\">{news_item.link_caption}</a>'
 
     # complete html body of news item (separate from title. link...)
     html_news_content = title_html_content + categories_html_content + body_html_content + link_html_content
 
-    logger.info("send_news_to_telegram_user - len(html_content) = {0}".format(len(html_news_content)))
+    logger.info(f"send_news_to_telegram_user - len(html_content) = {len(html_news_content)}")
 
     # print("len(title_html_content) = " + str(len(title_html_content)))
     # print("len(categories_html_content) = " + str(len(categories_html_content)))
@@ -245,13 +241,13 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
         file_path = MEDIA_ROOT + news_item.file1.file_field.name
 
-        logger.info("send_news_to_telegram_user - fs path of file1: {0}".format(file_path))
+        logger.info(f"send_news_to_telegram_user - fs path of file1: {file_path}")
 
         file_mime_type = mimetypes.guess_type(file_path)[0]
 
         file1_is_image = file_mime_type.startswith('image')
 
-        logger.info("file1 mime_type: {0}".format(file_mime_type))
+        logger.info(f"file1 mime_type: {file_mime_type}")
         # print("file1_is_image: " + str(file1_is_image))
 
         # file_id = _get_file_id_for_file_path(file_path)
@@ -296,13 +292,13 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     if news_item.file2 is not None:
         file_path = MEDIA_ROOT + news_item.file2.file_field.name
-        logger.info("send_news_to_telegram_user - fs path of file2 to send: {0}".format(file_path))
+        logger.info(f"send_news_to_telegram_user - fs path of file2 to send: {file_path}")
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
 
     if news_item.file3 is not None:
         file_path = MEDIA_ROOT + news_item.file3.file_field.name
-        logger.info("send_news_to_telegram_user - fs path of file3 to send: {0}".format(file_path))
+        logger.info(f"send_news_to_telegram_user - fs path of file3 to send: {file_path}")
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
 
@@ -314,11 +310,11 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(  # like button
                     text=u'\u2713',
-                    callback_data='feedback + {0}  {1}'.format(news_item.id, ask_comment)
+                    callback_data=f'feedback + {news_item.id}  {ask_comment}'
                 ),
                 InlineKeyboardButton(  # dislike button
                     text=u'\u2717',
-                    callback_data='feedback - {0}  {1}'.format(news_item.id, ask_comment)
+                    callback_data=f'feedback - {news_item.id}  {ask_comment}'
                 ),
             ]])
         )
@@ -333,7 +329,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     c = b - a
 
-    logger.debug("send_news_to_telegram_user - dt={0} microseconds".format(c.microseconds))
+    logger.debug(f"send_news_to_telegram_user - dt={c.microseconds} microseconds")
 
 
 def _lookup_file_id_in_message(message, _file_path: str, file_id):
@@ -359,7 +355,7 @@ def _lookup_file_id_in_message(message, _file_path: str, file_id):
     if _file_id is not None:
         file_id_cache_dict[_file_path] = _file_id
 
-    logger.info("process_message_for_file_id: {0} for {1}".format(_file_id, _file_path))
+    logger.info(f"process_message_for_file_id: {_file_id} for {_file_path}")
 
     return
 

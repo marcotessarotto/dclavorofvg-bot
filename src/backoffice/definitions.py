@@ -44,27 +44,19 @@ SHOW_CATEGORIES_IN_NEWS = True
 
 help_keyword_list =  ['aiuto', 'help', '?']
 
-bot_default_help_msg = """Ti aiuto a ricevere news ed offerte di lavoro personalizzate sulle tue esigenze.
+bot_default_help_msg = """Ti aiuto a ricevere notizie ed offerte di lavoro personalizzate sulle tue esigenze.
 
-Aiutami a fornirti risultati migliori per te! Usa il comando /me
+COMANDI del bot:
+per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/scegli</b>.
 
-Se vuoi ricevere tutte le news, usa il comando <b>/tutte_le_news</b>.
-Se non vuoi ricevere nessuna news, usa il comando <b>/nessuna_news</b>.
-
-Per specificare più in dettaglio le aree di interesse, usa il comando <b>/scegli</b>.
-
-<b>/help_categorie</b>  
-
-Questi sono i comandi a disposizione:
-
-<b>/start</b> schermata iniziale del bot
-<b>/scegli</b> scegli le categorie di notizie che ti interessano
+<b>/start</b> avvio del bot (l'hai già fatto)
+<b>/scegli</b> scegli le categorie di notizie che ti vuoi ricevere
 <b>/privacy</b> gestisci l'accettazione della privacy
 
-<b>/rimanda_ultime_news</b> rimanda le ultime news
+<b>/rimanda_ultime_news</b> rimanda le notizie degli ultimi 10 giorni
 
-Per avviare un comando digitalo da tastiera oppure selezionalo dalla lista.
-Per mostrare nuovamente questo messaggio digita /help o /aiuto o /start"""
+Per mostrare nuovamente questo messaggio digita /help o /aiuto
+"""
 
 
 def get_bot_default_help_msg():
@@ -128,7 +120,8 @@ UI_message_you_have_choosen_no_categories = 'Non hai scelto alcuna categoria! Se
 
 UI_message_you_have_choosen_the_following_categories = 'Grazie, hai scelto le seguenti categorie:\n\n'
 
-UI_message_you_can_modify_categories_with_command = '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .'
+UI_message_you_can_modify_categories_with_command = '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .\n' \
+                                                    'Se vuoi rivedere le ultime notizie in base alle categorie che hai scelto, usa il comando /rimanda_ultime_news'
 
 UI_message_i_have_changed_your_categories = 'Ho cambiato le categorie di news che vuoi ricevere, adesso sono:\n'
 

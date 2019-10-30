@@ -37,11 +37,11 @@ def orm_add_telegram_user(user):
         new_telegram_user.save()
 
         _update_user_in_cache(new_telegram_user)
-        logger.info("orm_add_telegram_user: new user {0}".format(new_telegram_user.user_id))
+        logger.info(f"orm_add_telegram_user: new user {new_telegram_user.user_id}")
 
         return new_telegram_user
     else:
-        logger.info("orm_add_telegram_user: existing user {0}".format(telegram_user.user_id))
+        logger.info(f"orm_add_telegram_user: existing user {telegram_user.user_id}")
         return telegram_user
 
 
@@ -55,7 +55,7 @@ def orm_log_news_sent_to_user(news_item, telegram_user):
 def orm_add_news_item(content: str, telegram_user: TelegramUser):
     news = NewsItem()
 
-    news.title = 'news da ' + str(telegram_user.username)
+    news.title = f'news da {telegram_user.user_id}'
 
     if content.startswith('http'):
         data = content.split()
@@ -118,7 +118,7 @@ def orm_add_feedback(feed, news_id, telegram_user_id):
     feedback.val = val
     feedback.save()
 
-    logger.debug("orm_add_feedback news_id={0} telegram_user_id={1} {2}".format(news_id, telegram_user_id, feed))
+    logger.debug(f"orm_add_feedback news_id={news_id} telegram_user_id={telegram_user_id} {feed}")
 
 
 def orm_add_comment(text, news_id, telegram_user_id):
@@ -127,7 +127,7 @@ def orm_add_comment(text, news_id, telegram_user_id):
     queryset_user = TelegramUser.objects.filter(user_id=int(telegram_user_id))
     user = queryset_user[0]
 
-    logger.info("orm_add_comment id={0} user_id={1}".format(news_id, user.id))
+    logger.info(f"orm_add_comment id={news_id} user_id={user.id}")
 
     # https://stackoverflow.com/a/12682379/974287
     Comment.objects.create(user_id=user.id, news_id=news_id, text=text)
@@ -158,7 +158,7 @@ def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
 
     def _orm_get_telegram_user_cache():
 
-        key_name = "user" + str(telegram_user_id)
+        key_name = f"user{telegram_user_id}"
 
         res = cache.get(key_name)
 
@@ -183,7 +183,7 @@ def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
 
     c = b - a
 
-    logger.debug("orm_get_telegram_user dt={0} microseconds".format(c.microseconds))
+    logger.debug(f"orm_get_telegram_user dt={c.microseconds} microseconds")
 
     return result
 
@@ -206,7 +206,7 @@ def orm_get_user_expected_input(obj) -> str:
     else:
         res = None
 
-    logger.info("orm_get_user_expected_input({0}): {1}".format(obj, res))
+    logger.info(f"orm_get_user_expected_input({obj}): {res}")
 
     return res
 
@@ -228,7 +228,8 @@ def orm_set_telegram_user_expected_input(obj, expected_input):
         telegram_user = orm_get_telegram_user(obj)
 
     if telegram_user is not None:
-        logger.info("orm_set_user_expected_input: user {0}, setting chat_state to {1}".format(telegram_user.user_id, expected_input))
+        logger.info(
+            f"orm_set_user_expected_input: user {telegram_user.user_id}, setting chat_state to {expected_input}")
         telegram_user.chat_state = expected_input
         telegram_user.save()
         _update_user_in_cache(telegram_user)
@@ -249,7 +250,7 @@ def orm_store_free_text(message_text, telegram_user):
 
 
 def orm_update_telegram_user(telegram_user: TelegramUser):
-    logger.debug("orm_update_telegram_user {0}".format(telegram_user.user_id))
+    logger.debug(f"orm_update_telegram_user {telegram_user.user_id}")
     if telegram_user is not None:
         telegram_user.save()
         _update_user_in_cache(telegram_user)
@@ -263,13 +264,13 @@ def orm_parse_user_age(telegram_user: TelegramUser, message_text: str):
         if age < 0:
             age = -1
     except ValueError:
-        logger.error("wrong format for age! " + message_text)
+        logger.error(f"wrong format for age! {message_text}")
         age = -1
 
     telegram_user.age = age
     telegram_user.save()
     _update_user_in_cache(telegram_user)
-    logger.info("parse_user_age: age set for user {0} to {1}".format(telegram_user.user_id, age))
+    logger.info(f"parse_user_age: age set for user {telegram_user.user_id} to {age}")
 
     return age
 
@@ -315,7 +316,7 @@ def orm_update_user_category_settings(telegram_user, category_key):
 
     str_user_id = str(telegram_user.user_id)
 
-    logger.info("orm_update_user_category_settings category_key={0} user_id={1}".format(category_key, str_user_id))
+    logger.info(f"orm_update_user_category_settings category_key={category_key} user_id={str_user_id}")
 
     queryset_cat = telegram_user.categories.filter(key=category_key)
 
@@ -324,7 +325,7 @@ def orm_update_user_category_settings(telegram_user, category_key):
         telegram_user.categories.remove(cat)
         telegram_user.save()
 
-        logger.info('orm_update_user_category_settings: remove category={0} user_id={1}'.format(cat.key, str_user_id))
+        logger.info(f'orm_update_user_category_settings: remove category={cat.key} user_id={str_user_id}')
 
     else:  # category is not present in user settings, we have to add it
         cat = Category.objects.filter(key=category_key)[0]
@@ -332,7 +333,7 @@ def orm_update_user_category_settings(telegram_user, category_key):
         telegram_user.categories.add(cat)
         telegram_user.save()
 
-        logger.info('orm_update_user_category_settings: add category={0} user_id={1}'.format(cat.key, str_user_id))
+        logger.info(f'orm_update_user_category_settings: add category={cat.key} user_id={str_user_id}')
 
 
 def orm_get_all_telegram_users():
@@ -353,7 +354,7 @@ def orm_get_categories_valid_command():
         .order_by('key')
     b = datetime.datetime.now()
     c = b - a
-    logger.debug("orm_get_categories_valid_command dt={0} microseconds".format(c.microseconds))
+    logger.debug(f"orm_get_categories_valid_command dt={c.microseconds} microseconds")
     return queryset
 
 
@@ -362,7 +363,7 @@ def orm_get_categories():
     queryset = Category.objects.all().order_by('key')
     b = datetime.datetime.now()
     c = b - a
-    logger.debug("orm_get_categories dt={0} microseconds".format(c.microseconds))
+    logger.debug(f"orm_get_categories dt={c.microseconds} microseconds")
     return queryset
 
 
@@ -460,7 +461,7 @@ def orm_get_system_parameter(param_name) -> str:
         query_result = SystemParameter.objects.filter(name=param_name)
 
         if len(query_result) == 0:
-            return "*** '{0}' parameter is not defined ***".format(param_name)
+            return f"*** '{param_name}' parameter is not defined ***"
         else:
             return query_result[0].value
 
@@ -487,7 +488,7 @@ def orm_get_system_parameter(param_name) -> str:
 
     c = b - a
 
-    logger.debug("orm_get_system_parameter - {0} dt={1} microseconds".format(param_name, c.microseconds))
+    logger.debug(f"orm_get_system_parameter - {param_name} dt={c.microseconds} microseconds")
 
     return result
 
@@ -496,7 +497,7 @@ def orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_pars
     queryset = RssFeedItem.objects.filter(rss_id=rss_id)
 
     if len(queryset) != 0:
-        logger.info("orm_create_news_from_rss_feed_item: item already processed, rss_id={0}".format(rss_id))
+        logger.info(f"orm_create_news_from_rss_feed_item: item already processed, rss_id={rss_id}")
         return None
 
     rss_feed_item = RssFeedItem()
