@@ -8,8 +8,8 @@ from src.gfvgbo.settings import MEDIA_ROOT
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 
-from src.backoffice.definitions import DATE_FORMAT_STR, param_show_match_category_news, UI_broadcast_message, \
-    UI_request_for_news_item_feedback
+from src.backoffice.definitions import DATE_FORMAT_STR, UI_message_show_complete_news_item, UI_broadcast_message, \
+    UI_request_for_news_item_feedback, SHOW_CATEGORIES_IN_NEWS
 from src.backoffice.models import NewsItem, TelegramUser
 
 
@@ -24,10 +24,6 @@ def news_dispatcher(context: CallbackContext):
     a = datetime.datetime.now()
 
     list_of_news = orm_get_fresh_news_to_send()
-
-    debug_send_news = (orm_get_system_parameter("DEBUG_SEND_NEWS").lower() == "true")
-    if debug_send_news:
-        logger.debug("DEBUG_SEND_NEWS = {0}".format(debug_send_news))
 
     now = datetime.datetime.now()
 
@@ -59,8 +55,8 @@ def news_dispatcher(context: CallbackContext):
         news_item.processed = True
         from django.utils.timezone import now
         news_item.processed_timestamp = now()
-        if not debug_send_news:
-            news_item.save()
+
+        news_item.save()
 
     b = datetime.datetime.now()
 
@@ -167,7 +163,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
         title_html_content = '<b>' + str(news_item.title) + \
                              ' [' + str(news_item.id) + ']' + processed_timestamp_html + '</b>\n'
 
-    show_categories_in_news = orm_get_system_parameter(param_show_match_category_news).lower() == "true"
+    show_categories_in_news = SHOW_CATEGORIES_IN_NEWS  # orm_get_system_parameter(param_show_match_category_news).lower() == "true"
 
     # optional: show categories
     if show_categories_in_news is True:
@@ -183,6 +179,24 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             categories_html_content += '</i>\n'
         elif news_item.broadcast_message is True:
             categories_html_content = '\n<i>' + UI_broadcast_message + '</i>\n'
+
+    if title_only:
+
+        html_news_content = title_html_content + categories_html_content + UI_message_show_complete_news_item.format(news_item.id)
+
+        context.bot.send_message(
+            chat_id=telegram_user.user_id,
+            text=html_news_content,
+            parse_mode='HTML'
+        )
+
+        b = datetime.datetime.now()
+
+        c = b - a
+
+        logger.debug("send_news_to_telegram_user - dt={0} microseconds".format(c.microseconds))
+
+        return
 
     # news body
     news_text = news_item.text

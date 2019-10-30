@@ -241,6 +241,7 @@ def orm_store_free_text(message_text, telegram_user):
 
 
 def orm_update_telegram_user(telegram_user: TelegramUser):
+    logger.debug("orm_update_telegram_user {0}".format(telegram_user.user_id))
     if telegram_user is not None:
         telegram_user.save()
         _update_user_in_cache(telegram_user)
@@ -478,7 +479,7 @@ def orm_get_system_parameter(param_name) -> str:
 
     c = b - a
 
-    logger.debug("orm_get_system_parameter - dt={0} microseconds".format(c.microseconds))
+    logger.debug("orm_get_system_parameter - {0} dt={1} microseconds".format(param_name, c.microseconds))
 
     return result
 

@@ -80,7 +80,7 @@ class NewsItemSentToUser(models.Model):
 
     def __str__(self):
         return str(self.id) + " - user(id=" + str(self.telegram_user.id) + "/telegram_id=" + str(self.telegram_user.user_id) + "), " \
-                              "news_id=" + str(self.news_item.id) + ", flags=" + str(self.flags)
+                              "news_id=" + str(self.news_item.id) + ", flags=" + str(self.flags) + " sent=" + self.created_at.strftime("%d/%m/%y")
 
     class Meta:
         verbose_name = 'NewsItemSentToUser'
@@ -238,6 +238,7 @@ class NewsItem(models.Model):
 
     categories = models.ManyToManyField(Category,  blank=True, verbose_name="categorie")
 
+    # broadcast_message: if True, this message will be sent to all users without considering matching categories
     broadcast_message = models.BooleanField(default=False, verbose_name='forza l\'invio a tutti gli utenti')
 
     link = models.CharField(max_length=1024, blank=True, null=True)
@@ -298,12 +299,10 @@ class Comment(models.Model):
                str(self.user)
 
 
-# ****************************************************************************************
-# Non ho ben capito che utilità abbia questa classe
 class CommandsFromUser(models.Model):
     telegramUser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT)
 
-    command = models.CharField(max_length=256)
+    command = models.CharField(max_length=1024)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -331,13 +330,6 @@ class SystemParameter(models.Model):
 
     comment = models.CharField(max_length=256, blank=True, editable=False)
 
-    # @staticmethod
-    # def add_default_param(name):
-    #     k = SystemParameter()
-    #     k.name = name
-    #     k.value = "***" + name + "***"
-    #     k.save()
-
     @staticmethod
     def add_default_param(name, value, comment=""):
 
@@ -361,13 +353,13 @@ class SystemParameter(models.Model):
 
         SystemParameter.add_default_param(UI_bot_presentation, "Benvenuto al bot Telegram della Direzione centrale lavoro, formazione, istruzione e famiglia - Regione Autonoma Friuli Venezia Giulia :)", "è mostrato nel comando /start")
 
-        SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False", "non setta come processati le news item")
+        # SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False", "non setta come processati le news item")
 
         SystemParameter.add_default_param(UI_bot_help_message, get_bot_default_help_msg(), "è mostrato nel comando /help")
 
         SystemParameter.add_default_param(UI_request_for_news_item_feedback, "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
 
-        SystemParameter.add_default_param(param_show_match_category_news, "True", "mostra la categoria della news che ha permesso l'invio all'utente")
+        # SystemParameter.add_default_param(param_show_match_category_news, "True", "mostra la categoria della news che ha permesso l'invio all'utente")
 
         SystemParameter.add_default_param(RSS_FEED, "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/?rss=y", "rss feed to watch")
 

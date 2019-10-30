@@ -13,10 +13,6 @@ from src.telegram_bot.news_processing import news_dispatcher, send_news_to_teleg
 from src.telegram_bot.ormlayer import *
 from src.telegram_bot.user_utils import basic_user_checks, check_user_privacy_approval, check_if_user_is_disabled
 
-# try:
-#     from ..backoffice.definitions import *
-#     from ..backoffice.models import EDUCATIONAL_LEVELS
-# except:
 from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
@@ -30,7 +26,7 @@ global_bot_instance = None
 
 
 def start_command_handler(update, context):
-    if DEBUG_MSG:
+    if EXT_DEBUG_MSG:
         logger.info("start_command_handler update:")
         my_print(update, 4, logger)
 
@@ -54,11 +50,6 @@ def start_command_handler(update, context):
     if not telegram_user.has_accepted_privacy_rules:
         # privacy not yet approved by user
         return privacy_command_handler(update, context)
-
-    # update.message.reply_text(
-    #     orm_get_system_parameter(UI_bot_help_message),
-    #     parse_mode='HTML'
-    # )
 
 
 def help_command_handler(update, context):
@@ -472,8 +463,8 @@ def resend_last_processed_news_command_handler(update, context):
     now = datetime.datetime.now()
 
     if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(
-            hours=1):
-        logger.info("resend_last_processed_news: too frequent! skipping")
+            minutes=1):
+        logger.warn("resend_last_processed_news: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=UI_message_already_resent_news,
@@ -486,7 +477,7 @@ def resend_last_processed_news_command_handler(update, context):
 
     news_query = orm_get_last_processed_news()
 
-    logger.info("resend_last_processed_news - processed news items= " + str(len(news_query)))
+    logger.info("resend_last_processed_news - processed news items={0}".format(len(news_query)))
 
     if len(news_query) == 0:
         context.bot.send_message(
@@ -500,19 +491,21 @@ def resend_last_processed_news_command_handler(update, context):
 
     counter = 0
 
-    for news_item in reversed(news_query[:5]):
+    for news_item in reversed(news_query[:MAX_NUM_NEWS_TO_RESEND]):
 
         intersection_result = intersection(news_item.categories.all(), telegram_user_categories)
 
         if news_item.broadcast_message is not True and len(intersection_result) == 0:
             continue
 
-        logger.info("resend_last_processed_news - sending news_item.id={0}".format(news_item.id))
+        logger.info("resend_last_processed_news - resending news_item.id={0} to user {1}".format(news_item.id, telegram_user.user_id))
+
+        news_item_already_shown_to_user = orm_has_user_seen_news_item(telegram_user, news_item)
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
-                                   request_feedback=False, title_only=True)
+                                   request_feedback=False, title_only=True, news_item_already_shown_to_user=news_item_already_shown_to_user)
 
-        counter = counter + 1
+        counter += 1
 
     if counter == 0:
         context.bot.send_message(
@@ -644,6 +637,10 @@ def comment_handler(update, context):
 
     # Testo del messaggio cui il commento fornisce una risposta
     # (c'è il codice dell'articolo)
+
+    logger.info("comment_handler: reply_to_message.text message={0}".format(update.message.reply_to_message.text))
+    logger.info("comment_handler: message.text message={0}".format(update.message.text))
+
     reply_data = update.message.reply_to_message.text.split()
     # logger.info(reply_data)
     orm_add_comment(update.message.text, reply_data[3], update.message.chat.id)
@@ -778,7 +775,8 @@ def main():
 
     job_queue = updater.job_queue
 
-    job_minute = job_queue.run_repeating(news_dispatcher, interval=60 * 5, first=0)  # callback_minute
+    logger.info("news check period: {0} s".format(NEWS_CHECK_PERIOD))
+    job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=0)  # callback_minute
 
     # Handler per servire TUTTE le inline_keyboard
     dp.add_handler(CallbackQueryHandler(callback))

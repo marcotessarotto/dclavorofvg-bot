@@ -80,7 +80,12 @@ class NewsItemAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('text', 'news', 'user')
+    list_display = ('text', 'news_id', 'user', 'created_at')
+    # list_filter = ('news__id',)
+    search_fields = ('news__id',)
+
+    def news_id(self, obj):
+        return "id=" + str(obj.news.id)
 
 
 admin.site.register(NewsFile)

@@ -32,7 +32,13 @@ DEFAULT_CATEGORY_DICT = {
     '19': ['Tirocini', '-', 'tirocini'],
 }
 
-DEBUG_MSG = True
+EXT_DEBUG_MSG = True
+
+NEWS_CHECK_PERIOD = 60 * 30  # seconds
+
+MAX_NUM_NEWS_TO_RESEND = 10  # maximum number of news items to resend
+
+SHOW_CATEGORIES_IN_NEWS = True
 
 # https://unicode.org/emoji/charts/full-emoji-list.html
 
@@ -73,7 +79,7 @@ UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
 # UI_select_news_categories = "UI_seleziona_le_categorie_di_news"
 RSS_FEED = "RSS_FEED"
 
-param_show_match_category_news = "news_mostra_match_categoria"
+# param_show_match_category_news = "news_mostra_match_categoria"
 
 # UC: upper case
 UI_ACCEPT_UC = "ACCETTO"
@@ -127,7 +133,8 @@ UI_message_i_have_changed_your_categories = 'Ho cambiato le categorie di news ch
 
 UI_message_i_have_removed_all_your_categories = 'Ho rimosso tutte le tue categorie di news, non ne riceverai.\n'
 
-UI_message_no_previous_news_to_send_again = 'non ci sono news precedenti da rimandare!'
+UI_message_no_previous_news_to_send_again = 'non ho trovato notizie precedenti da rimandarti! ' \
+                                            'Se vuoi, puoi provare a cambiare le categorie di notizie che vuoi ricevere con il comando /scegli'
 UI_message_no_matching_previous_news = 'non ci sono news precedenti che corrispondono alle tue impostazioni. ' \
                                        'Se vuoi, prova a cambiare le categorie di news con il comando /scegli e poi riprova /rimanda_ultime_news.'
 
@@ -138,11 +145,11 @@ UI_message_write_a_comment = 'Scrivi un commento'
 
 UI_message_comment_to_news_item = 'Commento alla news {0}'
 
-UI_message_comment_successful = 'Commento caricato con successo!'
+UI_message_comment_successful = 'Grazie del commento! Un operatore umano o la mia Intelligenza Artificiale lo leggerà!'
 
 UI_message_thank_you = 'Grazie!'
 
-UI_message_already_resent_news = 'Ti ho già rimandato le news poco fa, scorri in alto per vederle. (il limite è di un reinvio all\'ora)'
+UI_message_already_resent_news = 'Ti ho già rimandato le ultime notizie poco fa, scorri in alto per vederle. (il limite è di un invio di notizie al minuto)'
 
 UI_message_cheers = "Wow! Complimenti per l'età! :)"
 
@@ -183,13 +190,16 @@ UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di 
 
 UI_message_what_is_your_educational_level = 'Ancora una cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:'
 
+UI_message_show_complete_news_item = "Per vedere questa notizia completa, fai click qui: /mostra_{0}"
+
+
 UI_OK = 'OK'
 UI_NO = 'No'
 
 CALLBACK_INTERNSHIP_OK = 'internship ' + UI_OK
 CALLBACK_INTERNSHIP_NO = 'internship ' + UI_NO
 
-UI_broadcast_message = 'comunicazione di servizio'
+UI_broadcast_message = 'comunicazione di servizio a tutti gli utenti'
 
 DATE_FORMAT_STR = '%d-%m-%Y'
 # DATE_FORMAT_STR = '%Y-%m-%d'
@@ -208,4 +218,3 @@ me - aiutami a fornirti risultati su misura per te
 impostazioni - mostra tutte le impostazioni utente
 '''
 
-# giovani - iscriviti a ricevere news sul tema dei giovani e lavoro
