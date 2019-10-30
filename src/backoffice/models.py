@@ -226,8 +226,6 @@ class NewsFile(models.Model):
 class NewsItem(models.Model):
     """ Classe NEWSITEM: rappresenta le informazioni legati agli item di una news """
 
-    #news_id = models.CharField(max_length=5, blank=True, null=True)
-
     title = models.CharField(max_length=1024, blank=True, null=True, verbose_name='titolo della news')
     title_link = models.CharField(max_length=1024, blank=True, null=True, verbose_name='link (opzionale) a cui punta il titolo')
 
@@ -277,7 +275,19 @@ class NewsItem(models.Model):
                str(self.title) + ')'
 
 
-# ****************************************************************************************
+class FeedbackToNewsItem(models.Model):
+    news = models.ForeignKey(NewsItem, on_delete=models.PROTECT, null=True)
+    user = models.ForeignKey(TelegramUser, on_delete=models.PROTECT, null=True)
+    val = models.SmallIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "FeedbackToNewsItem"
+        verbose_name_plural = "FeedbackToNewsItem"
+        app_label = "backoffice"
+
+
 class Comment(models.Model):
     """ Class COMMENT: rappresenta i commenti lasciati dagli utenti """
 

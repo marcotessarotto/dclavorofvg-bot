@@ -14,6 +14,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'user_id', 'is_admin', 'has_accepted_privacy_rules')
     ordering = ('id',)
     list_filter = ('has_accepted_privacy_rules', )
+    search_fields = ('username', 'first_name', 'last_name', 'user_id')
 
     formfield_overrides = {
         models.ManyToManyField: {'widget': CheckboxSelectMultiple},
@@ -62,6 +63,8 @@ class CategoryAdmin(admin.ModelAdmin):
 class NewsItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'created_at', 'list_of_categories', 'processed', 'processed_timestamp', 'like', 'dislike')
     exclude = ('like', 'dislike')
+    search_fields = ('id','title')
+    list_filter = ('categories',)
 
     formfield_overrides = {
         models.ManyToManyField: {'widget': CheckboxSelectMultiple},
@@ -82,7 +85,16 @@ class NewsItemAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('text', 'news_id', 'user', 'created_at')
     # list_filter = ('news__id',)
-    search_fields = ('news__id',)
+    search_fields = ('news__id', 'user__user_id',)
+
+    def news_id(self, obj):
+        return "id=" + str(obj.news.id)
+
+
+@admin.register(FeedbackToNewsItem)
+class FeedbackToNewsitemAdmin(admin.ModelAdmin):
+    list_display = ('val', 'news_id', 'user', 'created_at')
+    search_fields = ('news__id', 'user__user_id',)
 
     def news_id(self, obj):
         return "id=" + str(obj.news.id)

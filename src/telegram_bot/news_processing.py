@@ -9,7 +9,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 
 from src.backoffice.definitions import DATE_FORMAT_STR, UI_message_show_complete_news_item, UI_broadcast_message, \
-    UI_request_for_news_item_feedback, SHOW_CATEGORIES_IN_NEWS
+    UI_request_for_news_item_feedback, SHOW_CATEGORIES_IN_NEWS, UI_message_news_item_category
 from src.backoffice.models import NewsItem, TelegramUser
 
 
@@ -28,7 +28,7 @@ def news_dispatcher(context: CallbackContext):
     now = datetime.datetime.now()
 
     if len(list_of_news) == 0:
-        logger.info("news_dispatcher - nothing to do {0}".format(now))
+        logger.info("news_dispatcher - nothing to do")
         return
     else:
         logger.info("news_dispatcher - there are news to process: {0}".format(len(list_of_news)))
@@ -169,7 +169,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
     if show_categories_in_news is True:
         if intersection_result is not None:
             # print(intersection_result)
-            categories_html_content = '\n<i>'
+            categories_html_content = '<i>'
 
             for cat in intersection_result:
                 categories_html_content += cat.name + ','
@@ -179,6 +179,14 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             categories_html_content += '</i>\n'
         elif news_item.broadcast_message is True:
             categories_html_content = '\n<i>' + UI_broadcast_message + '</i>\n'
+        else:
+            s = ''
+            for cat in news_item.categories.all():
+                s += cat.name + ','
+
+            if len(s) > 0:
+                s = s[:-1]
+                categories_html_content = '<i>' + UI_message_news_item_category + ': ' + s + '</i>\n'
 
     if title_only:
 

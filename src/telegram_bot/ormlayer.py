@@ -106,11 +106,19 @@ def orm_add_feedback(feed, news_id, telegram_user_id):
 
     if feed == '+':
         news.like += 1
+        val = 1
     elif feed == '-':
         news.dislike += 1
+        val = -1
     news.save()
 
-    logger.debug("orm_add_feedback news_id={0} telegram_user_id={1}".format(news_id, telegram_user_id))
+    feedback = FeedbackToNewsItem()
+    feedback.news = news
+    feedback.user = orm_get_telegram_user(telegram_user_id)
+    feedback.val = val
+    feedback.save()
+
+    logger.debug("orm_add_feedback news_id={0} telegram_user_id={1} {2}".format(news_id, telegram_user_id, feed))
 
 
 def orm_add_comment(text, news_id, telegram_user_id):

@@ -30,7 +30,7 @@ def start_command_handler(update, context):
         logger.info("start_command_handler update:")
         my_print(update, 4, logger)
 
-    logger.info("start args: {0}".format(context.args))  # parametro via start; max 64 caratteri
+    logger.info(f"start args: {context.args}")  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
     # logger.info("update.message.from_user = " + str(update.message.from_user))
@@ -43,7 +43,7 @@ def start_command_handler(update, context):
     bot_presentation = orm_get_system_parameter(UI_bot_presentation)
 
     update.message.reply_text(
-        'Ciao ' + update.message.from_user.first_name + '! ' + bot_presentation
+        f'Ciao {update.message.from_user.first_name}! {bot_presentation}'
     )
 
     # if check_user_privacy_approval(telegram_user, update, context):
@@ -79,7 +79,7 @@ def privacy_command_handler(update, context):
 
     privacy_state = telegram_user.has_accepted_privacy_rules
 
-    logger.info("privacy_command_handler - user id={0} privacy accepted: {1}".format(telegram_user.id,privacy_state))
+    logger.info(f"privacy_command_handler - user id={telegram_user.id} privacy accepted: {privacy_state}")
 
     if not privacy_state:
         #
@@ -108,7 +108,7 @@ def privacy_command_handler(update, context):
 def undo_privacy_command_handler(update, context):
     orm_change_user_privacy_setting(update.message.from_user.id, False)
 
-    logger.info("undo_privacy_command_handler - telegram user id={0}".format(update.message.from_user.id))
+    logger.info(f"undo_privacy_command_handler - telegram user id={update.message.from_user.id}")
 
     update.message.reply_text(
         UI_message_your_privacy_acceptance_has_been_deleted,
@@ -145,7 +145,7 @@ def ask_educational_level(update, context):
         # logger.info(row)
         keyboard.append([InlineKeyboardButton(
             text=row[1],
-            callback_data='education_level ' + row[0])]
+            callback_data=f'education_level {row[0]}')]
         )
 
     context.bot.send_message(
@@ -193,7 +193,7 @@ def callback(update, context):
 
     keyword = data[0]
 
-    logger.info("callback " + keyword)
+    logger.info(f"callback {keyword}")
 
     if keyword == 'feedback':  # Callback per i feedback agli articoli
         callback_feedback(update, data[1:])
@@ -224,7 +224,7 @@ def show_news_command_handler(update, context):
 
     news_id = int(str_id)
 
-    logger.info("show_news_command_handler: {0}".format(str_id))
+    logger.info(f"show_news_command_handler: {str_id}")
 
     if show_news_by_id(context, news_id, telegram_user):
         return
@@ -299,7 +299,7 @@ def callback_education_level(update, context, choice: str):
 
     telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
-    logger.info("callback_education_level: " + choice + " " + el)
+    logger.info(f"callback_education_level:  {choice}  {el}")
 
     update.callback_query.edit_message_text(
         text=UI_message_you_have_provided_your_education_level.format(el) +
@@ -569,6 +569,21 @@ def debug3_command_handler(update, context):
     #     print(m.photo)
 
 
+def cleanup_command_handler(update, context):
+    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    if must_return:
+        return
+
+    if not telegram_user.is_admin:
+        return
+
+    logger.info("cleanup_command_handler")
+
+    NewsItemSentToUser.objects.all().delete()
+
+    pass
+
+
 def debug_sendnews_command_handler(update, context):
     # if DEBUG_MSG:
     #     print("sendnews_command_handler update:")
@@ -596,16 +611,16 @@ def callback_feedback(update, data):
     feed = data[0]
     news_id = data[1]
     comment_enabled = data[2]
-    logger.info("comment_enabled = {0}".format(comment_enabled))
-    orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)  # Aggiunge il nuovo feedback
+    logger.info(f"callback_feedback feed={feed} news_id={news_id} comment_enabled={comment_enabled}")
+    orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)
 
     if comment_enabled:
         # Attivazione tastiera con pulsante 'commenta'
         update.callback_query.edit_message_text(
-            text=UI_message_thank_you_for_feedback,
+            text=UI_message_thank_you_for_feedback_newline + UI_message_write_a_comment,
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton(
-                    text=UI_message_write_a_comment,
+                    text=UI_message_write_a_comment_button,
                     callback_data='comment ' + news_id)]
             ])
         )
@@ -818,6 +833,7 @@ def main():
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
     dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, debug_sendnews_command_handler))
+    dp.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

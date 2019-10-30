@@ -97,11 +97,12 @@ UI_ALL_CATEGORIES_COMMAND = 'tutte_le_news'
 UI_NO_CATEGORIES_COMMAND = 'nessuna_news'
 UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
-UI_DEBUG_COMMAND = 'debug' # admin only
-UI_DEBUG2_COMMAND = 'debug2' # admin only
-UI_DEBUG3_COMMAND = 'debug3' # admin only
-UI_SEND_NEWS_COMMAND = 'news' # admin only
-UI_SHOW_NEWS = 'mostra_' # id of news item is appended
+UI_DEBUG_COMMAND = 'debug'  # admin only
+UI_DEBUG2_COMMAND = 'debug2'  # admin only
+UI_DEBUG3_COMMAND = 'debug3'  # admin only
+UI_CLEANUP_COMMAND = 'cleanup'  # admin only
+UI_SEND_NEWS_COMMAND = 'news'  # admin only
+UI_SHOW_NEWS = 'mostra_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "help_categorie"
 
@@ -141,7 +142,8 @@ UI_message_no_matching_previous_news = 'non ci sono news precedenti che corrispo
 UI_message_thank_you_for_feedback_newline = 'Grazie per il feedback!\n'
 UI_message_thank_you_for_feedback = 'Grazie per il feedback!'
 
-UI_message_write_a_comment = 'Scrivi un commento'
+UI_message_write_a_comment = 'Vuoi lasciarmi un breve commento su questa notizia? Lo userò per offrirti un servizio migliore.'
+UI_message_write_a_comment_button = 'Click per commentare la notizia '
 
 UI_message_comment_to_news_item = 'Commento alla news {0}'
 
@@ -191,6 +193,8 @@ UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di 
 UI_message_what_is_your_educational_level = 'Ancora una cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:'
 
 UI_message_show_complete_news_item = "Per vedere questa notizia completa, fai click qui: /mostra_{0}"
+
+UI_message_news_item_category = "categoria della notizia"
 
 
 UI_OK = 'OK'
