@@ -1,6 +1,8 @@
 import datetime
 import mimetypes
 
+from src.telegram_bot.log_utils import newslogger as logger
+
 from src.gfvgbo.settings import MEDIA_ROOT
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
@@ -25,21 +27,21 @@ def news_dispatcher(context: CallbackContext):
 
     debug_send_news = (orm_get_system_parameter("DEBUG_SEND_NEWS").lower() == "true")
     if debug_send_news:
-        print("DEBUG_SEND_NEWS = " + str(debug_send_news))
+        logger.debug("DEBUG_SEND_NEWS = {0}".format(debug_send_news))
 
     now = datetime.datetime.now()
 
     if len(list_of_news) == 0:
-        print("news_dispatcher - nothing to do " + str(now))
+        logger.info("news_dispatcher - nothing to do {0}".format(now))
         return
     else:
-        print("news_dispatcher - there are news to process: " + str(len(list_of_news)))
+        logger.info("news_dispatcher - there are news to process: {0}".format(len(list_of_news)))
 
     all_telegram_users = orm_get_all_telegram_users()
 
     for news_item in list_of_news:
 
-        print("news_dispatcher - elaboration of news item id=" + str(news_item.id))
+        logger.debug("news_dispatcher - elaboration of news item id={0}".format(news_item.id))
 
         for telegram_user in all_telegram_users:
 
@@ -64,7 +66,7 @@ def news_dispatcher(context: CallbackContext):
 
     c = b - a
 
-    print("news_dispatcher - finished processing all news - dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("news_dispatcher - finished processing all news - dt={0} microseconds".format(c.microseconds))
 
 
 def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _file_mime_type: str, caption=None):
@@ -72,7 +74,7 @@ def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _fil
         caption = ''
 
     if len(caption) > 1024:
-        print("WARNING! len(caption) cannot be > 1024, truncating...")
+        logger.warn("WARNING! len(caption) cannot be > 1024, truncating...")
         caption = caption[:1024]
 
     if _file_mime_type is None:
@@ -135,8 +137,8 @@ def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _fil
 
 def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: TelegramUser, intersection_result=None, request_feedback=True,
                                title_only=False, ask_comment=False, news_item_already_shown_to_user=False):
-    print(
-        "send_news_to_telegram_user - news_item=" + str(news_item.id) + ", telegram_user=" + str(telegram_user.user_id))
+    logger.info(
+        "send_news_to_telegram_user - news_item={0}, telegram_user={1}".format(news_item.id,telegram_user.user_id))
 
     telegram_user_id = telegram_user.user_id
 
@@ -204,7 +206,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
     # complete html body of news item (separate from title. link...)
     html_news_content = title_html_content + categories_html_content + body_html_content + link_html_content
 
-    print("send_news_to_telegram_user - len(html_content) = " + str(len(html_news_content)))
+    logger.info("send_news_to_telegram_user - len(html_content) = {0}".format(len(html_news_content)))
 
     # print("len(title_html_content) = " + str(len(title_html_content)))
     # print("len(categories_html_content) = " + str(len(categories_html_content)))
@@ -221,13 +223,13 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
         file_path = MEDIA_ROOT + news_item.file1.file_field.name
 
-        print("send_news_to_telegram_user - fs path of file1: " + file_path)
+        logger.info("send_news_to_telegram_user - fs path of file1: {0}".format(file_path))
 
         file_mime_type = mimetypes.guess_type(file_path)[0]
 
         file1_is_image = file_mime_type.startswith('image')
 
-        print("file1 mime_type: " + str(file_mime_type))
+        logger.info("file1 mime_type: {0}".format(file_mime_type))
         # print("file1_is_image: " + str(file1_is_image))
 
         # file_id = _get_file_id_for_file_path(file_path)
@@ -272,13 +274,13 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     if news_item.file2 is not None:
         file_path = MEDIA_ROOT + news_item.file2.file_field.name
-        print("send_news_to_telegram_user - fs path of file2 to send: " + file_path)
+        logger.info("send_news_to_telegram_user - fs path of file2 to send: {0}".format(file_path))
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
 
     if news_item.file3 is not None:
         file_path = MEDIA_ROOT + news_item.file3.file_field.name
-        print("send_news_to_telegram_user - fs path of file3 to send: " + file_path)
+        logger.info("send_news_to_telegram_user - fs path of file3 to send: {0}".format(file_path))
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
 
@@ -290,11 +292,11 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(  # like button
                     text=u'\u2713',
-                    callback_data='feedback + ' + str(news_item.id) + ' ' + str(ask_comment)
+                    callback_data='feedback + {0}  {1}'.format(news_item.id, ask_comment)
                 ),
                 InlineKeyboardButton(  # dislike button
                     text=u'\u2717',
-                    callback_data='feedback - ' + str(news_item.id) + ' ' + str(ask_comment)
+                    callback_data='feedback - {0}  {1}'.format(news_item.id, ask_comment)
                 ),
             ]])
         )
@@ -309,7 +311,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     c = b - a
 
-    print("send_news_to_telegram_user - dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("send_news_to_telegram_user - dt={0} microseconds".format(c.microseconds))
 
 
 def _lookup_file_id_in_message(message, _file_path: str, file_id):
@@ -328,14 +330,14 @@ def _lookup_file_id_in_message(message, _file_path: str, file_id):
             # if message.photo is not None:
             _file_id = message.photo[0].file_id
         except AttributeError:
-            print("_process_message_lookup_file_id: cannot find file_id")
+            logger.info("_process_message_lookup_file_id: cannot find file_id")
             my_print(message, 4)
             return
 
     if _file_id is not None:
         file_id_cache_dict[_file_path] = _file_id
 
-    print("process_message_for_file_id: " + str(_file_id) + " for " + _file_path)
+    logger.info("process_message_for_file_id: {0} for {1}".format(_file_id,_file_path))
 
     return
 
@@ -365,3 +367,4 @@ def show_news_by_id(context, news_id: int, telegram_user: TelegramUser):
                                news_item_already_shown_to_user=news_item_already_shown_to_user)
 
     return True
+

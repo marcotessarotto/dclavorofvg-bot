@@ -1,11 +1,8 @@
 import datetime
-# import os
-# import django
 from django.utils.timezone import now
 from django.core.cache import cache
 
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
-# django.setup()
+from src.telegram_bot.log_utils import ormlogger as logger
 
 from src.backoffice.models import *
 
@@ -40,11 +37,11 @@ def orm_add_telegram_user(user):
         new_telegram_user.save()
 
         _update_user_in_cache(new_telegram_user)
-        print("orm_add_telegram_user: new user " + str(new_telegram_user.user_id))
+        logger.info("orm_add_telegram_user: new user {0}".format(new_telegram_user.user_id))
 
         return new_telegram_user
     else:
-        print("orm_add_telegram_user: existing user " + str(telegram_user.user_id))
+        logger.info("orm_add_telegram_user: existing user {0}".format(telegram_user.user_id))
         return telegram_user
 
 
@@ -77,33 +74,6 @@ def orm_add_news_item(content: str, telegram_user: TelegramUser):
     if cat is not None:
         news.categories.add(cat)
         news.save()
-
-
-# def orm_add_news_item(title, text, link):
-#     """ Aggiunge un nuovo articolo """
-#
-#     news_id = ''
-#
-#     # Seleziona un id casule di 5 cifre
-#     # import random
-#     # for i in range(5):
-#     #     news_id += str(random.randint(0, 9))
-#
-#     # Se l'id è già preso riprova la selezione casuale
-#     # queryset = NewsItem.objects.filter(news_id=news_id)
-#     # if len(queryset) != 0:
-#     #     orm_add_newsitem(title, text, link)
-#
-#     news = NewsItem()
-#     # news.news_id = news_id
-#     news.title = title
-#     news.text = text
-#     news.link = link
-#     news.save()
-#
-#     print('\nNUOVO ARTICOLO: ' + str(news))
-#
-#     return news
 
 
 def _orm_get_news_item(news_id):
@@ -140,7 +110,7 @@ def orm_add_feedback(feed, news_id, telegram_user_id):
         news.dislike += 1
     news.save()
 
-    print("orm_add_feedback news_id=" + str(news_id) + " telegram_user_id=" + str(telegram_user_id))
+    logger.debug("orm_add_feedback news_id={0} telegram_user_id={1}".format(news_id, telegram_user_id))
 
 
 def orm_add_comment(text, news_id, telegram_user_id):
@@ -149,32 +119,20 @@ def orm_add_comment(text, news_id, telegram_user_id):
     queryset_user = TelegramUser.objects.filter(user_id=int(telegram_user_id))
     user = queryset_user[0]
 
-    print("orm_add_comment id=" + str(news_id) + " user_id=" + str(user.id))
+    logger.info("orm_add_comment id={0} user_id={1}".format(news_id, user.id))
 
     # https://stackoverflow.com/a/12682379/974287
     Comment.objects.create(user_id=user.id, news_id=news_id, text=text)
 
-    # queryset_news = NewsItem.objects.filter(id=news_id)
-    # news = queryset_news[0]
-    #
-    # queryset_user = TelegramUser.objects.filter(user_id=int(user_id))
-    # user = queryset_user[0]
-    #
-    # comment = Comment()
-    # comment.user = user
-    # comment.news = news
-    # comment.text = text
-    # comment.save()
-
 
 def orm_get_comment(user_id):
-    """ Restituisce i commenti di un determinato utente """
+    """ get all comments posted by a specific user """
 
     user = TelegramUser.objects.filter(user_id=user_id)[0]
     return Comment.objects.filter(user=user)
 
 
-def orm_get_telegram_user(telegram_user_id):
+def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
     """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser 
     :rtype: TelegramUser
     """
@@ -217,7 +175,7 @@ def orm_get_telegram_user(telegram_user_id):
 
     c = b - a
 
-    print("orm_get_telegram_user dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("orm_get_telegram_user dt={0} microseconds".format(c.microseconds))
 
     return result
 
@@ -240,7 +198,7 @@ def orm_get_user_expected_input(obj) -> str:
     else:
         res = None
 
-    print("orm_get_user_expected_input(" + str(obj) + "): " + str(res))
+    logger.info("orm_get_user_expected_input({0}): {1}".format(obj, res))
 
     return res
 
@@ -262,7 +220,7 @@ def orm_set_telegram_user_expected_input(obj, expected_input):
         telegram_user = orm_get_telegram_user(obj)
 
     if telegram_user is not None:
-        print("orm_set_user_expected_input: user " + str(telegram_user.user_id) + ", setting chat_state to " + expected_input)
+        logger.info("orm_set_user_expected_input: user {0}, setting chat_state to {1}".format(telegram_user.user_id, expected_input))
         telegram_user.chat_state = expected_input
         telegram_user.save()
         _update_user_in_cache(telegram_user)
@@ -296,13 +254,13 @@ def orm_parse_user_age(telegram_user: TelegramUser, message_text: str):
         if age < 0:
             age = -1
     except ValueError:
-        print("wrong format for age! " + message_text)
+        logger.error("wrong format for age! " + message_text)
         age = -1
 
     telegram_user.age = age
     telegram_user.save()
     _update_user_in_cache(telegram_user)
-    print("parse_user_age: age set for user " + str(telegram_user.user_id) + " to " + str(age))
+    logger.info("parse_user_age: age set for user {0} to {1}".format(telegram_user.user_id, age))
 
     return age
 
@@ -321,18 +279,6 @@ def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
     telegram_user.save()
 
     _update_user_in_cache(telegram_user)
-
-
-# def orm_change_user_intership_setting(telegram_user_id, intership_setting):
-#     telegram_user = orm_get_telegram_user(telegram_user_id)
-#
-#     telegram_user.receive_intership_information = intership_setting
-#
-#     telegram_user.save()
-#
-#     if use_cache:
-#         key_name = "user" + str(telegram_user.user_id)
-#         cache.set(key_name, telegram_user, timeout=60)
 
 
 def orm_change_user_custom_setting(telegram_user_id, category_name, category_setting):
@@ -355,34 +301,12 @@ def orm_change_user_custom_setting(telegram_user_id, category_name, category_set
     return True
 
 
-# def orm_change_user_courses_setting(telegram_user_id, courses_setting):
-#     telegram_user = orm_get_telegram_user(telegram_user_id)
-#
-#     telegram_user.receive_courses_information = courses_setting
-#
-#     telegram_user.save()
-#
-#     if use_cache:
-#         key_name = "user" + str(telegram_user.user_id)
-#         cache.set(key_name, telegram_user, timeout=60)
-
-
-# def orm_change_user_recruiting_days_setting(telegram_user_id, recruiting_days_setting):
-#     telegram_user = orm_get_telegram_user(telegram_user_id)
-#
-#     telegram_user.receive_recruiting_days_information = recruiting_days_setting
-#
-#     telegram_user.save()
-#
-#     if use_cache:
-#         key_name = "user" + str(telegram_user.user_id)
-#         cache.set(key_name, telegram_user, timeout=60)
-
-
 def orm_update_user_category_settings(telegram_user, category_key):
     """ Aggiorna le categorie selezionate dall'utente"""
 
-    print("orm_update_user_category_settings category_key=" + str(category_key) + " user_id=" + str(telegram_user.user_id))
+    str_user_id = str(telegram_user.user_id)
+
+    logger.info("orm_update_user_category_settings category_key={0} user_id={1}".format(category_key, str_user_id))
 
     queryset_cat = telegram_user.categories.filter(key=category_key)
 
@@ -390,18 +314,16 @@ def orm_update_user_category_settings(telegram_user, category_key):
         cat = queryset_cat[0]
         telegram_user.categories.remove(cat)
         telegram_user.save()
-        # cat.save()
 
-        print('RIMOZIONE ' + str(cat))
+        logger.info('orm_update_user_category_settings: remove category={0} user_id={1}'.format(cat.key, str_user_id))
 
     else:  # category is not present in user settings, we have to add it
         cat = Category.objects.filter(key=category_key)[0]
 
         telegram_user.categories.add(cat)
         telegram_user.save()
-        # cat.save()
 
-        print('AGGIUNTA ' + str(cat))
+        logger.info('orm_update_user_category_settings: add category={0} user_id={1}'.format(cat.key, str_user_id))
 
 
 def orm_get_all_telegram_users():
@@ -422,7 +344,7 @@ def orm_get_categories_valid_command():
         .order_by('key')
     b = datetime.datetime.now()
     c = b - a
-    print("orm_get_categories_valid_command dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("orm_get_categories_valid_command dt={0} microseconds".format(c.microseconds))
     return queryset
 
 
@@ -431,7 +353,7 @@ def orm_get_categories():
     queryset = Category.objects.all().order_by('key')
     b = datetime.datetime.now()
     c = b - a
-    print("orm_get_categories dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("orm_get_categories dt={0} microseconds".format(c.microseconds))
     return queryset
 
 
@@ -529,7 +451,7 @@ def orm_get_system_parameter(param_name) -> str:
         query_result = SystemParameter.objects.filter(name=param_name)
 
         if len(query_result) == 0:
-            return "*** '" + str(param_name) + "' parameter is not defined ***"
+            return "*** '{0}' parameter is not defined ***".format(param_name)
         else:
             return query_result[0].value
 
@@ -556,7 +478,7 @@ def orm_get_system_parameter(param_name) -> str:
 
     c = b - a
 
-    print("orm_get_system_parameter - dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("orm_get_system_parameter - dt={0} microseconds".format(c.microseconds))
 
     return result
 
@@ -565,7 +487,7 @@ def orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_pars
     queryset = RssFeedItem.objects.filter(rss_id=rss_id)
 
     if len(queryset) != 0:
-        print("orm_create_news_from_rss_feed_item: item already processed, rss_id=" + str(rss_id))
+        logger.info("orm_create_news_from_rss_feed_item: item already processed, rss_id={0}".format(rss_id))
         return None
 
     rss_feed_item = RssFeedItem()

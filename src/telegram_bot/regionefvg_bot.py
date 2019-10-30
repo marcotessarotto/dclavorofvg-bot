@@ -1,5 +1,7 @@
 import os
 
+from src.telegram_bot.log_utils import mainlogger as logger
+
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 from src.telegram_bot.print_utils import my_print
 
@@ -11,26 +13,19 @@ from src.telegram_bot.news_processing import news_dispatcher, send_news_to_teleg
 from src.telegram_bot.ormlayer import *
 from src.telegram_bot.user_utils import basic_user_checks, check_user_privacy_approval, check_if_user_is_disabled
 
-try:
-    from ..backoffice.definitions import *
-    from ..backoffice.models import EDUCATIONAL_LEVELS
-except:
-    from src.backoffice.definitions import *
-    from src.backoffice.models import EDUCATIONAL_LEVELS
+# try:
+#     from ..backoffice.definitions import *
+#     from ..backoffice.models import EDUCATIONAL_LEVELS
+# except:
+from src.backoffice.definitions import *
+from src.backoffice.models import EDUCATIONAL_LEVELS
 
 # from telegram.ext import *
 
 from telegram.ext import messagequeue as mq, Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 
-import logging
-
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
-
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
 
 #
 global_bot_instance = None
@@ -38,13 +33,13 @@ global_bot_instance = None
 
 def start_command_handler(update, context):
     if DEBUG_MSG:
-        print("start_command_handler update:")
-        my_print(update, 4)
+        logger.info("start_command_handler update:")
+        my_print(update, 4, logger)
 
-    print("start args:" + str(context.args))  # parametro via start; max 64 caratteri
+    logger.info("start args:" + str(context.args))  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 
-    # print("update.message.from_user = " + str(update.message.from_user))
+    # logger.info("update.message.from_user = " + str(update.message.from_user))
 
     telegram_user = orm_add_telegram_user(update.message.from_user)
 
@@ -95,7 +90,7 @@ def privacy_command_handler(update, context):
 
     privacy_state = telegram_user.has_accepted_privacy_rules
 
-    print("privacy_command_handler - user id=" + str(telegram_user.id) + " privacy accepted: " + str(privacy_state))
+    logger.info("privacy_command_handler - user id=" + str(telegram_user.id) + " privacy accepted: " + str(privacy_state))
 
     if not privacy_state:
         #
@@ -124,7 +119,7 @@ def privacy_command_handler(update, context):
 def undo_privacy_command_handler(update, context):
     orm_change_user_privacy_setting(update.message.from_user.id, False)
 
-    print("undo_privacy_command_handler - telegram user id=" + str(update.message.from_user.id))
+    logger.info("undo_privacy_command_handler - telegram user id=" + str(update.message.from_user.id))
 
     update.message.reply_text(
         UI_message_your_privacy_acceptance_has_been_deleted,
@@ -134,8 +129,8 @@ def undo_privacy_command_handler(update, context):
 
 def ask_age(update, context):
     # if DEBUG_MSG:
-    #     print("ask_age update:")
-    #     my_print(update, 4)
+    #     logger.info("ask_age update:")
+    #     my_print(update, 4, logger)
 
     telegram_user_id = update.callback_query.from_user.id
 
@@ -158,7 +153,7 @@ def ask_educational_level(update, context):
     keyboard = []
 
     for row in EDUCATIONAL_LEVELS:
-        # print(row)
+        # logger.info(row)
         keyboard.append([InlineKeyboardButton(
             text=row[1],
             callback_data='education_level ' + row[0])]
@@ -174,8 +169,8 @@ def ask_educational_level(update, context):
 
 def callback_privacy(update, context, param):
     # if DEBUG_MSG:
-    #     print("callback_privacy update:")
-    #     my_print(update, 4)
+    #     logger.info("callback_privacy update:")
+    #     my_print(update, 4, logger)
 
     telegram_user_id = update.callback_query.from_user.id
 
@@ -200,7 +195,7 @@ def callback_privacy(update, context, param):
 
 
 def callback(update, context):
-    """ Gestisce i callback_data inviati dalle inline_keyboard """
+    """process callback data sent by inline_keyboards """
 
     data = update.callback_query.data.split()
     # I dati inviati dalle callback_query sono organizzati come segue:
@@ -209,7 +204,7 @@ def callback(update, context):
 
     keyword = data[0]
 
-    print("callback " + keyword)
+    logger.info("callback " + keyword)
 
     if keyword == 'feedback':  # Callback per i feedback agli articoli
         callback_feedback(update, data[1:])
@@ -240,7 +235,7 @@ def show_news_command_handler(update, context):
 
     news_id = int(str_id)
 
-    print("show_news_command_handler: " + str_id)
+    logger.info("show_news_command_handler: " + str_id)
 
     if show_news_by_id(context, news_id, telegram_user):
         return
@@ -249,7 +244,7 @@ def show_news_command_handler(update, context):
 
 
 def choose_news_categories_command_handler(update, context):
-    """ Permette all'utente di scegliere tra le categorie disponibili """
+    """choose news categories"""
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
         return
@@ -315,7 +310,7 @@ def callback_education_level(update, context, choice: str):
 
     telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
-    print("callback_education_level: " + choice + " " + el)
+    logger.info("callback_education_level: " + choice + " " + el)
 
     update.callback_query.edit_message_text(
         text=UI_message_you_have_provided_your_education_level.format(el) +
@@ -373,13 +368,13 @@ def callback_choice(update, choice: str):
 
     c = b - a
 
-    print("callback_choice dt=" + str(c.microseconds) + " microseconds")
+    logger.debug("callback_choice dt=" + str(c.microseconds) + " microseconds")
 
 
 def custom_command_handler(update, context):
     original_command = update.message.text
 
-    print("custom_command_handler: " + original_command)
+    logger.info("custom_command_handler: " + original_command)
 
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
@@ -470,7 +465,7 @@ def me_command_handler(update, context):
 
 
 def resend_last_processed_news(update, context):
-    print("resend_last_processed_news")
+    logger.info("resend_last_processed_news")
 
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
@@ -480,7 +475,7 @@ def resend_last_processed_news(update, context):
 
     if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(
             hours=1):
-        print("resend_last_processed_news: too frequent! skipping")
+        logger.info("resend_last_processed_news: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=UI_message_already_resent_news,
@@ -493,7 +488,7 @@ def resend_last_processed_news(update, context):
 
     news_query = orm_get_last_processed_news()
 
-    print("resend_last_processed_news - processed news items= " + str(len(news_query)))
+    logger.info("resend_last_processed_news - processed news items= " + str(len(news_query)))
 
     if len(news_query) == 0:
         context.bot.send_message(
@@ -514,7 +509,7 @@ def resend_last_processed_news(update, context):
         if news_item.broadcast_message is not True and len(intersection_result) == 0:
             continue
 
-        print("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
+        logger.info("resend_last_processed_news - sending news_item.id=" + str(news_item.id))
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
                                    request_feedback=False, title_only=True)
@@ -538,7 +533,7 @@ def debug_command_handler(update, context):
         return
 
     # debug only
-    print("debug_command_handler")
+    logger.info("debug_command_handler")
     news_dispatcher(context)
     pass
 
@@ -551,7 +546,7 @@ def debug2_command_handler(update, context):
     if not telegram_user.is_admin:
         return
 
-    print("debug2_command_handler")
+    logger.info("debug2_command_handler")
 
     orm_change_user_privacy_setting(telegram_user_id, False)
 
@@ -570,7 +565,7 @@ def debug3_command_handler(update, context):
 
     file_id = _get_file_id_for_file_path(fp)
 
-    print("debug3_command_handler: file_id found? " + str(file_id))
+    logger.info("debug3_command_handler: file_id found? " + str(file_id))
 
     m = context.bot.send_photo(telegram_user_id, file_id if file_id is not None else open(fp, 'rb'))
 
@@ -599,7 +594,7 @@ def debug_sendnews_command_handler(update, context):
         return
 
     data = update.message.text[len(UI_SEND_NEWS_COMMAND) + 1:].strip()
-    print("sendnews_command_handler: " + data)
+    logger.info("sendnews_command_handler: " + data)
 
     orm_add_news_item(data, telegram_user)
 
@@ -610,7 +605,7 @@ def callback_feedback(update, data):
     feed = data[0]
     news_id = data[1]
     comment_enabled = data[2]
-    print("comment_enabled = " + str(comment_enabled))
+    logger.info("comment_enabled = " + str(comment_enabled))
     orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)  # Aggiunge il nuovo feedback
 
     if comment_enabled:
@@ -631,7 +626,7 @@ def callback_feedback(update, data):
 
 def callback_comment(update, context, news_id):
     """ Gestisce i commenti agli articoli """
-    print("callback_comment")
+    logger.info("callback_comment")
 
     # Rimuove il pulsante 'commenta'
     update.callback_query.edit_message_text(
@@ -652,7 +647,7 @@ def comment_handler(update, context):
     # Testo del messaggio cui il commento fornisce una risposta
     # (c'è il codice dell'articolo)
     reply_data = update.message.reply_to_message.text.split()
-    # print(reply_data)
+    # logger.info(reply_data)
     orm_add_comment(update.message.text, reply_data[3], update.message.chat.id)
 
     context.bot.send_message(
@@ -668,7 +663,7 @@ def generic_message_handler(update, context):
 
     message_text = update.message.text
 
-    print("generic_message_handler - message_text = " + message_text)
+    logger.info("generic_message_handler - message_text = " + message_text)
 
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
@@ -724,39 +719,41 @@ class MQBot(Bot):
 
 
 def error_callback(update, error):
-    print("***error_callback***")
-    print(update)
-    print(error)
+    logger.error("***error_callback***")
+    logger.error(update)
+    logger.error(error)
 
     try:
         raise error
     except Unauthorized:
         # remove update.message.chat_id from conversation list
-        print(error)
+        # logger.error(error)
         logging.error("Unauthorized")
     except BadRequest:
         # handle malformed requests - read more below!
-        print(error)
+        # logger.error(error)
         logging.error("BadRequest")
     except TimedOut:
         # handle slow connection problems
-        print(error)
+        # logger.error(error)
         logging.error("TimedOut")
     except NetworkError:
         # handle other connection problems
-        print(error)
+        # logger.error(error)
         logging.error("NetworkError")
     except ChatMigrated as e:
         # the chat_id of a group has changed, use e.new_chat_id instead
-        print(error)
+        # print(error)
         logging.error("ChatMigrated")
     except TelegramError:
         # handle all other telegram related errors
-        print(error)
+        # print(error)
         logging.error("TelegramError")
 
 
 def main():
+    logger.info("starting bot...")
+
     from telegram.utils.request import Request
 
     from pathlib import Path
@@ -817,7 +814,7 @@ def main():
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
     dp.add_handler(
-        MessageHandler(Filters.regex('^(' + UI_SHOW_NEWS + '[\\d]+)$') | Filters.command, show_news_command_handler))
+        MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
 
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
@@ -837,6 +834,8 @@ def main():
 
     # Arresta il bot in caso sia stato premuto Ctrl+C o il processo abbia ricevuto SIGINT, SIGTERM o SIGABRT
     updater.idle()
+
+    logger.info("terminating bot")
 
 
 if __name__ == '__main__':

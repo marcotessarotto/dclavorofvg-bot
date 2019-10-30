@@ -1,6 +1,6 @@
 
 
-def my_print(obj, indent):
+def my_print(obj, indent, logger=None):
     mydic = obj.__dict__
     for i in mydic:
         name = str(i)
@@ -8,10 +8,16 @@ def my_print(obj, indent):
         if val is not None:
 
             if name == "message" or name == "callback_query":
-                print(" " * indent + name + " : ")
-                my_print(val, indent + 4)
+                if logger is None:
+                    print(" " * indent + name + " : ")
+                else:
+                    logger.info(" " * indent + name + " : ")
+                my_print(val, indent + 4, logger)
             else:
-                print(" " * indent + name + " : " + str(val))
+                if logger is None:
+                    print(" " * indent + name + " : " + str(val))
+                else:
+                    logger.info(" " * indent + name + " : " + str(val))
         else:
             # print(" " * indent + name + " : None")
             pass
