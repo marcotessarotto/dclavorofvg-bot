@@ -35,7 +35,7 @@ def _change_categories(update, context, category_group_name):
     group = orm_get_category_group(category_group_name)
 
     if group is None:
-        print("_change_categories - category group '" + category_group_name + "' is not defined")
+        print("_change_categories - category group '{category_group_name}' is not defined")
         return
 
     telegram_user = orm_set_telegram_user_categories(update.message.chat.id, group.categories)
