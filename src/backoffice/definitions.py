@@ -67,7 +67,7 @@ def get_bot_default_help_msg():
 UI_bot_help_message = "UI_bot_help_message"
 UI_bot_presentation = "UI_presentazione_bot"
 UI_PRIVACY = "UI_PRIVACY"
-UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
+# UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
 # UI_select_news_categories = "UI_seleziona_le_categorie_di_news"
 RSS_FEED = "RSS_FEED"
 
@@ -138,7 +138,7 @@ UI_message_thank_you_for_feedback = 'Grazie per il feedback!'
 UI_message_write_a_comment = 'Vuoi lasciarmi un breve commento su questa notizia? Lo userò per offrirti un servizio migliore.'
 UI_message_write_a_comment_button = 'Click per commentare la notizia '
 
-UI_message_comment_to_news_item = 'Commento alla news {0}'
+UI_message_comment_to_news_item = 'Commento alla news '
 
 UI_message_comment_successful = 'Grazie del commento! Un operatore umano o la mia Intelligenza Artificiale lo leggerà!'
 
@@ -185,10 +185,11 @@ UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di 
 
 UI_message_what_is_your_educational_level = 'Ancora una cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:'
 
-UI_message_show_complete_news_item = "Per vedere questa notizia completa, fai click qui: /mostra_{0}"
+UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b>"
 
 UI_message_news_item_category = "categoria della notizia"
 
+UI_message_request_for_news_item_feedback = "Ti è utile questa notizia?"
 
 UI_OK = 'OK'
 UI_NO = 'No'
@@ -205,13 +206,9 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 # show available commands in telegram input box:
 # https://stackoverflow.com/questions/34457568/how-to-show-options-in-telegram-bot
 '''
-help - mostra i comandi disponibili
-offerte_di_lavoro - che tipo di  offerte di lavoro vuoi ricevere?
-scegli  - scegli che tipo di news vuoi ricevere
+help - ti mostro i comandi disponibili
+scegli  - scegli le categorie di notizie che vuoi ricevere
 privacy - accetta il regolamento sulla privacy di questo bot
-tirocini - ricevi (o no) info sui tirocini
-corsi - ricevi (o no) info sui corsi
-me - aiutami a fornirti risultati su misura per te
-impostazioni - mostra tutte le impostazioni utente
+rimanda_ultime_news - ti rimando le notizie degli ultimi 10 giorni
 '''
 

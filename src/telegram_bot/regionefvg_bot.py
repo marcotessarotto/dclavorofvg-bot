@@ -647,7 +647,7 @@ def callback_comment(update, context, news_id):
     # Invia un messaggio con i dati dell'articolo da commentare
     context.bot.send_message(
         chat_id=update.callback_query.message.chat_id,
-        text=UI_message_comment_to_news_item.format(news_id),
+        text=UI_message_comment_to_news_item + str(news_id),
         reply_markup=ForceReply()  # Invita l'utente a rispondere al messaggio
     )
 
@@ -660,6 +660,10 @@ def comment_handler(update, context):
 
     logger.info(f"comment_handler: reply_to_message.text message={update.message.reply_to_message.text}")
     logger.info(f"comment_handler: message.text message={update.message.text}")
+
+    if not update.message.reply_to_message.text.startswith(UI_message_comment_to_news_item):
+        logger.info("comment_handler - not a comment for a news item")
+        return
 
     reply_data = update.message.reply_to_message.text.split()
     # logger.info(reply_data)

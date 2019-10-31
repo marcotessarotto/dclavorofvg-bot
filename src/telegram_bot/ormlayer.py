@@ -30,9 +30,11 @@ def orm_add_telegram_user(user):
         new_telegram_user.language_code = user.language_code
         new_telegram_user.save()
 
-        # select all news categories
-        for k in Category.objects.all():
-            new_telegram_user.categories.add(k)
+        # new users have no category selected!
+
+        # (select all news categories)
+        # for k in Category.objects.all():
+        #     new_telegram_user.categories.add(k)
 
         new_telegram_user.save()
 

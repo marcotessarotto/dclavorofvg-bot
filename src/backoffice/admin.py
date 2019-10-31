@@ -92,7 +92,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 @admin.register(FeedbackToNewsItem)
-class FeedbackToNewsitemAdmin(admin.ModelAdmin):
+class FeedbackToNewsItemAdmin(admin.ModelAdmin):
     list_display = ('val', 'news_id', 'user', 'created_at')
     search_fields = ('news__id', 'user__user_id',)
 
@@ -102,9 +102,16 @@ class FeedbackToNewsitemAdmin(admin.ModelAdmin):
 
 admin.site.register(NewsFile)
 
-admin.site.register(NewsItemSentToUser)
 
-admin.site.register(UserFreeText)
+@admin.register(NewsItemSentToUser)
+class NewsItemSentToUserAdmin(admin.ModelAdmin):
+    list_display = ('telegram_user', 'news_item', 'created_at',)
+    search_fields = ('news_item__id', 'telegram_user__user_id',)
+
+
+@admin.register(UserFreeText)
+class UserFreeTextAdmin(admin.ModelAdmin):
+    list_display = ('telegram_user', 'created_at', 'text',)
 
 
 @admin.register(RssFeedItem)
@@ -112,6 +119,7 @@ class RssFeedItemAdmin(admin.ModelAdmin):
     list_display = ('data_pubblicazione', 'category', 'processed', 'rss_title',)
     ordering = ('-updated_parsed',)
     list_filter = ('processed', )
+
     def data_pubblicazione(self, obj):
         return str(obj.updated_parsed.strftime(
             "%d/%m/%y"))

@@ -9,7 +9,8 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 
 from src.backoffice.definitions import DATE_FORMAT_STR, UI_message_show_complete_news_item, UI_broadcast_message, \
-    UI_request_for_news_item_feedback, SHOW_CATEGORIES_IN_NEWS, UI_message_news_item_category
+    SHOW_CATEGORIES_IN_NEWS, UI_message_news_item_category, \
+    UI_message_request_for_news_item_feedback
 from src.backoffice.models import NewsItem, TelegramUser
 
 
@@ -163,7 +164,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     # optional: show categories
     if show_categories_in_news is True:
-        if intersection_result is not None:
+        if intersection_result is not None and len(intersection_result) > 0:
             # print(intersection_result)
             categories_html_content = '<i>'
 
@@ -173,8 +174,6 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             categories_html_content = categories_html_content[:-1]
 
             categories_html_content += '</i>\n'
-        elif news_item.broadcast_message is True:
-            categories_html_content = f'\n<i>{UI_broadcast_message}</i>\n'
         else:
             s = ''
             for cat in news_item.categories.all():
@@ -183,6 +182,9 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             if len(s) > 0:
                 s = s[:-1]
                 categories_html_content = f'<i>{UI_message_news_item_category}: {s}</i>\n'
+
+        if news_item.broadcast_message is True:
+            categories_html_content += f'<i>{UI_broadcast_message}</i>\n'
 
     if title_only:
 
@@ -225,6 +227,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
     html_news_content = title_html_content + categories_html_content + body_html_content + link_html_content
 
     logger.info(f"send_news_to_telegram_user - len(html_content) = {len(html_news_content)}")
+    # logger.info(f"send_news_to_telegram_user - html_content =  {html_news_content}")
 
     # print("len(title_html_content) = " + str(len(title_html_content)))
     # print("len(categories_html_content) = " + str(len(categories_html_content)))
@@ -306,7 +309,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
     if request_feedback:
         context.bot.send_message(
             chat_id=telegram_user.user_id,
-            text=orm_get_system_parameter(UI_request_for_news_item_feedback),
+            text=UI_message_request_for_news_item_feedback,
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton(  # like button
                     text=u'\u2713',

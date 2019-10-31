@@ -367,7 +367,7 @@ class SystemParameter(models.Model):
 
         SystemParameter.add_default_param(UI_bot_help_message, get_bot_default_help_msg(), "è mostrato nel comando /help")
 
-        SystemParameter.add_default_param(UI_request_for_news_item_feedback, "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
+        # SystemParameter.add_default_param(UI_request_for_news_item_feedback, "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
 
         # SystemParameter.add_default_param(param_show_match_category_news, "True", "mostra la categoria della news che ha permesso l'invio all'utente")
 
