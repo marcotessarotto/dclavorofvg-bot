@@ -229,7 +229,7 @@ class NewsItem(models.Model):
     title = models.CharField(max_length=1024, blank=True, null=True, verbose_name='titolo della news')
     title_link = models.CharField(max_length=1024, blank=True, null=True, verbose_name='link (opzionale) a cui punta il titolo')
 
-    text = models.TextField(max_length=1024*2, blank=True, null=True, verbose_name="testo della news (max 2048 caratteri)")
+    text = models.TextField(max_length=2048, blank=True, null=True, verbose_name="testo della news (max 2048 caratteri)")
 
     show_all_text = models.BooleanField(default=True, verbose_name="mostra tutto il testo della news all'utente?")
     show_first_n_words = models.IntegerField(default=30, verbose_name="mostra le prime n parole")

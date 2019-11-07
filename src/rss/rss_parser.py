@@ -2,6 +2,7 @@ from src.telegram_bot.ormlayer import *
 
 from datetime import timedelta
 from time import mktime
+import time
 
 import feedparser
 import os
@@ -62,10 +63,22 @@ def get_feed_entries_from_url(url):
         print()
 
 
-rss_feed = _orm_get_system_parameter(RSS_FEED)
+TIME_TO_SLEEP = 60 * 60  # 1 hour
 
-print("rss_link: " + str(rss_feed))
+while True:
+    rss_feed = _orm_get_system_parameter(RSS_FEED)
 
-if rss_feed:
-    get_feed_entries_from_url(rss_feed)
-    pass
+    print("rss_feed: " + str(rss_feed))
+
+    if rss_feed:
+        get_feed_entries_from_url(rss_feed)
+
+        orm_transform_unprocessed_rss_feed_items_in_news_items()
+
+    print(f"rss_parser, sleeping for {TIME_TO_SLEEP} seconds.")
+    time.sleep(TIME_TO_SLEEP)
+
+
+
+
+

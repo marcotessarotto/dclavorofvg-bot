@@ -439,13 +439,16 @@ def orm_get_fresh_news_to_send():
 
     for news in news_query:
 
+        if news.title is None:
+            continue
+
+        if news.categories is None:
+            continue
+
         if news.start_publication is not None:
             to_be_processed = news.start_publication <= now
         else:
             to_be_processed = True
-
-        if news.title is None:
-            continue
 
         if not to_be_processed:
             continue
@@ -513,3 +516,25 @@ def orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_pars
     return rss_feed_item
 
 
+def orm_transform_unprocessed_rss_feed_items_in_news_items():
+    """lookup unprocessed rss feed items and generate corresponding news items"""
+    queryset = RssFeedItem.objects.filter(processed=False)
+
+    if len(queryset) == 0:
+        return None
+
+    for rss_feed_item in queryset:
+
+        if rss_feed_item.category is None:
+            continue
+
+        news_item = NewsItem()
+        news_item.title_link = rss_feed_item.rss_link
+        news_item.title = rss_feed_item.rss_title
+        news_item.save()
+
+        news_item.categories.add(rss_feed_item.category)  # news_item needs to have a value for field "id" before this many-to-many relationship can be used.
+        news_item.save()
+
+        rss_feed_item.processed = True
+        rss_feed_item.save()

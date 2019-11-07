@@ -21,6 +21,7 @@ from src.telegram_bot.print_utils import my_print
 
 
 def news_dispatcher(context: CallbackContext):
+    """news_dispatcher is called periodically by the bot's job_queue"""
 
     a = datetime.datetime.now()
 

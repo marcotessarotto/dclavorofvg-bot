@@ -51,7 +51,7 @@ per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/sce
 
 <b>/start</b> avvio del bot (l'hai già fatto)
 <b>/scegli</b> scegli le categorie di notizie che ti vuoi ricevere
-<b>/privacy</b> gestisci l'accettazione della privacy
+<b>/privacy</b> lo hai usato per accettare il regolamento privacy
 
 <b>/rimanda_ultime_news</b> rimanda le notizie degli ultimi 10 giorni
 
@@ -97,6 +97,8 @@ UI_SEND_NEWS_COMMAND = 'news'  # admin only
 UI_SHOW_NEWS = 'mostra_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "help_categorie"
+UI_SET_FILTER = "/filtro"
+
 
 UI_message_category = "categoria "
 
