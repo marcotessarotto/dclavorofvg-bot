@@ -55,3 +55,4 @@ def standard_user_checks(func):
             return func(update, context, telegram_user_id, telegram_user, *args, **kwargs)
 
     return wrapped
+

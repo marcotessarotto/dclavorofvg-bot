@@ -213,12 +213,10 @@ def callback(update, context):
         callback_education_level(update, context, data[1])
 
 
-def show_news_command_handler(update, context):
+@log_user_input
+@standard_user_checks
+def show_news_command_handler(update, context, telegram_user_id, telegram_user):
     """show a specific news item (specified by id)"""
-
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
 
     str_id = update.message.text.replace('/' + UI_SHOW_NEWS, '')
     if str_id is '':
@@ -234,11 +232,13 @@ def show_news_command_handler(update, context):
     # update.message.reply_text(id, parse_mode='Markdown')
 
 
-def choose_news_categories_command_handler(update, context):
+@log_user_input
+@standard_user_checks
+def choose_news_categories_command_handler(update, context, telegram_user_id, telegram_user):
     """choose news categories"""
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
+    # telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    # if must_return:
+    #     return
 
     context.bot.send_message(
         chat_id=update.message.chat_id,
@@ -408,20 +408,19 @@ def custom_command_handler(update, context, telegram_user_id, telegram_user):
     )
 
 
-def set_all_categories_command_handler(update, context):
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
+@log_user_input
+@standard_user_checks
+def set_all_categories_command_handler(update, context, telegram_user_id, telegram_user):
     _set_all_categories(update, context, True)
 
 
-def set_no_categories_command_handler(update, context):
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
+@log_user_input
+@standard_user_checks
+def set_no_categories_command_handler(update, context, telegram_user_id, telegram_user):
     _set_all_categories(update, context, False)
 
 
+# TODO: remove
 def me_command_handler(update, context):
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
@@ -453,20 +452,22 @@ def me_command_handler(update, context):
     )
 
 
-def resend_last_processed_news_command_handler(update, context):
+@log_user_input
+@standard_user_checks
+def resend_last_processed_news_command_handler(update, context, telegram_user_id, telegram_user):
     logger.info("resend_last_processed_news")
-
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
+    #
+    # telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+    # if must_return:
+    #     return
 
     now = datetime.datetime.now()
 
     lrn = context.user_data.get('last_resend_news_timestamp')
 
+    # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(minutes=1):
     if lrn is not None and lrn > now - datetime.timedelta(
             minutes=1):
-    # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(minutes=1):
         logger.warning("resend_last_processed_news: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
@@ -520,11 +521,9 @@ def resend_last_processed_news_command_handler(update, context):
         )
 
 
-def debug_command_handler(update, context):
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
-
+@log_user_input
+@standard_user_checks
+def debug_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
 
@@ -534,11 +533,9 @@ def debug_command_handler(update, context):
     pass
 
 
-def debug2_command_handler(update, context):
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
-
+@log_user_input
+@standard_user_checks
+def debug2_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
 
@@ -549,11 +546,9 @@ def debug2_command_handler(update, context):
     pass
 
 
-def debug3_command_handler(update, context):
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
-
+@log_user_input
+@standard_user_checks
+def debug3_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
 
@@ -574,11 +569,9 @@ def debug3_command_handler(update, context):
     #     print(m.photo)
 
 
-def cleanup_command_handler(update, context):
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
-
+@log_user_input
+@standard_user_checks
+def cleanup_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
 
@@ -589,7 +582,9 @@ def cleanup_command_handler(update, context):
     pass
 
 
-def debug_sendnews_command_handler(update, context):
+@log_user_input
+@standard_user_checks
+def debug_sendnews_command_handler(update, context, telegram_user_id, telegram_user):
     # if DEBUG_MSG:
     #     print("sendnews_command_handler update:")
     #     my_print(update, 4)
@@ -675,7 +670,9 @@ def comment_handler(update, context):
     )
 
 
-def generic_message_handler(update, context):
+@log_user_input
+@standard_user_checks
+def generic_message_handler(update, context, telegram_user_id, telegram_user):
     # if DEBUG_MSG:
     #     print("generic_message_handler update:")
     #     my_print(update, 4)
@@ -683,10 +680,6 @@ def generic_message_handler(update, context):
     message_text = update.message.text
 
     logger.info(f"generic_message_handler - message_text = {message_text}")
-
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
 
     expected_input = orm_get_user_expected_input(telegram_user)
 
