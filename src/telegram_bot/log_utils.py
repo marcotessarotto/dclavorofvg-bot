@@ -24,14 +24,17 @@ def log_user_input(func):
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
 
-        print(f"log_user_input: user_id={user_id}")
+        # print(f"log_user_input: user_id={user_id}")
 
         text = update.message.text
 
-        # user_id = update.effective_user.id
-        # if user_id not in LIST_OF_ADMINS:
-        #     print("Unauthorized access denied for {}.".format(user_id))
-        #     return
+        from src.backoffice.models import CommandsFromUser
+        cfu = CommandsFromUser()
+        cfu.coming_from_user = True
+        cfu.text = text
+        cfu.user_id = user_id
+        cfu.save()
+
         return func(update, context, *args, **kwargs)
     return wrapped
 

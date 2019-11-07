@@ -102,6 +102,8 @@ class FeedbackToNewsItemAdmin(admin.ModelAdmin):
 
 admin.site.register(NewsFile)
 
+admin.site.register(CommandsFromUser)
+
 
 @admin.register(NewsItemSentToUser)
 class NewsItemSentToUserAdmin(admin.ModelAdmin):

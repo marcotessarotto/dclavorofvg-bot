@@ -310,9 +310,13 @@ class Comment(models.Model):
 
 
 class CommandsFromUser(models.Model):
-    telegramUser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT)
+    # telegramUser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT)
+    user_id = models.BigIntegerField(verbose_name="telegram user id", default=-1)  # Telegram used id
 
-    command = models.CharField(max_length=1024)
+    text = models.CharField(max_length=1024)
+
+    # if true, command
+    coming_from_user = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

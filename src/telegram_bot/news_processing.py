@@ -10,7 +10,7 @@ from telegram.ext import CallbackContext
 
 from src.backoffice.definitions import DATE_FORMAT_STR, UI_message_show_complete_news_item, UI_broadcast_message, \
     SHOW_CATEGORIES_IN_NEWS, UI_message_news_item_category, \
-    UI_message_request_for_news_item_feedback, UI_news
+    UI_message_request_for_news_item_feedback, UI_news, UI_message_published_on
 from src.backoffice.models import NewsItem, TelegramUser
 
 
@@ -151,15 +151,15 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
     # cannot embed <b> inside <a> tag
 
     if news_item.processed and news_item.processed_timestamp is not None:
-        processed_timestamp_html = ' ' + news_item.processed_timestamp.strftime(DATE_FORMAT_STR)
+        processed_timestamp_html = news_item.processed_timestamp.strftime(DATE_FORMAT_STR)
     else:
         processed_timestamp_html = ''
 
     # title/header
-    if news_item.title_link is not None:
-        title_html_content = f'<a href="{news_item.title_link}">[{UI_news} #{news_item.id}] {news_item.title} {processed_timestamp_html}'                                                        ' </a>\n'
+    if news_item.title_link is not None and not title_only:
+        title_html_content = f'<a href="{news_item.title_link}">[{UI_news} #{news_item.id} {UI_message_published_on} {processed_timestamp_html}] {news_item.title} '                                                        ' </a>\n'
     else:
-        title_html_content = f'<b>[{UI_news} #{news_item.id}] {news_item.title} {processed_timestamp_html} </b>\n'
+        title_html_content = f'<b>[{UI_news} #{news_item.id} {UI_message_published_on} {processed_timestamp_html}] {news_item.title}</b>\n'
 
     show_categories_in_news = SHOW_CATEGORIES_IN_NEWS  # orm_get_system_parameter(param_show_match_category_news).lower() == "true"
 
@@ -167,7 +167,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
     if show_categories_in_news is True:
         if intersection_result is not None and len(intersection_result) > 0:
             # print(intersection_result)
-            categories_html_content = '<i>'
+            categories_html_content = f'<i>{UI_message_news_item_category}: '
 
             for cat in intersection_result:
                 categories_html_content += cat.name + ','
@@ -189,6 +189,10 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     if title_only:
 
+        # if news item has no text, do no show the show news message
+        # if news_item.text is None:
+        #     html_news_content = title_html_content + categories_html_content
+        # else:
         html_news_content = title_html_content + categories_html_content + UI_message_show_complete_news_item.format(news_item.id)
 
         context.bot.send_message(

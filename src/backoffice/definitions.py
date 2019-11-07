@@ -193,6 +193,8 @@ UI_message_news_item_category = "categoria della notizia"
 
 UI_message_request_for_news_item_feedback = "Ti è utile questa notizia?"
 
+UI_message_published_on = "pubblicata il"
+
 UI_news = "notizia"
 
 UI_OK = 'OK'
