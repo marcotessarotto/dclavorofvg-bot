@@ -10,7 +10,7 @@ from telegram.ext import CallbackContext
 
 from src.backoffice.definitions import DATE_FORMAT_STR, UI_message_show_complete_news_item, UI_broadcast_message, \
     SHOW_CATEGORIES_IN_NEWS, UI_message_news_item_category, \
-    UI_message_request_for_news_item_feedback
+    UI_message_request_for_news_item_feedback, UI_news
 from src.backoffice.models import NewsItem, TelegramUser
 
 
@@ -156,9 +156,9 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     # title/header
     if news_item.title_link is not None:
-        title_html_content = f'<a href="{news_item.title_link}"> {news_item.title}  [{news_item.id}] {processed_timestamp_html}'                                                        ' </a>\n'
+        title_html_content = f'<a href="{news_item.title_link}">[{UI_news} #{news_item.id}] {news_item.title} {processed_timestamp_html}'                                                        ' </a>\n'
     else:
-        title_html_content = f'<b>{news_item.title}  [{news_item.id}] {processed_timestamp_html} </b>\n'
+        title_html_content = f'<b>[{UI_news} #{news_item.id}] {news_item.title} {processed_timestamp_html} </b>\n'
 
     show_categories_in_news = SHOW_CATEGORIES_IN_NEWS  # orm_get_system_parameter(param_show_match_category_news).lower() == "true"
 
