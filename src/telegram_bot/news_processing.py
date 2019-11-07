@@ -161,7 +161,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
     else:
         title_html_content = f'<b>[{UI_news} #{news_item.id} {UI_message_published_on} {processed_timestamp_html}] {news_item.title}</b>\n'
 
-    show_categories_in_news = SHOW_CATEGORIES_IN_NEWS  # orm_get_system_parameter(param_show_match_category_news).lower() == "true"
+    show_categories_in_news = SHOW_CATEGORIES_IN_NEWS
 
     # optional: show categories
     if show_categories_in_news is True:

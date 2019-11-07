@@ -324,6 +324,9 @@ class CommandsFromUser(models.Model):
     class Meta:
         app_label = "backoffice"
 
+    def __str__(self):
+        return f"CommandsFromUser: user_id={self.user_id} coming_from_user={self.coming_from_user}  {self.created_at}  {self.text}"
+
 
 class UserActivityLog(models.Model):
     user_id = models.BigIntegerField()
