@@ -1,3 +1,5 @@
+from functools import wraps
+
 from src.backoffice.definitions import UI_message_accept_privacy_rules_to_continue, UI_message_disabled_account
 from src.backoffice.models import TelegramUser
 from src.telegram_bot.ormlayer import orm_get_telegram_user
@@ -39,3 +41,17 @@ def check_if_user_is_disabled(telegram_user: TelegramUser, update, context):
         return True
     else:
         return False
+
+
+def standard_user_checks(func):
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+
+        telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
+
+        if must_return:
+            return
+        else:
+            return func(update, context, telegram_user_id, telegram_user, *args, **kwargs)
+
+    return wrapped

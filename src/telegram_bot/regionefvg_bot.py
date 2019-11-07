@@ -1,6 +1,6 @@
 import os
 
-from src.telegram_bot.log_utils import mainlogger as logger
+from src.telegram_bot.log_utils import mainlogger as logger, log_user_input
 
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 from src.telegram_bot.print_utils import my_print
@@ -11,7 +11,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, Key
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id
 from src.telegram_bot.ormlayer import *
-from src.telegram_bot.user_utils import basic_user_checks, check_user_privacy_approval, check_if_user_is_disabled
+from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
+    standard_user_checks
 
 from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
@@ -25,6 +26,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 global_bot_instance = None
 
 
+@log_user_input
 def start_command_handler(update, context):
     if EXT_DEBUG_MSG:
         logger.info("start_command_handler update:")
@@ -360,14 +362,12 @@ def callback_choice(update, choice: str):
     logger.debug(f"callback_choice dt={c.microseconds} microseconds")
 
 
-def custom_command_handler(update, context):
+@log_user_input
+@standard_user_checks
+def custom_command_handler(update, context, telegram_user_id, telegram_user):
     original_command = update.message.text
 
     logger.info(f"custom_command_handler: {original_command}")
-
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
 
     custom_telegram_command = original_command[1:]
 
