@@ -1,8 +1,8 @@
-import datetime
+from datetime import datetime, timedelta
 from django.utils.timezone import now
 from django.core.cache import cache
 
-from src.telegram_bot.log_utils import ormlogger as logger
+from src.telegram_bot.log_utils import ormlogger as logger, benchmark_decorator
 
 from src.backoffice.models import *
 
@@ -142,6 +142,7 @@ def orm_get_comment(user_id):
     return Comment.objects.filter(user=user)
 
 
+@benchmark_decorator
 def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
     """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser 
     :rtype: TelegramUser
@@ -170,8 +171,6 @@ def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
 
         return res
 
-    a = datetime.datetime.now()
-
     if use_cache:
         result = _orm_get_telegram_user_cache()
     else:
@@ -180,12 +179,6 @@ def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
     # if result is None:
     #     result = orm_add_telegram_user(...)
     #     _update_user_in_cache(result)
-
-    b = datetime.datetime.now()
-
-    c = b - a
-
-    logger.debug(f"orm_get_telegram_user dt={c.microseconds} microseconds")
 
     return result
 
@@ -350,22 +343,15 @@ _skip_list = [UI_HELP_COMMAND, UI_START_COMMAND, UI_HELP_COMMAND_ALT, UI_START_C
 
 
 def orm_get_categories_valid_command():
-    a = datetime.datetime.now()
     queryset = Category.objects.filter(is_telegram_command=True, custom_telegram_command__isnull=False)\
         .exclude(custom_telegram_command__in=_skip_list)\
         .order_by('key')
-    b = datetime.datetime.now()
-    c = b - a
-    logger.debug(f"orm_get_categories_valid_command dt={c.microseconds} microseconds")
     return queryset
 
 
+@benchmark_decorator
 def orm_get_categories():
-    a = datetime.datetime.now()
     queryset = Category.objects.all().order_by('key')
-    b = datetime.datetime.now()
-    c = b - a
-    logger.debug(f"orm_get_categories dt={c.microseconds} microseconds")
     return queryset
 
 
@@ -412,10 +398,11 @@ def orm_set_telegram_user_categories(telegram_user_id: int, categories: object) 
     return telegram_user
 
 
+@benchmark_decorator
 def orm_get_last_processed_news(last_days=10):
-    now = datetime.datetime.now()
+    now = datetime.now()
 
-    d = now - datetime.timedelta(days=last_days)
+    d = now - timedelta(days=last_days)
 
     news_query = NewsItem.objects.filter(processed=True).filter(processed_timestamp__gte=d).order_by('-processed_timestamp')
 
@@ -435,7 +422,7 @@ def orm_get_fresh_news_to_send():
     if len(news_query) == 0:
         return result
 
-    now = datetime.datetime.now()
+    now = datetime.now()
 
     for news in news_query:
 
@@ -482,18 +469,10 @@ def orm_get_system_parameter(param_name) -> str:
 
         return result
 
-    a = datetime.datetime.now()
-
     if use_cache:
         result = _orm_get_system_parameter_cache(param_name)
     else:
         result = _orm_get_system_parameter(param_name)
-
-    b = datetime.datetime.now()
-
-    c = b - a
-
-    logger.debug(f"orm_get_system_parameter - {param_name} dt={c.microseconds} microseconds")
 
     return result
 

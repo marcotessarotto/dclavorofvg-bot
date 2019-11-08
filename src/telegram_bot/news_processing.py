@@ -326,12 +326,6 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
     orm_inc_telegram_user_number_received_news_items(telegram_user)
 
-    b = datetime.datetime.now()
-
-    c = b - a
-
-    logger.debug(f"send_news_to_telegram_user - dt={c.microseconds} microseconds")
-
 
 def _lookup_file_id_in_message(message, _file_path: str, file_id):
     """search for file_id in message, if parameter file_id is not None;

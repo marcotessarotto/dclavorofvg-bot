@@ -255,16 +255,8 @@ def inline_keyboard(user):
 
     all_categories = orm_get_categories()
 
-    # a = datetime.datetime.now()
-    # test = list(set(all_categories.all()).difference(user.categories.all()))
-    # b = datetime.datetime.now()
-    # c = b - a
-    # print("inline_keyboard(1) dt=" + str(c.microseconds) + " microseconds")
-    # print(test)
-
     user_categories_set = set(user.categories.all())
 
-    # a = datetime.datetime.now()
     for cat in all_categories:
 
         if cat.emoji is not None:
@@ -281,9 +273,6 @@ def inline_keyboard(user):
             text=label,
             callback_data='choice ' + cat.key)]
         )
-    # b = datetime.datetime.now()
-    # c = b - a
-    # print("inline_keyboard(2) dt=" + str(c.microseconds) + " microseconds")
 
     # add close button
     keyboard.append(
@@ -326,8 +315,8 @@ def callback_age(update, context, telegram_user, message_text):
     ask_educational_level(update, context)
 
 
+@benchmark_decorator
 def callback_choice(update, choice: str):
-    a = datetime.datetime.now()
 
     telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
@@ -354,12 +343,6 @@ def callback_choice(update, choice: str):
             text=UI_message_select_news_categories,
             reply_markup=InlineKeyboardMarkup(inline_keyboard(telegram_user))
         )
-
-    b = datetime.datetime.now()
-
-    c = b - a
-
-    logger.debug(f"callback_choice dt={c.microseconds} microseconds")
 
 
 @log_user_input
@@ -461,12 +444,12 @@ def resend_last_processed_news_command_handler(update, context, telegram_user_id
     # if must_return:
     #     return
 
-    now = datetime.datetime.now()
+    now = datetime.now()
 
     lrn = context.user_data.get('last_resend_news_timestamp')
 
-    # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(minutes=1):
-    if lrn is not None and lrn > now - datetime.timedelta(
+    # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - timedelta(minutes=1):
+    if lrn is not None and lrn > now - timedelta(
             minutes=1):
         logger.warning("resend_last_processed_news: too frequent! skipping")
         context.bot.send_message(
