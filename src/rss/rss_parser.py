@@ -8,6 +8,8 @@ import feedparser
 import os
 import django
 
+from src.telegram_bot.log_utils import rsslogger as logger
+
 
 try:
     from ..backoffice.definitions import RSS_FEED
@@ -49,33 +51,37 @@ def get_feed_entries_from_url(url):
         updated_parsed_dt = datetime.fromtimestamp(mktime(updated_parsed))
 
         if updated_parsed_dt < ten_days_ago:
-            print("too old!")
+            logger.info(f"rss item too old: {updated_parsed_dt} - {rss_id}")
             continue
 
         res = orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed_dt)
 
         # print(item)
-        print("rss_title: " + rss_title)
-        print("title_detail: " + str(item["title_detail"]))
-        print("rss_link: " + rss_link)
-        print("rss_id: " + rss_id)
-        print("updated_parsed: " + str(updated_parsed_dt))
-        print()
+        if res is not None:
+            logger.info(f"rss_title: {rss_title}")
+            logger.info(f"title_detail: {item['title_detail']}")
+            logger.info(f"rss_link: {rss_link}")
+            logger.info(f"rss_id: {rss_id}")
+            logger.info(f"updated_parsed: {updated_parsed_dt}")
+        else:
+            logger.info(f"rss item was already processed: {rss_id}")
 
 
 TIME_TO_SLEEP = 60 * 60  # 1 hour
 
+logger.info("starting rss_parser")
+
 while True:
     rss_feed = _orm_get_system_parameter(RSS_FEED)
 
-    print("rss_feed: " + str(rss_feed))
+    logger.info(f"rss_feed: {rss_feed}")
 
     if rss_feed:
         get_feed_entries_from_url(rss_feed)
 
         orm_transform_unprocessed_rss_feed_items_in_news_items()
 
-    print(f"rss_parser, sleeping for {TIME_TO_SLEEP} seconds.")
+    logger.info(f"rss_parser, sleeping for {TIME_TO_SLEEP} seconds.")
     time.sleep(TIME_TO_SLEEP)
 
 

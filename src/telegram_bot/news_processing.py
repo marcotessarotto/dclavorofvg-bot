@@ -1,7 +1,7 @@
 import datetime
 import mimetypes
 
-from src.telegram_bot.log_utils import newslogger as logger
+from src.telegram_bot.log_utils import newslogger as logger, benchmark_decorator
 
 from src.gfvgbo.settings import MEDIA_ROOT
 
@@ -133,14 +133,13 @@ def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _fil
     _lookup_file_id_in_message(_message, _file_path, _file_id)
 
 
+@benchmark_decorator
 def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: TelegramUser, intersection_result=None, request_feedback=True,
                                title_only=False, ask_comment=False, news_item_already_shown_to_user=False):
     logger.info(
         f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
 
     telegram_user_id = telegram_user.user_id
-
-    a = datetime.datetime.now()
 
     # title_html_content = ''
     categories_html_content = ''
@@ -200,12 +199,6 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             text=html_news_content,
             parse_mode='HTML'
         )
-
-        b = datetime.datetime.now()
-
-        c = b - a
-
-        logger.debug(f"send_news_to_telegram_user - dt={c.microseconds} microseconds")
 
         return
 

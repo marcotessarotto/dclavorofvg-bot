@@ -63,7 +63,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class NewsItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'created_at', 'list_of_categories', 'processed', 'processed_timestamp', 'like', 'dislike')
     exclude = ('like', 'dislike')
-    search_fields = ('id','title')
+    search_fields = ('id', 'title')
     list_filter = ('categories',)
 
     formfield_overrides = {
@@ -118,13 +118,9 @@ class UserFreeTextAdmin(admin.ModelAdmin):
 
 @admin.register(RssFeedItem)
 class RssFeedItemAdmin(admin.ModelAdmin):
-    list_display = ('data_pubblicazione', 'category', 'processed', 'rss_title',)
+    list_display = ('data_feed_was_last_updated', 'category', 'processed', 'rss_title',)
     ordering = ('-updated_parsed',)
     list_filter = ('processed', )
-
-    def data_pubblicazione(self, obj):
-        return str(obj.updated_parsed.strftime(
-            "%d/%m/%y"))
 
 
 @admin.register(CategoriesGroup)

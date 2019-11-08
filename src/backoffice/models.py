@@ -201,8 +201,10 @@ class RssFeedItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
 
     def __str__(self):
-        return 'RssFeedItem ' + str(self.id) + ' : ' + str(self.updated_parsed.strftime(
-            "%d/%m/%y")) + ' - ' + str(self.category) + ' - ' + str(self.rss_title)
+        return 'RssFeedItem ' + str(self.id) + ' : ' + str(self.data_feed_was_last_updated()) + ' - ' + str(self.category) + ' - ' + str(self.rss_title)
+
+    def data_feed_was_last_updated(self):
+        return str(self.updated_parsed.strftime("%d/%m/%y"))
 
     class Meta:
         verbose_name = "RssFeedItem"
@@ -273,6 +275,7 @@ class NewsItem(models.Model):
     def __str__(self):
         return 'news #' + str(self.id) + ' (' + \
                str(self.title) + ')'
+        return f"news #{self.id} "
 
 
 class FeedbackToNewsItem(models.Model):

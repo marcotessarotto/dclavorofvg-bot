@@ -501,7 +501,7 @@ def orm_get_system_parameter(param_name) -> str:
 def orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed):
     queryset = RssFeedItem.objects.filter(rss_id=rss_id)
 
-    if len(queryset) != 0:
+    if len(queryset) > 0:
         logger.info(f"orm_create_news_from_rss_feed_item: item already processed, rss_id={rss_id}")
         return None
 
