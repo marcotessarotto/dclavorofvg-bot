@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from django.utils.timezone import now
 from django.core.cache import cache
 
-from src.telegram_bot.log_utils import ormlogger as logger, benchmark_decorator
+from src.telegram_bot.log_utils import orm_logger as logger, benchmark_decorator
 
 from src.backoffice.models import *
 
@@ -477,7 +477,7 @@ def orm_get_system_parameter(param_name) -> str:
     return result
 
 
-def orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed):
+def orm_create_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed):
     queryset = RssFeedItem.objects.filter(rss_id=rss_id)
 
     if len(queryset) > 0:

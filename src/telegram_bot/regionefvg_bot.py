@@ -1,6 +1,6 @@
 import os
 
-from src.telegram_bot.log_utils import mainlogger as logger, log_user_input
+from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 from src.telegram_bot.print_utils import my_print
@@ -26,12 +26,9 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 global_bot_instance = None
 
 
+@debug_update
 @log_user_input
 def start_command_handler(update, context):
-    if EXT_DEBUG_MSG:
-        logger.info("start_command_handler update:")
-        my_print(update, 4, logger)
-
     logger.info(f"start args: {context.args}")  # parametro via start; max 64 caratteri
     # https://telegram.me/marcotts_bot?start=12345
 

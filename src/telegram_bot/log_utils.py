@@ -5,6 +5,9 @@ from pytz import timezone, utc
 # https://www.electricmonk.nl/log/2017/08/06/understanding-pythons-logging-module/
 from functools import wraps
 
+from src.backoffice.definitions import EXT_DEBUG_MSG
+from src.telegram_bot.print_utils import my_print
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
@@ -23,17 +26,17 @@ def custom_time_converter(*args):  # https://stackoverflow.com/a/45805464/974287
 # logging.Formatter.converter = time.gmtime
 logging.Formatter.converter = custom_time_converter
 
-mainlogger = logging.getLogger('regionefvg_bot')  # "main" logger
-mainlogger.setLevel(logging.INFO)
+main_logger = logging.getLogger('regionefvg_bot')  # "main" logger
+main_logger.setLevel(logging.INFO)
 
-ormlogger = logging.getLogger('ormlayer')
-ormlogger.setLevel(logging.DEBUG)
+orm_logger = logging.getLogger('ormlayer')
+orm_logger.setLevel(logging.DEBUG)
 
-newslogger = logging.getLogger('news_processing')
-newslogger.setLevel(logging.DEBUG)
+news_logger = logging.getLogger('news_processing')
+news_logger.setLevel(logging.DEBUG)
 
-rsslogger = logging.getLogger('rss_parser')
-rsslogger.setLevel(logging.DEBUG)
+rss_logger = logging.getLogger('rss_parser')
+rss_logger.setLevel(logging.DEBUG)
 
 benchmark_logger = logging.getLogger('benchmark')
 benchmark_logger.setLevel(logging.DEBUG)
@@ -52,12 +55,12 @@ def benchmark_decorator(func):
 
             c = b - a
 
-            benchmark_logger.debug(f"benchmark_decorator - {func.__name__} dt={c.microseconds} microseconds")
+            benchmark_logger.debug(f"{func.__name__} dt={c.microseconds} microseconds")
 
     return wrapped
 
 
-def log_user_input(func):  #  https://github.com/python-telegram-bot/python-telegram-bot/wiki/Code-snippets#advanced-snippets
+def log_user_input(func):  # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Code-snippets#advanced-snippets
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
         user_id = update.effective_user.id
@@ -76,4 +79,13 @@ def log_user_input(func):  #  https://github.com/python-telegram-bot/python-tele
         return func(update, context, *args, **kwargs)
     return wrapped
 
+
+def debug_update(func):
+    @wraps(func)
+    def wrapped(update, context, *args, **kwargs):
+        if EXT_DEBUG_MSG:
+            main_logger.debug(f"debug_update {func.__name__}:")
+            my_print(update, 4, main_logger)
+        return func(update, context, *args, **kwargs)
+    return wrapped
 

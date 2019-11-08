@@ -8,7 +8,7 @@ import feedparser
 import os
 import django
 
-from src.telegram_bot.log_utils import rsslogger as logger
+from src.telegram_bot.log_utils import rss_logger as logger
 
 
 try:
@@ -54,7 +54,7 @@ def get_feed_entries_from_url(url):
             logger.info(f"rss item too old: {updated_parsed_dt} - {rss_id}")
             continue
 
-        res = orm_create_news_from_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed_dt)
+        res = orm_create_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed_dt)
 
         # print(item)
         if res is not None:

@@ -1,7 +1,7 @@
 import datetime
 import mimetypes
 
-from src.telegram_bot.log_utils import newslogger as logger, benchmark_decorator
+from src.telegram_bot.log_utils import news_logger as logger, benchmark_decorator
 
 from src.gfvgbo.settings import MEDIA_ROOT
 
@@ -20,14 +20,12 @@ from src.telegram_bot.ormlayer import orm_get_fresh_news_to_send, orm_get_system
 from src.telegram_bot.print_utils import my_print
 
 
+@benchmark_decorator
 def news_dispatcher(context: CallbackContext):
     """news_dispatcher is called periodically by the bot's job_queue"""
-
-    a = datetime.datetime.now()
-
     list_of_news = orm_get_fresh_news_to_send()
 
-    now = datetime.datetime.now()
+    # now = datetime.datetime.now()
 
     if len(list_of_news) == 0:
         logger.info("news_dispatcher - nothing to do")
@@ -51,7 +49,7 @@ def news_dispatcher(context: CallbackContext):
             if news_item.broadcast_message is not True and len(intersection_result) == 0:
                 continue
 
-            # send this news to this telegram_user
+            # send this news_item to this telegram_user
             send_news_to_telegram_user(context, news_item, telegram_user, intersection_result)
 
         news_item.processed = True
@@ -59,12 +57,6 @@ def news_dispatcher(context: CallbackContext):
         news_item.processed_timestamp = now()
 
         news_item.save()
-
-    b = datetime.datetime.now()
-
-    c = b - a
-
-    logger.debug(f"news_dispatcher - finished processing all news - dt={c.microseconds} microseconds")
 
 
 def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _file_mime_type: str, caption=None):
