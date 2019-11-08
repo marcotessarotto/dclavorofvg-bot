@@ -571,10 +571,6 @@ def debug_sendnews_command_handler(update, context, telegram_user_id, telegram_u
 
     # takes content after /news command as content of the news to send
 
-    telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    if must_return:
-        return
-
     # admin only
     if not telegram_user.is_admin:
         return
@@ -591,6 +587,14 @@ def callback_feedback(update, data):
     feed = data[0]
     news_id = data[1]
     comment_enabled = data[2]
+
+    if comment_enabled == "True":
+        comment_enabled = True
+    elif comment_enabled == "False":
+        comment_enabled = False
+    else:
+        logger.info(f"wrong value for comment_enabled: {comment_enabled}")
+
     logger.info(f"callback_feedback feed={feed} news_id={news_id} comment_enabled={comment_enabled}")
     orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)
 
