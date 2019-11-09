@@ -1,0 +1,16 @@
+
+
+
+SOLR
+
+https://hub.docker.com/_/solr/
+https://github.com/docker-solr/docker-solr/blob/master/README.md
+
+
+mkdir solrdata
+docker run -d -it --mount type=bind,source="$PWD"/solrdata,target=/var/solr -u 1000:1000  -p 8983:8983 solr solr-precreate gettingstarted
+
+
+docker run --name solr_demo -d -p 8984:8983 solr solr-demo
+
+
