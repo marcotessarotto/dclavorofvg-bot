@@ -13,4 +13,24 @@ docker run -d -it --mount type=bind,source="$PWD"/solrdata,target=/var/solr -u 1
 
 docker run --name solr_demo -d -p 8984:8983 solr solr-demo
 
+https://lucene.apache.org/solr/guide/8_2/solr-tutorial.html
+
+***
+
+https://lucene.apache.org/core/8_3_0/index.html
+
+apache lucene demo:
+
+https://lucene.apache.org/core/8_3_0/demo/overview-summary.html#overview.description
+
+export LB=/home/marco/java/lucene-8.3.0
+export CLASSPATH=$LB/core/lucene-core-8.3.0.jar:$LB/queryparser/lucene-queryparser-8.3.0.jar:$LB/analysis/common/lucene-analyzers-common-8.3.0.jar:$LB/demo/lucene-demo-8.3.0.jar
+
+java org.apache.lucene.demo.IndexFiles -docs $LB
+
+java org.apache.lucene.demo.SearchFiles
+
+
+http://ignaciosuay.com/getting-started-with-lucene-and-json-indexing/
+
 
