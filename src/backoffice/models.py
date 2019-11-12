@@ -331,16 +331,16 @@ class CommandsFromUser(models.Model):
         return f"CommandsFromUser: user_id={self.user_id} coming_from_user={self.coming_from_user}  {self.created_at}  {self.text}"
 
 
-class UserActivityLog(models.Model):
-    user_id = models.BigIntegerField()
-    news_id = models.BigIntegerField()
-
-    value = models.CharField(max_length=1, blank=True, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        app_label = "backoffice"
+# class UserActivityLog(models.Model):
+#     user_id = models.BigIntegerField()
+#     news_id = models.BigIntegerField()
+#
+#     value = models.CharField(max_length=1, blank=True, null=True)
+#
+#     created_at = models.DateTimeField(auto_now_add=True)
+#
+#     class Meta:
+#         app_label = "backoffice"
 
 
 class SystemParameter(models.Model):
