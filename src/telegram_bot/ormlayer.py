@@ -504,16 +504,16 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
 
     for rss_feed_item in queryset:
 
-        if rss_feed_item.category is None:
-            continue
+        # if rss_feed_item.category is None:
+        #     continue
 
         news_item = NewsItem()
         news_item.title_link = rss_feed_item.rss_link
         news_item.title = rss_feed_item.rss_title
         news_item.save()
 
-        news_item.categories.add(rss_feed_item.category)  # news_item needs to have a value for field "id" before this many-to-many relationship can be used.
-        news_item.save()
+        # news_item.categories.add(rss_feed_item.category)  # news_item needs to have a value for field "id" before this many-to-many relationship can be used.
+        # news_item.save()
 
         rss_feed_item.processed = True
         rss_feed_item.save()

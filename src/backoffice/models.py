@@ -106,7 +106,7 @@ EDUCATIONAL_LEVELS = (
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 
-    user_id = models.BigIntegerField(verbose_name="telegram user id")  # Telegram used id
+    user_id = models.BigIntegerField(verbose_name="telegram user id")  # Telegram used id (information provided by Telegram)
 
     age = models.IntegerField(default=-1, verbose_name="età")
 
@@ -116,22 +116,20 @@ class TelegramUser(models.Model):
 
     regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
 
-    rss_id = models.CharField(max_length=256, blank=True, null=True, editable=False) # used if news comes from rss feed
-
     has_accepted_privacy_rules = models.BooleanField(default=False, verbose_name="ha accettato il regolamento privacy?")
     # L : through a parameter passed to /start
     # U : user has accepted privacy rules through bot UI
     privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True, editable=False, verbose_name="meccanismo di accettazione privacy (U: tramite il bot)")
     privacy_acceptance_timestamp = models.DateTimeField(blank=True, null=True)
 
-    username = models.CharField(max_length=32, blank=True, null=True)
+    username = models.CharField(max_length=32, blank=True, null=True)  # information provided by Telegram
 
     first_name = models.CharField(max_length=50, blank=True, null=True, verbose_name="Nome")
     last_name = models.CharField(max_length=50, blank=True, null=True, verbose_name="Cognome")
 
-    is_bot = models.BooleanField(default=False, verbose_name="è un bot?")
+    is_bot = models.BooleanField(default=False, verbose_name="è un bot?")  # information provided by Telegram
 
-    language_code = models.CharField(max_length=2, blank=True, null=True)
+    language_code = models.CharField(max_length=2, blank=True, null=True)  # information provided by Telegram
 
     categories = models.ManyToManyField(Category, blank=True, verbose_name="categorie")
 
@@ -148,13 +146,13 @@ class TelegramUser(models.Model):
                 result += '- ' + cat.name + '\n'
         return result
 
-    enabled = models.BooleanField(default=True, verbose_name="utente abilitato all'uso del bot")
+    enabled = models.BooleanField(default=True, verbose_name="utente abilitato all'uso del bot")  # user can be disabled by bot admins
 
     # when loading TelegramUser, use defer()
     # https://docs.djangoproject.com/en/2.2/ref/models/querysets/#defer
     #news_item_sent_to_user = models.ManyToManyField(NewsItemSentToUser, blank=True)
 
-    is_admin = models.BooleanField(default=False, verbose_name="amministratore del bot")
+    is_admin = models.BooleanField(default=False, verbose_name="amministratore del bot")  # is bot admin?
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -263,6 +261,8 @@ class NewsItem(models.Model):
     # if processed is true, this news item has already been sent to all users
     processed = models.BooleanField(default=False, editable=True, verbose_name="questa news è stata inviata agli utenti?")
     processed_timestamp = models.DateTimeField(blank=True, null=True, editable=False, verbose_name='data di elaborazione')
+
+    rss_id = models.CharField(max_length=256, blank=True, null=True, editable=False)  # used if news comes from rss feed
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
     updated_at = models.DateTimeField(auto_now=True)

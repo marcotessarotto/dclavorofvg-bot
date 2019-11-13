@@ -22,7 +22,7 @@ from src.telegram_bot.print_utils import my_print
 
 @benchmark_decorator
 def news_dispatcher(context: CallbackContext):
-    """news_dispatcher is called periodically by the bot's job_queue"""
+    """news_dispatcher is called periodically by the bot's job_queue to check if there are news item to send to users"""
     list_of_news = orm_get_fresh_news_to_send()
 
     # now = datetime.datetime.now()
