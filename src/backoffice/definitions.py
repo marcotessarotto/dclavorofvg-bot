@@ -152,6 +152,8 @@ UI_message_cheers = "Wow! Complimenti per l'età! :)"
 
 UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto \'{0}\' come livello studio.\n\n'
 
+UI_message_enter_your_educational_level = 'Ok, inserisci il tuo livello di studio'
+
 UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il tipo di news che vuoi ricevere.\n' \
                                                     'Per farlo, usa il comando /scegli.'
 

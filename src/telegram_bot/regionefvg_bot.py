@@ -25,7 +25,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 #
 global_bot_instance = None
 
-CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL = range(3)
+CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
 
 @debug_update
 @log_user_input
@@ -170,6 +170,10 @@ def callback_education_level(update, context):
 
     choice = update.callback_query.data
 
+    if choice == EDUCATIONAL_LEVELS[-1][0]:
+        update.callback_query.edit_message_text(UI_message_enter_your_educational_level)
+        return CALLBACK_CUSTOM_EDUCATIONAL_LEVEL
+
     for line in EDUCATIONAL_LEVELS:
         if line[0] == choice:
             el = line[1]
@@ -179,12 +183,42 @@ def callback_education_level(update, context):
 
     logger.info(f"callback_education_level:  {choice}")
 
-    update.callback_query.edit_message_text(
-        text=UI_message_you_have_provided_your_education_level.format(el) +
-             UI_message_now_you_can_choose_news_categories
+    update.callback_query.edit_message_text(UI_message_you_have_provided_your_education_level.format(el))
+    context.bot.send_message(
+        chat_id=update.callback_query.message.chat.id,
+        text=UI_message_now_you_can_choose_news_categories
     )
 
     orm_set_telegram_user_educational_level(telegram_user, choice)
+    return ConversationHandler.END
+
+
+def callback_custom_education_level(update, context):
+
+    choice = EDUCATIONAL_LEVELS[-1][0]
+    el = EDUCATIONAL_LEVELS[-1][1]
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+
+    # Change the models.py and the admin.py modules to register a custom educational level
+    custom_education_level = update.message.text
+
+    logger.info(f"callback_education_level:  {choice}")
+
+    context.bot.send_message(
+        chat_id=update.message.chat.id,
+        text=UI_message_you_have_provided_your_education_level.format(custom_education_level))
+    context.bot.send_message(
+        chat_id=update.message.chat.id,
+        text=UI_message_now_you_can_choose_news_categories
+    )
+
+    orm_set_telegram_user_educational_level(telegram_user, choice)
+    return ConversationHandler.END
+
+
+def fallback_conv_handler(update, context):
+    """ Called when the conversation handler has not the input it was waiting for """
+
     return ConversationHandler.END
 
 
@@ -789,9 +823,10 @@ def main():
         states={
             CALLBACK_PRIVACY: [CallbackQueryHandler(callback_privacy)],
             CALLBACK_AGE: [MessageHandler(Filters.text, callback_age)],
-            CALLBACK_EDUCATIONAL_LEVEL: [CallbackQueryHandler(callback_education_level)]
+            CALLBACK_EDUCATIONAL_LEVEL: [CallbackQueryHandler(callback_education_level)],
+            CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_custom_education_level)]
         },
-        fallbacks=[]
+        fallbacks=[MessageHandler(Filters.text, fallback_conv_handler)]
     )
     dp.add_handler(conv_handler)
 
