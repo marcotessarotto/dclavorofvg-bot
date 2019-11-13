@@ -17,7 +17,7 @@ from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disa
 from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
-from telegram.ext import messagequeue as mq, Updater, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import messagequeue as mq, Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
@@ -25,6 +25,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 #
 global_bot_instance = None
 
+CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL = range(3)
 
 @debug_update
 @log_user_input
@@ -50,6 +51,153 @@ def start_command_handler(update, context):
         # privacy not yet approved by user
         return privacy_command_handler(update, context)
 
+    return ConversationHandler.END
+
+
+def privacy_command_handler(update, context):
+    """ Ask user to accept privacy rules, if they were not yet accepted """
+
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+    privacy_state = telegram_user.has_accepted_privacy_rules
+
+    logger.info(f"privacy_command_handler - user id={telegram_user.id} privacy accepted: {privacy_state}")
+
+    if not privacy_state:
+
+        buttons = [[
+            InlineKeyboardButton(text=UI_ACCEPT_UC, callback_data=f'{UI_ACCEPT_UC}'),
+            InlineKeyboardButton(text=UI_NOT_ACCEPT_UC, callback_data=f'{UI_NOT_ACCEPT_UC}')
+            ]]
+
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=UI_message_read_and_accept_privacy_rules_as_follows + orm_get_system_parameter(UI_PRIVACY),
+            reply_markup=InlineKeyboardMarkup(buttons)
+        )
+
+        return CALLBACK_PRIVACY
+
+    # https://stackoverflow.com/a/17311079/974287
+    update.message.reply_text(
+        text=UI_message_you_have_accepted_privacy_rules_on_this_day +
+             telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR) + '\n' +
+             orm_get_system_parameter(UI_PRIVACY),
+        parse_mode='HTML'
+    )
+
+    return ConversationHandler.END
+
+
+def callback_privacy(update, context):
+    # if DEBUG_MSG:
+    #     logger.info("callback_privacy update:")
+    #     my_print(update, 4, logger)
+
+    choice = update.callback_query.data
+    telegram_user_id = update.callback_query.from_user.id
+
+    if choice == UI_ACCEPT_UC:
+        privacy_setting = True
+    else:
+        privacy_setting = False
+
+    orm_change_user_privacy_setting(telegram_user_id, privacy_setting)
+
+    if privacy_setting:
+        # message and buttons are replaced by this text
+        update.callback_query.edit_message_text(
+            UI_message_thank_you_for_accepting_privacy_rules,  # + orm_get_system_parameter(UI_bot_help_message)
+            parse_mode='HTML'
+        )
+
+        ask_age(update, context)
+        return CALLBACK_AGE
+    else:
+        update.callback_query.edit_message_text(
+            text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue
+        )
+
+        return ConversationHandler.END
+
+
+def ask_age(update, context):
+    """ Ask user to enter the age """
+
+    context.bot.send_message(
+        chat_id=update.callback_query.message.chat.id,
+        text=UI_message_what_is_your_age,
+        parse_mode='HTML',
+    )
+    return
+
+
+def callback_age(update, context):
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+    message_text = update.message.text
+
+    age = orm_parse_user_age(telegram_user, message_text)
+    if age >= 80:
+        update.message.reply_text(
+            UI_message_cheers,
+            parse_mode='HTML'
+        )
+
+    # now ask educational level
+    ask_educational_level(update, context)
+    return CALLBACK_EDUCATIONAL_LEVEL
+
+
+def ask_educational_level(update, context):
+    """ Ask user to select the educational level in a inline keyboard """
+
+    keyboard = []
+
+    for row in EDUCATIONAL_LEVELS:
+        keyboard.append([InlineKeyboardButton(
+            text=row[1],
+            callback_data=f'{row[0]}')]
+        )
+
+    context.bot.send_message(
+        chat_id=update.message.chat.id,
+        text=UI_message_what_is_your_educational_level,
+        parse_mode='HTML',
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+
+def callback_education_level(update, context):
+
+    choice = update.callback_query.data
+
+    for line in EDUCATIONAL_LEVELS:
+        if line[0] == choice:
+            el = line[1]
+            break
+
+    telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
+
+    logger.info(f"callback_education_level:  {choice}")
+
+    update.callback_query.edit_message_text(
+        text=UI_message_you_have_provided_your_education_level.format(el) +
+             UI_message_now_you_can_choose_news_categories
+    )
+
+    orm_set_telegram_user_educational_level(telegram_user, choice)
+    return ConversationHandler.END
+
+
+def undo_privacy_command_handler(update, context):
+    orm_change_user_privacy_setting(update.message.from_user.id, False)
+
+    logger.info(f"undo_privacy_command_handler - telegram user id={update.message.from_user.id}")
+
+    update.message.reply_text(
+        UI_message_your_privacy_acceptance_has_been_deleted,
+        parse_mode='HTML'
+    )
+
 
 def help_command_handler(update, context):
     """ Show available bot commands"""
@@ -73,115 +221,6 @@ def help_categories_command_handler(update, context):
     )
 
 
-def privacy_command_handler(update, context):
-    telegram_user = orm_get_telegram_user(update.message.from_user.id)
-
-    privacy_state = telegram_user.has_accepted_privacy_rules
-
-    logger.info(f"privacy_command_handler - user id={telegram_user.id} privacy accepted: {privacy_state}")
-
-    if not privacy_state:
-        #
-
-        buttons = [[InlineKeyboardButton(text=UI_ACCEPT_UC, callback_data=f'privacy {UI_ACCEPT_UC}'),
-                    InlineKeyboardButton(text=UI_NOT_ACCEPT_UC, callback_data=f'privacy {UI_NOT_ACCEPT_UC}')]
-                   ]
-
-        context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text=UI_message_read_and_accept_privacy_rules_as_follows + orm_get_system_parameter(UI_PRIVACY),
-            reply_markup=InlineKeyboardMarkup(buttons)
-        )
-
-        return
-
-    # https://stackoverflow.com/a/17311079/974287
-    update.message.reply_text(
-        UI_message_you_have_accepted_privacy_rules_on_this_day +
-        telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR) + '\n' +
-        orm_get_system_parameter(UI_PRIVACY),
-        parse_mode='HTML'
-    )
-
-
-def undo_privacy_command_handler(update, context):
-    orm_change_user_privacy_setting(update.message.from_user.id, False)
-
-    logger.info(f"undo_privacy_command_handler - telegram user id={update.message.from_user.id}")
-
-    update.message.reply_text(
-        UI_message_your_privacy_acceptance_has_been_deleted,
-        parse_mode='HTML'
-    )
-
-
-def ask_age(update, context):
-    # if DEBUG_MSG:
-    #     logger.info("ask_age update:")
-    #     my_print(update, 4, logger)
-
-    telegram_user_id = update.callback_query.from_user.id
-
-    context.bot.send_message(
-        chat_id=telegram_user_id,
-        text=UI_message_what_is_your_age,
-        parse_mode='HTML',
-    )
-
-    # instead of storing data in TelegramUser, we could use context.user_data:
-    # context.user_data['excepted_input'] = "age"
-
-    orm_set_telegram_user_expected_input(telegram_user_id, 'a')
-    return
-
-
-def ask_educational_level(update, context):
-    telegram_user_id = update.message.chat.id
-
-    keyboard = []
-
-    for row in EDUCATIONAL_LEVELS:
-        # logger.info(row)
-        keyboard.append([InlineKeyboardButton(
-            text=row[1],
-            callback_data=f'education_level {row[0]}')]
-        )
-
-    context.bot.send_message(
-        chat_id=telegram_user_id,
-        text=UI_message_what_is_your_educational_level,
-        parse_mode='HTML',
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
-
-
-def callback_privacy(update, context, param):
-    # if DEBUG_MSG:
-    #     logger.info("callback_privacy update:")
-    #     my_print(update, 4, logger)
-
-    telegram_user_id = update.callback_query.from_user.id
-
-    if param == UI_ACCEPT_UC:
-        privacy_setting = True
-    else:
-        privacy_setting = False
-
-    orm_change_user_privacy_setting(telegram_user_id, privacy_setting)
-
-    if privacy_setting:
-        # message and buttons are replaced by this text
-        update.callback_query.edit_message_text(
-            UI_message_thank_you_for_accepting_privacy_rules,  # + orm_get_system_parameter(UI_bot_help_message)
-            parse_mode='HTML'
-        )
-
-        ask_age(update, context)
-    else:
-        update.callback_query.edit_message_text(
-            text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue)
-
-
 def callback(update, context):
     """process callback data sent by inline_keyboards """
 
@@ -202,12 +241,6 @@ def callback(update, context):
 
     elif keyword == 'choice':  # Callback per la scelta delle categorie
         callback_choice(update, data[1])
-
-    elif keyword == 'privacy':
-        callback_privacy(update, context, data[1])
-
-    elif keyword == 'education_level':
-        callback_education_level(update, context, data[1])
 
 
 @log_user_input
@@ -277,39 +310,6 @@ def inline_keyboard(user):
     )
 
     return keyboard
-
-
-def callback_education_level(update, context, choice: str):
-    for line in EDUCATIONAL_LEVELS:
-        if line[0] == choice:
-            el = line[1]
-            break
-
-    telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
-
-    logger.info(f"callback_education_level:  {choice}  {el}")
-
-    update.callback_query.edit_message_text(
-        text=UI_message_you_have_provided_your_education_level.format(el) +
-             UI_message_now_you_can_choose_news_categories
-    )
-
-    orm_set_telegram_user_educational_level(telegram_user, choice)
-
-    return
-
-
-def callback_age(update, context, telegram_user, message_text):
-    age = orm_parse_user_age(telegram_user, message_text)
-
-    if age >= 80:
-        update.message.reply_text(
-            UI_message_cheers,
-            parse_mode='HTML'
-        )
-
-    # now ask educational level
-    ask_educational_level(update, context)
 
 
 @benchmark_decorator
@@ -779,21 +779,31 @@ def main():
     logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
     job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=0)  # callback_minute
 
+    conv_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler(UI_PRIVACY_COMMAND, privacy_command_handler),
+            CommandHandler(UI_START_COMMAND, start_command_handler),
+            CommandHandler(UI_START_COMMAND_ALT, start_command_handler)
+        ],
+        states={
+            CALLBACK_PRIVACY: [CallbackQueryHandler(callback_privacy)],
+            CALLBACK_AGE: [MessageHandler(Filters.text, callback_age)],
+            CALLBACK_EDUCATIONAL_LEVEL: [CallbackQueryHandler(callback_education_level)]
+        },
+        fallbacks=[]
+    )
+    dp.add_handler(conv_handler)
+
     # Handler per servire TUTTE le inline_keyboard
     dp.add_handler(CallbackQueryHandler(callback))
 
     # Aggiunta dei vari handler
-    dp.add_handler(CommandHandler(UI_START_COMMAND, start_command_handler))
-
-    if UI_START_COMMAND_ALT is not None:
-        dp.add_handler(CommandHandler(UI_START_COMMAND_ALT, start_command_handler))
 
     dp.add_handler(CommandHandler(UI_HELP_COMMAND, help_command_handler))
 
     if UI_HELP_COMMAND_ALT is not None:
         dp.add_handler(CommandHandler(UI_HELP_COMMAND_ALT, help_command_handler))
 
-    dp.add_handler(CommandHandler(UI_PRIVACY_COMMAND, privacy_command_handler))
     dp.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
 
     # these are 'standard' commands (add all categories / remove all categories)
