@@ -38,7 +38,7 @@ def start_command_handler(update, context):
     telegram_user = orm_add_telegram_user(update.message.from_user)
 
     if check_if_user_is_disabled(telegram_user, update, context):
-        return
+        return ConversationHandler.END
 
     bot_presentation = orm_get_system_parameter(UI_bot_presentation)
 
@@ -779,6 +779,7 @@ def main():
     logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
     job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=0)  # callback_minute
 
+    # Handler to start user iteration
     conv_handler = ConversationHandler(
         entry_points=[
             CommandHandler(UI_PRIVACY_COMMAND, privacy_command_handler),
@@ -794,34 +795,29 @@ def main():
     )
     dp.add_handler(conv_handler)
 
-    # Handler per servire TUTTE le inline_keyboard
+    # Handler to serve categories, feedbacks and comments inline keboards
     dp.add_handler(CallbackQueryHandler(callback))
 
-    # Aggiunta dei vari handler
-
+    # Other handlers
     dp.add_handler(CommandHandler(UI_HELP_COMMAND, help_command_handler))
-
     if UI_HELP_COMMAND_ALT is not None:
         dp.add_handler(CommandHandler(UI_HELP_COMMAND_ALT, help_command_handler))
 
     dp.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
 
-    # these are 'standard' commands (add all categories / remove all categories)
+    # These are 'standard' commands (add all categories / remove all categories)
     dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, set_all_categories_command_handler))
     dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, set_no_categories_command_handler))
 
     dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
 
-    # Handlers per la sezione INVIO NEWS
     dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news_command_handler))
     dp.add_handler(MessageHandler(Filters.reply, comment_handler))
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
-    # Handlers per la sezione SCELTA CATEGORIE
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
-    dp.add_handler(
-        MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
+    dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
 
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
