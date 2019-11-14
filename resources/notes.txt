@@ -8,7 +8,7 @@ https://github.com/docker-solr/docker-solr/blob/master/README.md
 
 
 mkdir /opt/bot/solr
-docker run -d -it --name bot_solr  --mount type=bind,source=/opt/bot/solr,target=/var/solr -u 1000:1000  -p 8983:8983 solr solr-precreate bot_core
+docker run -d -it --restart always  --name bot_solr  --mount type=bind,source=/opt/bot/solr,target=/var/solr -u 1000:1000  -p 8983:8983 solr solr-precreate bot_core
 
 
 docker start/stop bot_solr
