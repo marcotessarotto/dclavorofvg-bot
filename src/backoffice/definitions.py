@@ -148,12 +148,6 @@ UI_message_thank_you = 'Grazie!'
 
 UI_message_already_resent_news = 'Ti ho già rimandato le ultime notizie poco fa, scorri in alto per vederle. (il limite è di un invio di notizie al minuto)'
 
-UI_message_cheers = "Wow! Complimenti per l'età! :)"
-
-UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto \'{0}\' come livello studio.\n\n'
-
-UI_message_enter_your_educational_level = 'Ok, inserisci il tuo livello di studio'
-
 UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il tipo di news che vuoi ricevere.\n' \
                                                     'Per farlo, usa il comando /scegli.'
 
@@ -186,8 +180,12 @@ UI_message_receive_info_about_category = 'ricevi informazioni sulla categoria \'
 UI_message_no_matching_category_command = 'non capisco il comando! /aiuto per i comandi del bot.'
 
 UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?'
+UI_message_cheers = "Wow! Complimenti per l'età! :)"
+UI_message_you_have_provided_your_age = 'Grazie per l\'informazione!'
 
-UI_message_what_is_your_educational_level = 'Ancora una cosa: per fornirti un servizio migliore, ho bisogno di sapere il tuo titolo di studio più elevato:'
+UI_message_what_is_your_educational_level = 'Ancora una cosa: qual è il tuo titolo di studio più elevato?'
+UI_message_enter_custom_educational_level = 'Ok, inserisci il tuo livello di studio'
+UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto \'{0}\' come livello studio.\n\n'
 
 UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b>"
 

@@ -143,14 +143,15 @@ def ask_age(update, context):
 
 def callback_age(update, context):
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
-    message_text = update.message.text
+    age = update.message.text
 
-    age = orm_parse_user_age(telegram_user, message_text)
+    age = orm_parse_user_age(telegram_user, age)
     if age >= 80:
-        update.message.reply_text(
-            UI_message_cheers,
-            parse_mode='HTML'
-        )
+        reply_text = UI_message_cheers
+    else:
+        reply_text = UI_message_you_have_provided_your_age
+
+    update.message.reply_text(reply_text)
 
     # now ask educational level
     ask_educational_level(update, context)
@@ -162,44 +163,46 @@ def ask_educational_level(update, context):
 
     keyboard = []
     for row in EDUCATIONAL_LEVELS:
-        keyboard.append(text=row[1],)
+        keyboard.append([row[1]])
 
     context.bot.send_message(
         chat_id=update.message.chat.id,
         text=UI_message_what_is_your_educational_level,
         parse_mode='HTML',
-        reply_markup=ReplyKeyboardMarkup([keyboard])
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=keyboard,
+            resize_keyboard=True,
+            one_time_keyboard=True
+        )
     )
 
 
 def callback_education_level(update, context):
 
-    choice = update.message.data
+    choice = update.message.text
 
-    if choice == EDUCATIONAL_LEVELS[-1][0]:
-        update.callback_query.edit_message_text(UI_message_enter_your_educational_level)
+    if choice == EDUCATIONAL_LEVELS[-1][1]:
+        update.message.reply_text(UI_message_enter_custom_educational_level)
         return CALLBACK_CUSTOM_EDUCATIONAL_LEVEL
 
     for line in EDUCATIONAL_LEVELS:
-        if line[0] == choice:
-            el = line[1]
+        if line[1] == choice:
+            el = line[0]
             break
 
-    telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
+    telegram_user = orm_get_telegram_user(update.message.from_user.id)
 
-    logger.info(f"callback_education_level:  {choice}")
+    logger.info(f"callback_education_level:  {choice} {el}")
 
-    update.callback_query.edit_message_text(UI_message_you_have_provided_your_education_level.format(el))
-    context.bot.send_message(
-        chat_id=update.callback_query.message.chat.id,
-        text=UI_message_now_you_can_choose_news_categories
-    )
+    update.message.reply_text(UI_message_you_have_provided_your_education_level.format(choice))
+    update.message.reply_text(UI_message_now_you_can_choose_news_categories)
 
-    orm_set_telegram_user_educational_level(telegram_user, choice)
+    orm_set_telegram_user_educational_level(telegram_user, el)
     return ConversationHandler.END
 
 
 def callback_custom_education_level(update, context):
+    """ Read the custom education level """
 
     choice = EDUCATIONAL_LEVELS[-1][0]
     el = EDUCATIONAL_LEVELS[-1][1]
@@ -210,13 +213,8 @@ def callback_custom_education_level(update, context):
 
     logger.info(f"callback_education_level:  {choice}")
 
-    context.bot.send_message(
-        chat_id=update.message.chat.id,
-        text=UI_message_you_have_provided_your_education_level.format(custom_education_level))
-    context.bot.send_message(
-        chat_id=update.message.chat.id,
-        text=UI_message_now_you_can_choose_news_categories
-    )
+    update.message.reply_text(UI_message_you_have_provided_your_education_level.format(custom_education_level))
+    update.message.reply_text(UI_message_now_you_can_choose_news_categories)
 
     orm_set_telegram_user_educational_level(telegram_user, choice)
     return ConversationHandler.END
@@ -829,7 +827,7 @@ def main():
         states={
             CALLBACK_PRIVACY: [MessageHandler(Filters.text, callback_privacy)],
             CALLBACK_AGE: [MessageHandler(Filters.text, callback_age)],
-            CALLBACK_EDUCATIONAL_LEVEL: [CallbackQueryHandler(callback_education_level)],
+            CALLBACK_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_education_level)],
             CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_custom_education_level)]
         },
         fallbacks=[
