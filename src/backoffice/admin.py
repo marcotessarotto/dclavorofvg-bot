@@ -103,7 +103,7 @@ class FeedbackToNewsItemAdmin(admin.ModelAdmin):
 admin.site.register(NewsFile)
 
 
-@admin.register(CommandsFromUser)
+@admin.register(LogUserInteraction)
 class CommandsFromUserAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'coming_from_user', 'created_at', 'text')
     search_fields = ('user_id', )

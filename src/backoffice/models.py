@@ -12,6 +12,9 @@ class CustomDateTimeField(models.DateTimeField):
         return ''
 
 
+APP_LABEL = "backoffice"  # DO NOT MODIFY
+
+
 # ****************************************************************************************
 class Category(models.Model):
     """ Classe CATEGORY: rappresenta le informazioni legate alle categorie """
@@ -27,9 +30,9 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Categoria'
-        verbose_name_plural = 'Categorie'
-        app_label = 'backoffice'
+        verbose_name = UI_category
+        verbose_name_plural = UI_categories
+        app_label = APP_LABEL
 
     def __str__(self):
         return UI_message_category + str(self.key) + ' (' + \
@@ -63,9 +66,9 @@ class CategoriesGroup(models.Model):
     add_bot_command = models.BooleanField(default=True, verbose_name="aggiungi automaticamente comando bot con stesso nome")
 
     class Meta:
-        verbose_name = 'Gruppo di categorie'
-        verbose_name_plural = 'Gruppi di categorie'
-        app_label = 'backoffice'
+        verbose_name = UI_group_of_categories
+        verbose_name_plural = UI_groups_of_categories
+        app_label = APP_LABEL
 
     def __str__(self):
         return str(self.id) + " " + self.name + " (" + str(self.categories) + ")"
@@ -83,9 +86,9 @@ class NewsItemSentToUser(models.Model):
                               "news_id=" + str(self.news_item.id) + ", flags=" + str(self.flags) + " sent=" + self.created_at.strftime("%d/%m/%y")
 
     class Meta:
-        verbose_name = 'NewsItemSentToUser'
-        verbose_name_plural = 'NewsItemSentToUser'
-        app_label = 'backoffice'
+        verbose_name = UI_log_of_news_sent_to_users
+        verbose_name_plural = UI_log_of_news_sent_to_users
+        app_label = APP_LABEL
 
 
 # ****************************************************************************************
@@ -161,8 +164,8 @@ class TelegramUser(models.Model):
         return dict(EDUCATIONAL_LEVELS)[self.educational_level]
 
     class Meta:
-        verbose_name = "Utente Telegram"
-        verbose_name_plural = "Utenti Telegram"
+        verbose_name = UI_telegram_user
+        verbose_name_plural = UI_telegram_users
         app_label = "backoffice"
 
     def __str__(self):
@@ -180,8 +183,8 @@ class UserFreeText(models.Model):  #
         return 'UserFreeText ' + str(self.telegram_user.user_id) + ' : ' + self.text
 
     class Meta:
-        verbose_name = "frasi libere"
-        verbose_name_plural = "frasi libere degli Utenti Telegram"
+        verbose_name = UI_free_sentences
+        verbose_name_plural = UI_free_sentences_of_telegram_users
         app_label = "backoffice"
 
 
@@ -215,11 +218,11 @@ class NewsFile(models.Model):
 
     class Meta:
         app_label = "backoffice"
-        verbose_name = "Files per News"
-        verbose_name_plural = "Files per News"
+        verbose_name = UI_files_for_news
+        verbose_name_plural = UI_files_for_news
 
     def __str__(self):
-        return "" + str(self.id) + ": " + self.file_field.name + ", caricato il " + self.upload_date.strftime(
+        return "" + str(self.id) + " : " + self.file_field.name + "" + self.upload_date.strftime(
             "%d/%m/%y")
 
 
@@ -268,8 +271,8 @@ class NewsItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "News"
-        verbose_name_plural = "News"
+        verbose_name = UI_news
+        verbose_name_plural = UI_news_plural
         app_label = "backoffice"
 
     def __str__(self):
@@ -286,8 +289,8 @@ class FeedbackToNewsItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "FeedbackToNewsItem"
-        verbose_name_plural = "FeedbackToNewsItem"
+        verbose_name = UI_feedback_to_news
+        verbose_name_plural = UI_feedback_to_news
         app_label = "backoffice"
 
 
@@ -302,8 +305,8 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Commento"
-        verbose_name_plural = "Commenti"
+        verbose_name = UI_comment_to_news
+        verbose_name_plural = UI_comment_to_news_plural
         app_label = "backoffice"
 
     def __str__(self):
@@ -312,7 +315,7 @@ class Comment(models.Model):
                str(self.user)
 
 
-class CommandsFromUser(models.Model):
+class LogUserInteraction(models.Model):  # was CommandsFromUser
     # telegramUser = models.ForeignKey(TelegramUser, on_delete=models.PROTECT)
     user_id = models.BigIntegerField(verbose_name="telegram user id", default=-1)  # Telegram used id
 
@@ -325,10 +328,12 @@ class CommandsFromUser(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        verbose_name = UI_log_of_interactions_between_bot_and_users
+        verbose_name_plural = UI_log_of_interactions_between_bot_and_users
         app_label = "backoffice"
 
     def __str__(self):
-        return f"CommandsFromUser: user_id={self.user_id} coming_from_user={self.coming_from_user}  {self.created_at}  {self.text}"
+        return f"LogUserInteraction: user_id={self.user_id} coming_from_user={self.coming_from_user}  {self.created_at}  {self.text}"
 
 
 # class UserActivityLog(models.Model):
@@ -386,8 +391,8 @@ class SystemParameter(models.Model):
         return True
 
     class Meta:
-        verbose_name = "Parametro di sistema"
-        verbose_name_plural = "Parametri di sistema"
+        verbose_name = UI_system_parameter
+        verbose_name_plural = UI_system_parameters
         app_label = "backoffice"
 
     def __str__(self):

@@ -42,7 +42,7 @@ def start_command_handler(update, context):
     bot_presentation = orm_get_system_parameter(UI_bot_presentation)
 
     update.message.reply_text(
-        f'Ciao {update.message.from_user.first_name}! {bot_presentation}'
+        f'{UI_HELLO} {update.message.from_user.first_name}! {bot_presentation}'
     )
 
     # if check_user_privacy_approval(telegram_user, update, context):

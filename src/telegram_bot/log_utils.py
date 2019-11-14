@@ -69,8 +69,8 @@ def log_user_input(func):  # https://github.com/python-telegram-bot/python-teleg
 
         text = update.message.text
 
-        from src.backoffice.models import CommandsFromUser
-        cfu = CommandsFromUser()
+        from src.backoffice.models import LogUserInteraction
+        cfu = LogUserInteraction()
         cfu.coming_from_user = True
         cfu.text = text
         cfu.user_id = user_id

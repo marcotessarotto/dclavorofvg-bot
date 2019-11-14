@@ -196,9 +196,39 @@ UI_message_request_for_news_item_feedback = "Ti è utile questa notizia?"
 UI_message_published_on = "pubblicata il"
 
 UI_news = "notizia"
+UI_news_plural = "notizie"
+
+UI_feedback_to_news = "Feedback alle notizie"
+
+UI_comment_to_news = "Commento a notizia"
+UI_comment_to_news_plural = "Commenti alle notizie"
+
+UI_files_for_news = "Files per le Notizie"
+
+UI_free_sentences = "frasi libere"
+UI_free_sentences_of_telegram_users = "frasi libere degli utenti"
+
+UI_telegram_user = "Utente Telegram"
+UI_telegram_users = "Utenti Telegram"
+
+UI_system_parameter = "Parametro di sistema"
+UI_system_parameters = "Parametri di sistema"
+
+UI_log_of_interactions_between_bot_and_users = "Log degli scambi tra bot ed utenti"
+
+UI_category = 'Categoria'
+UI_categories = 'Categorie'
+
+UI_group_of_categories = 'Gruppo di categorie'
+UI_groups_of_categories = 'Gruppi di categorie'
+
+UI_log_of_news_sent_to_users = 'Log delle notizie inviate agli utenti'
+
 
 UI_OK = 'OK'
 UI_NO = 'No'
+
+UI_HELLO = "Ciao"
 
 CALLBACK_INTERNSHIP_OK = 'internship ' + UI_OK
 CALLBACK_INTERNSHIP_NO = 'internship ' + UI_NO
