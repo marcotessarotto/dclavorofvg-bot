@@ -105,9 +105,9 @@ UI_message_category = "categoria "
 UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori del bot."
 
 UI_message_read_and_accept_privacy_rules_as_follows = "Per proseguire con l'utilizzo di questo bot, " \
-                 "è necessario che tu legga ed accetti il regolamento sulla privacy qui di seguito riportato:\n"
+                 "è necessario che tu legga ed accetti il regolamento sulla privacy qui riportato:\n\n"
 
-UI_message_accept_privacy_rules_to_continue = 'Prima di proseguire, devi accettare il regolamento per la /privacy di questo bot.\n' \
+UI_message_accept_privacy_rules_to_continue = 'Prima di proseguire, devi accettare il regolamento per la privacy di questo bot.\n' \
             'Usa il comando /privacy per visualizzare il regolamento.'
 
 UI_message_you_have_accepted_privacy_rules_on_this_day = 'hai accettato il regolamento della privacy di questo bot in data '

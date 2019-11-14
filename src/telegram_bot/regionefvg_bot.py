@@ -5,8 +5,12 @@ from src.telegram_bot.log_utils import main_logger as logger, log_user_input, de
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 from src.telegram_bot.print_utils import my_print
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
-    ChatAction
+from telegram import (
+    InlineKeyboardButton, InlineKeyboardMarkup,
+    KeyboardButton, ReplyKeyboardMarkup,
+    ForceReply,
+    Bot,
+    ChatAction)
 
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id
@@ -64,15 +68,14 @@ def privacy_command_handler(update, context):
 
     if not privacy_state:
 
-        buttons = [[
-            InlineKeyboardButton(text=UI_ACCEPT_UC, callback_data=f'{UI_ACCEPT_UC}'),
-            InlineKeyboardButton(text=UI_NOT_ACCEPT_UC, callback_data=f'{UI_NOT_ACCEPT_UC}')
-            ]]
-
         context.bot.send_message(
             chat_id=update.message.chat_id,
             text=UI_message_read_and_accept_privacy_rules_as_follows + orm_get_system_parameter(UI_PRIVACY),
-            reply_markup=InlineKeyboardMarkup(buttons)
+            reply_markup=ReplyKeyboardMarkup(
+                keyboard=[[UI_ACCEPT_UC, UI_NOT_ACCEPT_UC]],
+                resize_keyboard=True,
+                one_time_keyboard=True
+            )
         )
 
         return CALLBACK_PRIVACY
@@ -93,27 +96,34 @@ def callback_privacy(update, context):
     #     logger.info("callback_privacy update:")
     #     my_print(update, 4, logger)
 
-    choice = update.callback_query.data
-    telegram_user_id = update.callback_query.from_user.id
+    choice = update.message.text
 
     if choice == UI_ACCEPT_UC:
         privacy_setting = True
-    else:
+    elif choice == UI_NOT_ACCEPT_UC:
         privacy_setting = False
+    else:
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=f'I valori accettati sono {UI_ACCEPT_UC} e {UI_NOT_ACCEPT_UC}'
+        )
+        return CALLBACK_PRIVACY
 
+    telegram_user_id = update.message.from_user.id
     orm_change_user_privacy_setting(telegram_user_id, privacy_setting)
 
     if privacy_setting:
-        # message and buttons are replaced by this text
-        update.callback_query.edit_message_text(
-            UI_message_thank_you_for_accepting_privacy_rules,  # + orm_get_system_parameter(UI_bot_help_message)
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text=UI_message_thank_you_for_accepting_privacy_rules,
             parse_mode='HTML'
         )
 
         ask_age(update, context)
         return CALLBACK_AGE
     else:
-        update.callback_query.edit_message_text(
+        context.bot.send_message(
+            chat_id=update.message.chat_id,
             text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue
         )
 
@@ -124,7 +134,7 @@ def ask_age(update, context):
     """ Ask user to enter the age """
 
     context.bot.send_message(
-        chat_id=update.callback_query.message.chat.id,
+        chat_id=update.message.chat_id,
         text=UI_message_what_is_your_age,
         parse_mode='HTML',
     )
@@ -148,27 +158,23 @@ def callback_age(update, context):
 
 
 def ask_educational_level(update, context):
-    """ Ask user to select the educational level in a inline keyboard """
+    """ Ask user to select the educational level """
 
     keyboard = []
-
     for row in EDUCATIONAL_LEVELS:
-        keyboard.append([InlineKeyboardButton(
-            text=row[1],
-            callback_data=f'{row[0]}')]
-        )
+        keyboard.append(text=row[1],)
 
     context.bot.send_message(
         chat_id=update.message.chat.id,
         text=UI_message_what_is_your_educational_level,
         parse_mode='HTML',
-        reply_markup=InlineKeyboardMarkup(keyboard)
+        reply_markup=ReplyKeyboardMarkup([keyboard])
     )
 
 
 def callback_education_level(update, context):
 
-    choice = update.callback_query.data
+    choice = update.message.data
 
     if choice == EDUCATIONAL_LEVELS[-1][0]:
         update.callback_query.edit_message_text(UI_message_enter_your_educational_level)
@@ -216,9 +222,10 @@ def callback_custom_education_level(update, context):
     return ConversationHandler.END
 
 
-def fallback_conv_handler(update, context):
-    """ Called when the conversation handler has not the input it was waiting for """
+def fallback_conversation_handler(update, context):
 
+    text = update.message.text
+    logger.info(f'fallback_conversation_handler {text}')
     return ConversationHandler.END
 
 
@@ -480,8 +487,7 @@ def resend_last_processed_news_command_handler(update, context, telegram_user_id
     lrn = context.user_data.get('last_resend_news_timestamp')
 
     # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - timedelta(minutes=1):
-    if lrn is not None and lrn > now - timedelta(
-            minutes=1):
+    if lrn is not None and lrn > now - timedelta(minutes=1):
         logger.warning("resend_last_processed_news: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
@@ -821,12 +827,14 @@ def main():
             CommandHandler(UI_START_COMMAND_ALT, start_command_handler)
         ],
         states={
-            CALLBACK_PRIVACY: [CallbackQueryHandler(callback_privacy)],
+            CALLBACK_PRIVACY: [MessageHandler(Filters.text, callback_privacy)],
             CALLBACK_AGE: [MessageHandler(Filters.text, callback_age)],
             CALLBACK_EDUCATIONAL_LEVEL: [CallbackQueryHandler(callback_education_level)],
             CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_custom_education_level)]
         },
-        fallbacks=[MessageHandler(Filters.text, fallback_conv_handler)]
+        fallbacks=[
+            MessageHandler(Filters.all, fallback_conversation_handler)
+        ]
     )
     dp.add_handler(conv_handler)
 
