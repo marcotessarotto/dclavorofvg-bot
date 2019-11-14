@@ -105,7 +105,12 @@ def callback_privacy(update, context):
     else:
         context.bot.send_message(
             chat_id=update.message.chat_id,
-            text=f'I valori accettati sono {UI_ACCEPT_UC} e {UI_NOT_ACCEPT_UC}'
+            text=UI_message_error_accepting_privacy_rules.format(UI_ACCEPT_UC, UI_NOT_ACCEPT_UC),
+            reply_markup=ReplyKeyboardMarkup(
+                keyboard=[[UI_ACCEPT_UC, UI_NOT_ACCEPT_UC]],
+                resize_keyboard=True,
+                one_time_keyboard=True
+            )
         )
         return CALLBACK_PRIVACY
 
@@ -113,31 +118,19 @@ def callback_privacy(update, context):
     orm_change_user_privacy_setting(telegram_user_id, privacy_setting)
 
     if privacy_setting:
-        context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text=UI_message_thank_you_for_accepting_privacy_rules,
-            parse_mode='HTML'
-        )
+        update.message.reply_text(UI_message_thank_you_for_accepting_privacy_rules)
 
         ask_age(update, context)
         return CALLBACK_AGE
     else:
-        context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text=UI_message_you_have_not_accepted_privacy_rules_cannot_continue
-        )
-
+        update.message.reply_text(UI_message_you_have_not_accepted_privacy_rules_cannot_continue)
         return ConversationHandler.END
 
 
 def ask_age(update, context):
     """ Ask user to enter the age """
 
-    context.bot.send_message(
-        chat_id=update.message.chat_id,
-        text=UI_message_what_is_your_age,
-        parse_mode='HTML',
-    )
+    update.message.reply_text(UI_message_what_is_your_age)
     return
 
 
@@ -194,7 +187,10 @@ def callback_education_level(update, context):
 
     logger.info(f"callback_education_level:  {choice} {el}")
 
-    update.message.reply_text(UI_message_you_have_provided_your_education_level.format(choice))
+    update.message.reply_text(
+        text=UI_message_you_have_provided_your_education_level.format(choice),
+        parse_mode='HTML'
+    )
     update.message.reply_text(UI_message_now_you_can_choose_news_categories)
 
     orm_set_telegram_user_educational_level(telegram_user, el)

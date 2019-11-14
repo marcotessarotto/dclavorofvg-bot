@@ -177,7 +177,9 @@ UI_message_custom_settings_modified_false = 'NON riceverai le news su {0}'
 
 UI_message_receive_info_about_category = 'ricevi informazioni sulla categoria \'{0}\''
 
-UI_message_no_matching_category_command = 'non capisco il comando! /aiuto per i comandi del bot.'
+UI_message_no_matching_category_command = 'Non capisco il comando! /aiuto per i comandi del bot.'
+
+UI_message_error_accepting_privacy_rules = "Puoi inserire solo \'{0}\' oppure \'{1}\':"
 
 UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di sapere la tua età.\nQuanti anni hai?'
 UI_message_cheers = "Wow! Complimenti per l'età! :)"
@@ -185,7 +187,7 @@ UI_message_you_have_provided_your_age = 'Grazie per l\'informazione!'
 
 UI_message_what_is_your_educational_level = 'Ancora una cosa: qual è il tuo titolo di studio più elevato?'
 UI_message_enter_custom_educational_level = 'Ok, inserisci il tuo livello di studio'
-UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto \'{0}\' come livello studio.\n\n'
+UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto <i>{0}</i> come livello studio.\n\n'
 
 UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b>"
 
