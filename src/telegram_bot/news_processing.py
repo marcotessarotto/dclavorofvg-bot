@@ -210,7 +210,7 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
             if number_of_words < 0:
                 number_of_words = 30
 
-            body_html_content = str(" ".join(text[:number_of_words]))
+            body_html_content = str(" ".join(text[:number_of_words])) + "..."
 
     # optional link
     if news_item.link is not None:
