@@ -155,8 +155,17 @@ def ask_educational_level(update, context):
     """ Ask user to select the educational level """
 
     keyboard = []
+
+    k_row = []
     for row in EDUCATIONAL_LEVELS:
-        keyboard.append([row[1]])
+        if len(k_row) == 2:
+            keyboard.append(k_row)
+            k_row = []
+        k_row.append(row[1])
+    if len(k_row) > 0:
+        keyboard.append(k_row)
+
+    print(keyboard)
 
     context.bot.send_message(
         chat_id=update.message.chat.id,
