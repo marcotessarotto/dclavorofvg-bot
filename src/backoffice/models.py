@@ -199,8 +199,6 @@ class RssFeedItem(models.Model):
     processed = models.BooleanField(default=False, editable=True,
                                     verbose_name="trasformato in news")
 
-    # html_content = models.CharField(max_length=2048, blank=True, null=True)
-
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
 
     def __str__(self):

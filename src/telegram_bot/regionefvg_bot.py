@@ -503,14 +503,19 @@ def resend_last_processed_news_command_handler(update, context, telegram_user_id
 
 @log_user_input
 @standard_user_checks
-def debug_command_handler(update, context, telegram_user_id, telegram_user):
+def force_send_news_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
 
-    # debug only
-    logger.info("debug_command_handler")
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text="ok admin, starting news dispatcher...",
+        parse_mode='HTML'
+    )
+
+    logger.info("force_send_news_command_handler")
     news_dispatcher(context)
-    pass
 
 
 @log_user_input
@@ -541,12 +546,6 @@ def debug3_command_handler(update, context, telegram_user_id, telegram_user):
     m = context.bot.send_photo(telegram_user_id, file_id if file_id is not None else open(fp, 'rb'))
 
     _lookup_file_id_in_message(m, fp, file_id)
-
-    # if DEBUG_MSG:
-    #     print("debug3_command_handler message:")
-    #     # my_print(m, 4)
-    #     print(m)
-    #     print(m.photo)
 
 
 @log_user_input
@@ -769,9 +768,7 @@ def main():
     global global_bot_instance
     global_bot_instance = my_bot
 
-    # upd = telegram.ext.updater.Updater(bot=testbot)
-
-    updater = Updater(bot=my_bot, use_context=True)  # removed: token=token
+    updater = Updater(bot=my_bot, use_context=True)
     dp = updater.dispatcher
 
     job_queue = updater.job_queue
@@ -815,7 +812,7 @@ def main():
 
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
-    dp.add_handler(CommandHandler(UI_DEBUG_COMMAND, debug_command_handler))
+    dp.add_handler(CommandHandler(UI_FORCE_SEND_NEWS_COMMAND, force_send_news_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
     dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, debug_sendnews_command_handler))
@@ -827,10 +824,10 @@ def main():
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
     dp.add_error_handler(error_callback)
 
-    # Avvio l'updater
+    # start updater
     updater.start_polling()
 
-    # Arresta il bot in caso sia stato premuto Ctrl+C o il processo abbia ricevuto SIGINT, SIGTERM o SIGABRT
+    # Stop the bot if you have pressed Ctrl + C or the process has received SIGINT, SIGTERM or SIGABRT
     updater.idle()
 
     logger.info("terminating bot")

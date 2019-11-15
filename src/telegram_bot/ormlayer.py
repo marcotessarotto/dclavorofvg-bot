@@ -339,8 +339,8 @@ def orm_get_all_telegram_users():
 
 
 _skip_list = [UI_HELP_COMMAND, UI_START_COMMAND, UI_HELP_COMMAND_ALT, UI_START_COMMAND_ALT, UI_PRIVACY_COMMAND,
-                                           UI_ME_COMMAND, UI_RESEND_LAST_NEWS_COMMAND, UI_CHOOSE_CATEGORIES_COMMAND,
-                                           UI_DEBUG_COMMAND]
+              UI_ME_COMMAND, UI_RESEND_LAST_NEWS_COMMAND, UI_CHOOSE_CATEGORIES_COMMAND,
+              UI_FORCE_SEND_NEWS_COMMAND]
 
 
 def orm_get_categories_valid_command():
@@ -509,11 +509,6 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
         #     continue
 
         html_content = get_content_from_regionefvg_news(rss_feed_item.rss_link)
-
-        # logger.info("****")
-        # logger.info(rss_feed_item.rss_link)
-        # logger.info(html_content)
-        # logger.info("++++")
 
         news_item = NewsItem()
         news_item.title_link = rss_feed_item.rss_link
