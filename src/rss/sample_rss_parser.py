@@ -5,6 +5,7 @@ import feedparser
 from src.rss.scraping_utils import get_content_from_regionefvg_news
 
 url = "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/570.html"
+url ="http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/560.html"
 
 
 results = get_content_from_regionefvg_news(url)
@@ -30,12 +31,12 @@ def get_feed_entries_from_url(url):
     # print (feed)
 
     for item in feed.entries:
-        print(item)
-        print(item["title"])
-        print(item["title_detail"])
+        # print(item)
+        # print(item["title"])
+        # print(item["title_detail"])
         print(item["link"])
-        print(item["id"])
-        print(item["updated_parsed"])
+        # print(item["id"])
+        # print(item["updated_parsed"])
 
         url = item["link"]
 
