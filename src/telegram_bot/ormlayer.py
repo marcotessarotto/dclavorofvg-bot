@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from django.utils.timezone import now
 from django.core.cache import cache
 
+from src.rss.scraping_utils import get_content_from_regionefvg_news
 from src.telegram_bot.log_utils import orm_logger as logger, benchmark_decorator
 
 from src.backoffice.models import *
@@ -507,9 +508,17 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
         # if rss_feed_item.category is None:
         #     continue
 
+        html_content = get_content_from_regionefvg_news(rss_feed_item.rss_link)
+
+        # logger.info("****")
+        # logger.info(rss_feed_item.rss_link)
+        # logger.info(html_content)
+        # logger.info("++++")
+
         news_item = NewsItem()
         news_item.title_link = rss_feed_item.rss_link
         news_item.title = rss_feed_item.rss_title
+        news_item.text = str(html_content)[:2048]  # 2048 is size of html_content field in model RssFeedItem
         news_item.save()
 
         # news_item.categories.add(rss_feed_item.category)  # news_item needs to have a value for field "id" before this many-to-many relationship can be used.

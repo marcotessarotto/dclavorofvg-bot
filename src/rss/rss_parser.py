@@ -11,15 +11,16 @@ import django
 from src.telegram_bot.log_utils import rss_logger as logger
 
 
-try:
-    from ..backoffice.definitions import RSS_FEED
-except:
-    from src.backoffice.definitions import RSS_FEED
+# try:
+#     from ..backoffice.definitions import RSS_FEED
+# except:
+from src.backoffice.definitions import RSS_FEED
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
 django.setup()
 
-from src.backoffice.models import SystemParameter, NewsItem, Category
+from src.backoffice.models import SystemParameter
 
 
 def _orm_get_system_parameter(param_name):

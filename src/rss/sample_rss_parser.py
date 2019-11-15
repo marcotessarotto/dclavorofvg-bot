@@ -2,8 +2,26 @@ import datetime
 
 import feedparser
 
-a = datetime.datetime.now()
-print(a)
+from src.rss.scraping_utils import get_content_from_regionefvg_news
+
+url = "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/570.html"
+
+
+results = get_content_from_regionefvg_news(url)
+
+
+print("****")
+
+print(results)
+
+print("****")
+
+exit(0)
+
+#
+# a = datetime.datetime.now()
+# print(a)
+
 
 def get_feed_entries_from_url(url):
 
@@ -18,6 +36,13 @@ def get_feed_entries_from_url(url):
         print(item["link"])
         print(item["id"])
         print(item["updated_parsed"])
+
+        url = item["link"]
+
+        results = get_content_from_regionefvg_news(url)
+
+        if results is not None:
+            print("***CONTENT OK***")
 
     # if 'status' in feed:
     #     feed = manage_http_status(feed, url)
@@ -58,3 +83,28 @@ get_feed_entries_from_url(url2)
 	'updated_parsed': time.struct_time(tm_year = 2019, tm_mon = 10, tm_mday = 4, tm_hour = 9, tm_min = 0, tm_sec = 0, tm_wday = 4, tm_yday = 277, tm_isdst = 0)
 }
 """
+
+
+    # <div class="foglia-box-content">
+#
+# URL = "https://www.indeed.com/jobs?q=data+scientist+%2420%2C000&l=New+York&start=10"
+#
+# soup = BeautifulSoup(urllib.request.urlopen(URL).read(), 'html.parser')
+#
+# results = soup.find_all('div', attrs={'data-tn-component': 'organicJob'})
+#
+# for x in results:
+#
+#     company = x.find('span', attrs={"class":"company"})
+#     if company:
+#         print('company:', company.text.strip() )
+#
+#     job = x.find('a', attrs={'data-tn-element': "jobTitle"})
+#     if job:
+#         print('job:', job.text.strip())
+#
+#     salary = x.find('nobr')
+#     if salary:
+#         print('salary:', salary.text.strip())
+#
+#     print ('----------')

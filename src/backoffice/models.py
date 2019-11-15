@@ -199,6 +199,8 @@ class RssFeedItem(models.Model):
     processed = models.BooleanField(default=False, editable=True,
                                     verbose_name="trasformato in news")
 
+    # html_content = models.CharField(max_length=2048, blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
 
     def __str__(self):
@@ -282,7 +284,7 @@ class NewsItem(models.Model):
 
 
 class FeedbackToNewsItem(models.Model):
-    news = models.ForeignKey(NewsItem, on_delete=models.PROTECT, null=True)
+    news = models.ForeignKey(NewsItem, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(TelegramUser, on_delete=models.PROTECT, null=True)
     val = models.SmallIntegerField(default=0)
 
