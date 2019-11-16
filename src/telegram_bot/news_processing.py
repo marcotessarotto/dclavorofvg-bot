@@ -8,9 +8,15 @@ from src.gfvgbo.settings import MEDIA_ROOT
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 
-from src.backoffice.definitions import DATE_FORMAT_STR, UI_message_show_complete_news_item, UI_broadcast_message, \
-    SHOW_CATEGORIES_IN_NEWS, UI_message_news_item_category, \
-    UI_message_request_for_news_item_feedback, UI_news, UI_message_published_on
+from src.backoffice.definitions import (
+    DATE_FORMAT_STR,
+    UI_message_show_complete_news_item,
+    UI_broadcast_message,
+    SHOW_CATEGORIES_IN_NEWS,
+    UI_message_news_item_category,
+    UI_message_request_for_news_item_feedback,
+    UI_news,
+    UI_message_published_on)
 from src.backoffice.models import NewsItem, TelegramUser
 
 
@@ -62,7 +68,13 @@ def news_dispatcher(context: CallbackContext):
         news_item.save()
 
 
-def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _file_mime_type: str, caption=None):
+def _send_file_using_mime_type(
+        context,
+        _telegram_user_id: int,
+        _file_path,
+        _file_mime_type: str,
+        caption=None
+):
     if caption is None:
         caption = ''
 
@@ -129,8 +141,16 @@ def _send_file_using_mime_type(context, _telegram_user_id: int, _file_path, _fil
 
 
 @benchmark_decorator
-def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: TelegramUser, intersection_result=None, request_feedback=True,
-                               title_only=False, ask_comment=False, news_item_already_shown_to_user=False):
+def send_news_to_telegram_user(
+        context,
+        news_item: NewsItem,
+        telegram_user: TelegramUser,
+        intersection_result=None,
+        request_feedback=True,
+        title_only=False,
+        ask_comment=False,
+        news_item_already_shown_to_user=False
+):
     logger.info(
         f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
 
@@ -236,14 +256,12 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
         # example: uploads/2019/10/03/500px-Tux_chico.svg_VtRyDrN.png
 
         file_path = MEDIA_ROOT + news_item.file1.file_field.name
-
         logger.info(f"send_news_to_telegram_user - fs path of file1: {file_path}")
 
         file_mime_type = mimetypes.guess_type(file_path)[0]
+        logger.info(f"file1 mime_type: {file_mime_type}")
 
         file1_is_image = file_mime_type.startswith('image')
-
-        logger.info(f"file1 mime_type: {file_mime_type}")
         # print("file1_is_image: " + str(file1_is_image))
 
         # file_id = _get_file_id_for_file_path(file_path)
@@ -298,21 +316,23 @@ def send_news_to_telegram_user(context, news_item: NewsItem, telegram_user: Tele
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
 
-    # keyboard with 'like' and 'dislike' buttons
     if request_feedback:
+        # keyboard with 'like' and 'dislike' buttons
+        like_dislike_keyboard = [[
+            InlineKeyboardButton(  # like button
+                text=u'\u2713',
+                callback_data=f'feedback + {news_item.id}  {ask_comment}'
+            ),
+            InlineKeyboardButton(  # dislike button
+                text=u'\u2717',
+                callback_data=f'feedback - {news_item.id}  {ask_comment}'
+            ),
+        ]]
+
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=UI_message_request_for_news_item_feedback,
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton(  # like button
-                    text=u'\u2713',
-                    callback_data=f'feedback + {news_item.id}  {ask_comment}'
-                ),
-                InlineKeyboardButton(  # dislike button
-                    text=u'\u2717',
-                    callback_data=f'feedback - {news_item.id}  {ask_comment}'
-                ),
-            ]])
+            reply_markup=InlineKeyboardMarkup(like_dislike_keyboard)
         )
 
     # we record this activity only once (if the news item has already been shown to user, do not log this activity)
@@ -370,9 +390,13 @@ def show_news_by_id(context, news_id: int, telegram_user: TelegramUser):
         return False
 
     news_item_already_shown_to_user = orm_has_user_seen_news_item(telegram_user, news_item)
-
-    send_news_to_telegram_user(context, news_item, telegram_user, request_feedback=not news_item_already_shown_to_user,
-                               news_item_already_shown_to_user=news_item_already_shown_to_user)
+    send_news_to_telegram_user(
+        context,
+        news_item,
+        telegram_user,
+        request_feedback=not news_item_already_shown_to_user,
+        news_item_already_shown_to_user=news_item_already_shown_to_user
+    )
 
     return True
 

@@ -107,7 +107,7 @@ def privacy_command_handler(update, context):
 def undo_privacy_command_handler(update, context):
     orm_change_user_privacy_setting(update.message.from_user.id, False)
 
-    logger.info(f"undo_privacy_command_handler - telegram user id={update.message.from_user.id}")
+    #logger.info(f"undo_privacy_command_handler - telegram user id={update.message.from_user.id}")
 
     update.message.reply_text(
         UI_message_your_privacy_acceptance_has_been_deleted,
@@ -507,7 +507,6 @@ def force_send_news_command_handler(update, context, telegram_user_id, telegram_
     if not telegram_user.is_admin:
         return
 
-
     context.bot.send_message(
         chat_id=telegram_user.user_id,
         text="ok admin, starting news dispatcher...",
@@ -708,8 +707,7 @@ class MQBot(Bot):
 
     @mq.queuedmessage
     def send_message(self, *args, **kwargs):
-        '''Wrapped method would accept new `queued` and `isgroup`
-        OPTIONAL arguments'''
+        '''Wrapped method would accept new `queued` and `isgroup` OPTIONAL arguments'''
         return super(MQBot, self).send_message(*args, **kwargs)
 
 

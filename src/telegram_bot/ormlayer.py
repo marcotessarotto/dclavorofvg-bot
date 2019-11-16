@@ -8,7 +8,7 @@ from src.telegram_bot.log_utils import orm_logger as logger, benchmark_decorator
 from src.backoffice.models import *
 
 # https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
-use_cache = True
+use_cache = False
 
 
 def _update_user_in_cache(telegram_user):
