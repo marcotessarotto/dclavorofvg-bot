@@ -519,6 +519,25 @@ def force_send_news_command_handler(update, context, telegram_user_id, telegram_
 
 @log_user_input
 @standard_user_checks
+def stats_command_handler(update, context, telegram_user_id, telegram_user):
+    dict = orm_build_news_stats()
+    logger.info(dict)
+
+    text = 'statistiche sulle notizie (ultimi 10 giorni):\n'
+
+    for k, v in dict.items():
+        logger.info("k=" + str(k) + " v=" + str(v))
+        text += str(k.name) + ': ' + str(v) + "\n"
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text=text,
+        parse_mode='HTML'
+    )
+
+
+@log_user_input
+@standard_user_checks
 def debug2_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
@@ -815,6 +834,8 @@ def main():
     dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
     dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, debug_sendnews_command_handler))
     dp.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))
+
+    dp.add_handler(CommandHandler(UI_STATS, stats_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

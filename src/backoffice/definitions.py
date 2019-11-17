@@ -97,7 +97,8 @@ UI_SEND_NEWS_COMMAND = 'news'  # admin only
 UI_SHOW_NEWS = 'mostra_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "help_categorie"
-UI_SET_FILTER = "/filtro"
+UI_SET_FILTER = "filtro"
+UI_STATS = "statistiche"
 
 
 UI_message_category = "categoria "

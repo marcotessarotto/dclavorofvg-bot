@@ -521,3 +521,24 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
 
         rss_feed_item.processed = True
         rss_feed_item.save()
+
+
+def orm_build_news_stats(last_days=10):
+    now = datetime.now()
+
+    d = now - timedelta(days=last_days)
+
+    categories = orm_get_categories()
+
+    result_dict = {}
+
+    for cat in categories:
+        # https://docs.djangoproject.com/en/2.2/topics/db/aggregation/
+        count = NewsItem.objects.filter(processed=True).filter(processed_timestamp__gte=d).filter(categories__in=[cat]).count()
+
+        result_dict[cat] = count
+
+    return result_dict
+
+
+
