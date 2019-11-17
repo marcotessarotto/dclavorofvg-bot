@@ -161,7 +161,7 @@ def ask_educational_level(update, context):
     if len(k_row) > 0:
         keyboard.append(k_row)
 
-    print(keyboard)
+    # print(keyboard)
 
     context.bot.send_message(
         chat_id=update.message.chat.id,
