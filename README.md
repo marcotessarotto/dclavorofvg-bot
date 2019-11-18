@@ -32,6 +32,15 @@ DB_PWD="database password"
 
 SECRET_KEY = "django secret"
 
+SMTP_SERVER = ""
+
+SMTP_USER = ""
+
+SMTP_PASSWORD = ""
+
+EMAIL_SENDER = "email address of sender"
+
+
 - instruct Django to migrate applications and create superuser 
-- get a token for you Telegram bot and save it in file token.txt positioned in the root of the project
+- get a token for you Telegram bot and save it in file token.txt positioned in the root of the project (src directory)
 - start Django web app and the Telegram bot
