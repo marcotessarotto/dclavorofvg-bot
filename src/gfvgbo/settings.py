@@ -23,6 +23,11 @@ DB_USERNAME="........"
 DB_PWD="........"
 
 SECRET_KEY = "................................"
+
+SMTP_SERVER = ""
+SMTP_USER = ""
+SMTP_PASSWORD = ""
+EMAIL_SENDER = "email address of sender"
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -33,7 +38,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
