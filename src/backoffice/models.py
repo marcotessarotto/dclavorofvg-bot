@@ -148,7 +148,7 @@ class TelegramUser(models.Model):
 
     def categories_str(self):
         result = ''
-        for cat in self.categories.all():
+        for cat in self.categories.all().order_by('key'):
             if cat.emoji is not None:
                 result += '- ' + cat.name + '  ' + cat.emoji + '\n'
             else:
