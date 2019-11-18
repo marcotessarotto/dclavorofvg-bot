@@ -1,10 +1,17 @@
 from gtts import gTTS
 import os
 
-from src.backoffice.models import NewsItem, UI_news
+from src.backoffice.models import NewsItem, UI_news, TextToSpeechWordSubstitution
 from src.gfvgbo.settings import AUDIO_ROOT
 
 from src.telegram_bot.log_utils import main_logger as logger, benchmark_decorator
+
+# Cloud Text-to-Speech API: Quotas & limits
+# https://cloud.google.com/text-to-speech/quotas
+TextToSpeechWordSubstitution.fill_substitutions()
+
+# TODO: complete
+TextToSpeechWordSubstitution.load()
 
 
 @benchmark_decorator

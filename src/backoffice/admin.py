@@ -59,6 +59,11 @@ class CategoryAdmin(admin.ModelAdmin):
     #actions = [add_default_categories]
 
 
+@admin.register(TextToSpeechWordSubstitution)
+class TextToSpeechWordSubstitutionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'original', 'substitution', 'lang')
+
+
 @admin.register(NewsItem)
 class NewsItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'created_at', 'list_of_categories', 'processed', 'processed_timestamp', 'like', 'dislike')

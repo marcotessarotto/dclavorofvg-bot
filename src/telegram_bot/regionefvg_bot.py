@@ -579,7 +579,8 @@ def stats_command_handler(update, context, telegram_user_id, telegram_user):
 @standard_user_checks
 def audio_on_command_handler(update, context, telegram_user_id, telegram_user: TelegramUser):
     telegram_user.is_text_to_speech_enabled = True
-    telegram_user.save()
+
+    orm_update_telegram_user(telegram_user)
 
     context.bot.send_message(
         chat_id=telegram_user.user_id,
@@ -592,7 +593,8 @@ def audio_on_command_handler(update, context, telegram_user_id, telegram_user: T
 @standard_user_checks
 def audio_off_command_handler(update, context, telegram_user_id, telegram_user):
     telegram_user.is_text_to_speech_enabled = False
-    telegram_user.save()
+
+    orm_update_telegram_user(telegram_user)
 
     context.bot.send_message(
         chat_id=telegram_user.user_id,

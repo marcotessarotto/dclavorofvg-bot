@@ -60,10 +60,11 @@ class Category(models.Model):
 
 
 class CategoriesGroup(models.Model):
-    name = models.CharField(max_length=256,verbose_name="Nome del gruppo")
+    name = models.CharField(max_length=256, verbose_name="Nome del gruppo")
     updated_at = models.DateTimeField(auto_now=True)
     categories = models.ManyToManyField(Category, blank=True)
-    add_bot_command = models.BooleanField(default=True, verbose_name="aggiungi automaticamente comando bot con stesso nome")
+    add_bot_command = models.BooleanField(default=True,
+                                          verbose_name="aggiungi automaticamente comando bot con stesso nome")
 
     class Meta:
         verbose_name = UI_group_of_categories
@@ -82,8 +83,10 @@ class NewsItemSentToUser(models.Model):
     flags = models.CharField(max_length=4, blank=True, null=True, )
 
     def __str__(self):
-        return str(self.id) + " - user(id=" + str(self.telegram_user.id) + "/telegram_id=" + str(self.telegram_user.user_id) + "), " \
-                              "news_id=" + str(self.news_item.id) + ", flags=" + str(self.flags) + " sent=" + self.created_at.strftime("%d/%m/%y")
+        return str(self.id) + " - user(id=" + str(self.telegram_user.id) + "/telegram_id=" + str(
+            self.telegram_user.user_id) + "), " \
+                                          "news_id=" + str(self.news_item.id) + ", flags=" + str(
+            self.flags) + " sent=" + self.created_at.strftime("%d/%m/%y")
 
     class Meta:
         verbose_name = UI_log_of_news_sent_to_users
@@ -99,9 +102,9 @@ EDUCATIONAL_LEVELS = (
     ('a', 'scuola elementare'),
     ('b', 'scuola media'),
     ('c', 'scuola superiore'),
-    ('d', 'corsi pre-universitari/brevi corsi professionali' ),
-    ('e', 'laurea/laurea magistrale' ),
-    ('f', 'dottorato di ricerca' ),
+    ('d', 'corsi pre-universitari/brevi corsi professionali'),
+    ('e', 'laurea/laurea magistrale'),
+    ('f', 'dottorato di ricerca'),
     ('g', 'altro')
 )
 
@@ -109,20 +112,23 @@ EDUCATIONAL_LEVELS = (
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 
-    user_id = models.BigIntegerField(verbose_name="telegram user id")  # Telegram used id (information provided by Telegram)
+    user_id = models.BigIntegerField(
+        verbose_name="telegram user id")  # Telegram used id (information provided by Telegram)
 
     age = models.IntegerField(default=-1, verbose_name="età")
 
-    educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-', verbose_name="titolo di studio più elevato")
+    educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-',
+                                         verbose_name="titolo di studio più elevato")
 
-    chat_state = models.CharField(max_length=1, default = '-', blank=True, editable=False)
+    chat_state = models.CharField(max_length=1, default='-', blank=True, editable=False)
 
-    regionefvg_id = models.BigIntegerField(default=-1,verbose_name="internal use", editable=False)  # for internal use
+    regionefvg_id = models.BigIntegerField(default=-1, verbose_name="internal use", editable=False)  # for internal use
 
     has_accepted_privacy_rules = models.BooleanField(default=False, verbose_name="ha accettato il regolamento privacy?")
     # L : through a parameter passed to /start
     # U : user has accepted privacy rules through bot UI
-    privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True, editable=False, verbose_name="meccanismo di accettazione privacy (U: tramite il bot)")
+    privacy_acceptance_mechanism = models.CharField(max_length=1, blank=True, null=True, editable=False,
+                                                    verbose_name="meccanismo di accettazione privacy (U: tramite il bot)")
     privacy_acceptance_timestamp = models.DateTimeField(blank=True, null=True)
 
     username = models.CharField(max_length=32, blank=True, null=True)  # information provided by Telegram
@@ -149,11 +155,12 @@ class TelegramUser(models.Model):
                 result += '- ' + cat.name + '\n'
         return result
 
-    enabled = models.BooleanField(default=True, verbose_name="utente abilitato all'uso del bot")  # user can be disabled by bot admins
+    enabled = models.BooleanField(default=True,
+                                  verbose_name="utente abilitato all'uso del bot")  # user can be disabled by bot admins
 
     # when loading TelegramUser, use defer()
     # https://docs.djangoproject.com/en/2.2/ref/models/querysets/#defer
-    #news_item_sent_to_user = models.ManyToManyField(NewsItemSentToUser, blank=True)
+    # news_item_sent_to_user = models.ManyToManyField(NewsItemSentToUser, blank=True)
 
     is_admin = models.BooleanField(default=False, verbose_name="amministratore del bot")  # is bot admin?
 
@@ -204,7 +211,8 @@ class RssFeedItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
 
     def __str__(self):
-        return 'RssFeedItem ' + str(self.id) + ' : ' + str(self.data_feed_was_last_updated()) + ' - ' + str(self.category) + ' - ' + str(self.rss_title)
+        return 'RssFeedItem ' + str(self.id) + ' : ' + str(self.data_feed_was_last_updated()) + ' - ' + str(
+            self.category) + ' - ' + str(self.rss_title)
 
     def data_feed_was_last_updated(self):
         return str(self.updated_parsed.strftime("%d/%m/%y"))
@@ -232,14 +240,16 @@ class NewsItem(models.Model):
     """ Classe NEWSITEM: rappresenta le informazioni legati agli item di una news """
 
     title = models.CharField(max_length=1024, blank=True, null=True, verbose_name='titolo della news')
-    title_link = models.CharField(max_length=1024, blank=True, null=True, verbose_name='link (opzionale) a cui punta il titolo')
+    title_link = models.CharField(max_length=1024, blank=True, null=True,
+                                  verbose_name='link (opzionale) a cui punta il titolo')
 
-    text = models.TextField(max_length=2048, blank=True, null=True, verbose_name="testo della news (max 2048 caratteri)")
+    text = models.TextField(max_length=2048, blank=True, null=True,
+                            verbose_name="testo della news (max 2048 caratteri)")
 
     show_all_text = models.BooleanField(default=True, verbose_name="mostra tutto il testo della news all'utente?")
     show_first_n_words = models.IntegerField(default=30, verbose_name="mostra le prime n parole")
 
-    categories = models.ManyToManyField(Category,  blank=True, verbose_name="categorie")
+    categories = models.ManyToManyField(Category, blank=True, verbose_name="categorie")
 
     # broadcast_message: if True, this message will be sent to all users without considering matching categories
     broadcast_message = models.BooleanField(default=False, verbose_name='forza l\'invio a tutti gli utenti')
@@ -248,8 +258,10 @@ class NewsItem(models.Model):
     link_caption = models.CharField(max_length=1024, blank=True, null=True, default="continua")
 
     file1 = models.ForeignKey(NewsFile, on_delete=models.PROTECT, null=True, blank=True, verbose_name="immagine")
-    file2 = models.ForeignKey(NewsFile, related_name="file2", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato 1")
-    file3 = models.ForeignKey(NewsFile, related_name="file3", on_delete=models.PROTECT, null=True, blank=True, verbose_name="allegato 2")
+    file2 = models.ForeignKey(NewsFile, related_name="file2", on_delete=models.PROTECT, null=True, blank=True,
+                              verbose_name="allegato 1")
+    file3 = models.ForeignKey(NewsFile, related_name="file3", on_delete=models.PROTECT, null=True, blank=True,
+                              verbose_name="allegato 2")
 
     # https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.FileField
     # file will be saved to MEDIA_ROOT/uploads/....
@@ -258,14 +270,18 @@ class NewsItem(models.Model):
     like = models.BigIntegerField(default=0, editable=False)
     dislike = models.BigIntegerField(default=0, editable=False)
 
-    start_publication = models.DateTimeField(blank=True, null=True, verbose_name="data di invio (opzionale: se non specificata, la news verrà inviata appena possibile)")
+    start_publication = models.DateTimeField(blank=True, null=True,
+                                             verbose_name="data di invio (opzionale: se non specificata, la news verrà inviata appena possibile)")
     # end_publication = models.DateTimeField(blank=True, null=True, verbose_name="fine periodo di pubblicazione")
 
-    recurrent_for_new_users = models.BooleanField(default=False, verbose_name="invia questa news ad ogni nuovo utente del bot?")
+    recurrent_for_new_users = models.BooleanField(default=False,
+                                                  verbose_name="invia questa news ad ogni nuovo utente del bot?")
 
     # if processed is true, this news item has already been sent to all users
-    processed = models.BooleanField(default=False, editable=True, verbose_name="questa news è stata inviata agli utenti?")
-    processed_timestamp = models.DateTimeField(blank=True, null=True, editable=False, verbose_name='data di elaborazione')
+    processed = models.BooleanField(default=False, editable=True,
+                                    verbose_name="questa news è stata inviata agli utenti?")
+    processed_timestamp = models.DateTimeField(blank=True, null=True, editable=False,
+                                               verbose_name='data di elaborazione')
 
     rss_id = models.CharField(max_length=256, blank=True, null=True, editable=False)  # used if news comes from rss feed
 
@@ -361,11 +377,9 @@ class SystemParameter(models.Model):
 
     @staticmethod
     def add_default_param(name, value, comment=""):
-
         queryset = SystemParameter.objects.filter(name=name)
 
         if len(queryset) == 0:
-
             k = SystemParameter()
             k.name = name
             k.value = value
@@ -376,21 +390,28 @@ class SystemParameter(models.Model):
     def update_system_parameters():
         # if len(SystemParameter.objects.all()) == 0:
 
-        SystemParameter.add_default_param(UI_PRIVACY, "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/allegati/informativa_dir_lavoro_servizi_messaggistica102019.pdf", "regolamento della privacy")
+        SystemParameter.add_default_param(UI_PRIVACY,
+                                          "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/allegati/informativa_dir_lavoro_servizi_messaggistica102019.pdf",
+                                          "regolamento della privacy")
 
         # SystemParameter.add_default_param(UI_select_news_categories, "Seleziona le categorie di news a cui sei interessato:")
 
-        SystemParameter.add_default_param(UI_bot_presentation, "Benvenuto al bot Telegram della Direzione centrale lavoro, formazione, istruzione e famiglia - Regione Autonoma Friuli Venezia Giulia :)", "è mostrato nel comando /start")
+        SystemParameter.add_default_param(UI_bot_presentation,
+                                          "Benvenuto al bot Telegram della Direzione centrale lavoro, formazione, istruzione e famiglia - Regione Autonoma Friuli Venezia Giulia :)",
+                                          "è mostrato nel comando /start")
 
         # SystemParameter.add_default_param("DEBUG_SEND_NEWS", "False", "non setta come processati le news item")
 
-        SystemParameter.add_default_param(UI_bot_help_message, get_bot_default_help_msg(), "è mostrato nel comando /help")
+        SystemParameter.add_default_param(UI_bot_help_message, get_bot_default_help_msg(),
+                                          "è mostrato nel comando /help")
 
         # SystemParameter.add_default_param(UI_request_for_news_item_feedback, "Ti è utile questa news?", "messaggio all'utente per chiedere feedback dopo aver ricevuto una news")
 
         # SystemParameter.add_default_param(param_show_match_category_news, "True", "mostra la categoria della news che ha permesso l'invio all'utente")
 
-        SystemParameter.add_default_param(RSS_FEED, "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/?rss=y", "rss feed to watch")
+        SystemParameter.add_default_param(RSS_FEED,
+                                          "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/?rss=y",
+                                          "rss feed to watch")
 
         return True
 
@@ -401,3 +422,51 @@ class SystemParameter(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+
+class TextToSpeechWordSubstitution(models.Model):
+    original = models.CharField(max_length=64, blank=False)
+    substitution = models.CharField(max_length=64, blank=False)
+    lang = models.CharField(max_length=2, blank=False, default='it')
+
+    # fills the Category table (if it is empty) with some default cateogries stored in the dict
+    @staticmethod
+    def fill_substitutions():
+
+        if len(TextToSpeechWordSubstitution.objects.all()) > 0:
+            return
+
+        tuples = (('68/1999', '68 del 1999'),
+                  ('L. 68/99', 'legge 68 del 1999'),
+                  ('n.', 'numero'))
+
+        for t in tuples:
+            sub = TextToSpeechWordSubstitution()
+            sub.original = t[0]
+            sub.substitution = t[1]
+            sub.save()
+
+        return True
+
+    @staticmethod
+    def load():
+
+        results = TextToSpeechWordSubstitution.objects.all()
+
+        from gtts.tokenizer import pre_processors
+        import gtts.tokenizer.symbols
+
+        for item in results:
+
+            # https://github.com/pndurette/gTTS/blob/master/docs/tokenizer.rst
+            # https://github.com/pndurette/gTTS/blob/master/gtts/tokenizer/symbols.py
+            gtts.tokenizer.symbols.SUB_PAIRS.append(  # TODO: must be called on model instance update
+                (item.original, item.substitution)
+            )
+
+        pass
+
+    class Meta:
+        # verbose_name = UI_system_parameter
+        # verbose_name_plural = UI_system_parameters
+        app_label = "backoffice"
