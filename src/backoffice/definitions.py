@@ -55,6 +55,8 @@ per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/sce
 
 <b>/rimanda_ultime_news</b> rimanda le notizie degli ultimi 10 giorni
 
+<b>/statistiche</b> sulle notizie inviate negli ultimi 10 giorni
+
 Per mostrare nuovamente questo messaggio digita /help o /aiuto
 """
 
@@ -249,6 +251,7 @@ help - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
 privacy - accetta il regolamento sulla privacy di questo bot
 rimanda_ultime_news - ti rimando le notizie degli ultimi 10 giorni
+statistiche - notizie inviate negli ultimi 10 giorni
 '''
 
 
