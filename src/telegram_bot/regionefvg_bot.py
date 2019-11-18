@@ -560,7 +560,7 @@ def force_send_news_command_handler(update, context, telegram_user_id, telegram_
 @standard_user_checks
 def stats_command_handler(update, context, telegram_user_id, telegram_user):
     dict = orm_build_news_stats()
-    logger.info(dict)
+    # logger.info(dict)
 
     text = UI_statistics_on_news
 
@@ -613,7 +613,34 @@ def debug3_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+def ping_command_handler(update, context, telegram_user_id, telegram_user):
+    """get status of system services - admin command"""
+    if not telegram_user.is_admin:
+        return
+
+    system_services = ['gunicorn', 'rssparser', 'postgresql']
+
+    import subprocess
+
+    text = 'system services status:\n'
+
+    for service_name in system_services:
+
+        a = subprocess.run(["systemctl", "status", "--output=json", service_name])
+
+        text += f"{service_name}: {a.returncode}\n"
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text=text,
+        parse_mode='HTML'
+    )
+
+
+@log_user_input
+@standard_user_checks
 def cleanup_command_handler(update, context, telegram_user_id, telegram_user):
+    """delete all NewsItemSentToUser instances - admin command"""
     if not telegram_user.is_admin:
         return
 
@@ -627,10 +654,7 @@ def cleanup_command_handler(update, context, telegram_user_id, telegram_user):
 @log_user_input
 @standard_user_checks
 def debug_sendnews_command_handler(update, context, telegram_user_id, telegram_user):
-    # if DEBUG_MSG:
-    #     print("sendnews_command_handler update:")
-    #     my_print(update, 4)
-
+    """create a news item - admin command"""
     # takes content after /news command as content of the news to send
 
     # admin only
@@ -644,7 +668,7 @@ def debug_sendnews_command_handler(update, context, telegram_user_id, telegram_u
 
 
 def callback_feedback(update, data):
-    """ manages feedback about news items """
+    """manage feedback about news items """
 
     feed = data[0]
     news_id = data[1]
@@ -677,7 +701,7 @@ def callback_feedback(update, data):
 
 
 def callback_comment(update, context, news_id):
-    """ Gestisce i commenti agli articoli """
+    """send a comment about an article"""
     logger.info("callback_comment")
 
     # Rimuove il pulsante 'commenta'
@@ -887,10 +911,11 @@ def main():
     dp.add_handler(CommandHandler(UI_FORCE_SEND_NEWS_COMMAND, force_send_news_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
+    dp.add_handler(CommandHandler(UI_PING_COMMAND, ping_command_handler))
     dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, debug_sendnews_command_handler))
     dp.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))
 
-    dp.add_handler(CommandHandler(UI_STATS, stats_command_handler))
+    dp.add_handler(CommandHandler(UI_STATS_COMMAND, stats_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

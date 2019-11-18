@@ -94,13 +94,14 @@ UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_FORCE_SEND_NEWS_COMMAND = 'update'  # admin only
 UI_DEBUG2_COMMAND = 'debug2'  # admin only
 UI_DEBUG3_COMMAND = 'debug3'  # admin only
+UI_PING_COMMAND = 'ping'  # admin only
 UI_CLEANUP_COMMAND = 'cleanup'  # admin only
 UI_SEND_NEWS_COMMAND = 'news'  # admin only
 UI_SHOW_NEWS = 'mostra_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "help_categorie"
 UI_SET_FILTER = "filtro"
-UI_STATS = "statistiche"
+UI_STATS_COMMAND = "statistiche"
 
 
 UI_message_category = "categoria "

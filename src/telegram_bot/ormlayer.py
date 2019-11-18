@@ -56,6 +56,7 @@ def orm_log_news_sent_to_user(news_item, telegram_user):
 
 
 def orm_add_news_item(content: str, telegram_user: TelegramUser):
+    """create a news item; uses categories from telegram_user"""
     news = NewsItem()
 
     news.title = f'news da {telegram_user.user_id}'

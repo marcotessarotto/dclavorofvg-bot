@@ -148,7 +148,6 @@ def send_news_to_telegram_user(
         intersection_result=None,
         request_feedback=True,
         title_only=False,
-        ask_comment=False,
         news_item_already_shown_to_user=False
 ):
     logger.info(
@@ -324,11 +323,11 @@ def send_news_to_telegram_user(
         like_dislike_keyboard = [[
             InlineKeyboardButton(  # like button
                 text=u'\u2713',
-                callback_data=f'feedback + {news_item.id}  {ask_comment}'
+                callback_data=f'feedback + {news_item.id}  {news_item.ask_comment_to_user}'
             ),
             InlineKeyboardButton(  # dislike button
                 text=u'\u2717',
-                callback_data=f'feedback - {news_item.id}  {ask_comment}'
+                callback_data=f'feedback - {news_item.id}  {news_item.ask_comment_to_user}'
             ),
         ]]
 
