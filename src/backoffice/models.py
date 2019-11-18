@@ -157,6 +157,8 @@ class TelegramUser(models.Model):
 
     is_admin = models.BooleanField(default=False, verbose_name="amministratore del bot")  # is bot admin?
 
+    email = models.CharField(max_length=256, blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

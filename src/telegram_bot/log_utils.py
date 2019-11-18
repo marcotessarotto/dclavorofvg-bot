@@ -41,6 +41,9 @@ rss_logger.setLevel(logging.DEBUG)
 benchmark_logger = logging.getLogger('benchmark')
 benchmark_logger.setLevel(logging.DEBUG)
 
+email_logger = logging.getLogger('email')
+email_logger.setLevel(logging.DEBUG)
+
 
 def benchmark_decorator(func):
     @wraps(func)

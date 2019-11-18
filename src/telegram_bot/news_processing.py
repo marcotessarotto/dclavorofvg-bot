@@ -230,7 +230,10 @@ def send_news_to_telegram_user(
             if number_of_words < 0:
                 number_of_words = 30
 
-            body_html_content = str(" ".join(text[:number_of_words])) + "..."
+            body_html_content = str(" ".join(text[:number_of_words]))
+
+            if len(body_html_content) < len(news_text):
+                body_html_content += '...'
 
     # optional link
     if news_item.link is not None:

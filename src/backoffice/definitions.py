@@ -251,3 +251,12 @@ privacy - accetta il regolamento sulla privacy di questo bot
 rimanda_ultime_news - ti rimando le notizie degli ultimi 10 giorni
 '''
 
+
+# two newlines (\n) to separate the subject from the message body
+DEFAULT_EMAIL_TEMPLATE = """\
+Subject: {0}
+To: {1}
+From: {2}
+
+{3}"""
+

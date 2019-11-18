@@ -522,6 +522,13 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
         rss_feed_item.processed = True
         rss_feed_item.save()
 
+    # send email to admins
+
+    admin_users = TelegramUser.objects.filter(is_admin=True).filter(email__isnull=False)
+    for user in admin_users:
+        from src.telegram_bot.email_utils import send_email
+        send_email(user.email, "bot ", f"RSS feed items transformed into news: {len(queryset)}")
+
 
 def orm_build_news_stats(last_days=10):
     now = datetime.now()
