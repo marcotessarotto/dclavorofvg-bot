@@ -53,7 +53,7 @@ per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/sce
 <b>/scegli</b> scegli le categorie di notizie che ti vuoi ricevere
 <b>/privacy</b> lo hai usato per accettare il regolamento privacy
 
-<b>/rimanda_ultime_news</b> rimanda le notizie degli ultimi 10 giorni
+<b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni
 
 <b>/statistiche</b> sulle notizie inviate negli ultimi 10 giorni
 
@@ -87,9 +87,9 @@ UI_HELP_COMMAND = 'help'
 UI_HELP_COMMAND_ALT = 'aiuto'
 UI_PRIVACY_COMMAND = 'privacy'
 UI_UNDO_PRIVACY_COMMAND = 'undo_privacy'
-UI_ALL_CATEGORIES_COMMAND = 'tutte_le_news'
-UI_NO_CATEGORIES_COMMAND = 'nessuna_news'
-UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_news'
+UI_ALL_CATEGORIES_COMMAND = 'tutte_le_notizie'
+UI_NO_CATEGORIES_COMMAND = 'nessuna_notizia'
+UI_RESEND_LAST_NEWS_COMMAND = 'rimanda_ultime_notizie'
 UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_FORCE_SEND_NEWS_COMMAND = 'update'  # admin only
 UI_DEBUG2_COMMAND = 'debug2'  # admin only
@@ -126,16 +126,16 @@ UI_message_you_have_choosen_no_categories = 'Non hai scelto alcuna categoria! Se
 UI_message_you_have_choosen_the_following_categories = 'Grazie, hai scelto le seguenti categorie:\n\n'
 
 UI_message_you_can_modify_categories_with_command = '\nPuoi modificarle in qualsiasi momento usando il comando /scegli .\n' \
-                                                    'Se vuoi rivedere le ultime notizie in base alle categorie che hai scelto, usa il comando /rimanda_ultime_news'
+                                                    'Se vuoi rivedere le ultime notizie in base alle categorie che hai scelto, usa il comando /rimanda_ultime_notizie'
 
-UI_message_i_have_changed_your_categories = 'Ho cambiato le categorie di news che vuoi ricevere, adesso sono:\n'
+UI_message_i_have_changed_your_categories = 'Ho cambiato le categorie di notizie che vuoi ricevere, adesso sono:\n'
 
-UI_message_i_have_removed_all_your_categories = 'Ho rimosso tutte le tue categorie di news, non ne riceverai.\n'
+UI_message_i_have_removed_all_your_categories = 'Ho rimosso tutte le tue categorie di notizie, non ne riceverai.\n'
 
 UI_message_no_previous_news_to_send_again = 'non ho trovato notizie precedenti da rimandarti! ' \
                                             'Se vuoi, puoi provare a cambiare le categorie di notizie che vuoi ricevere con il comando /scegli'
 UI_message_no_matching_previous_news = 'non ci sono news precedenti che corrispondono alle tue impostazioni. ' \
-                                       'Se vuoi, prova a cambiare le categorie di news con il comando /scegli e poi riprova /rimanda_ultime_news.'
+                                       'Se vuoi, prova a cambiare le categorie di notizie con il comando /scegli e poi riprova /rimanda_ultime_notizie.'
 
 UI_message_thank_you_for_feedback_newline = 'Grazie per il feedback!\n'
 UI_message_thank_you_for_feedback = 'Grazie per il feedback!'
@@ -143,7 +143,7 @@ UI_message_thank_you_for_feedback = 'Grazie per il feedback!'
 UI_message_write_a_comment = 'Vuoi lasciarmi un breve commento su questa notizia? Lo userò per offrirti un servizio migliore.'
 UI_message_write_a_comment_button = 'Click per commentare la notizia '
 
-UI_message_comment_to_news_item = 'Commento alla news '
+UI_message_comment_to_news_item = 'Commento alla notizia '
 
 UI_message_comment_successful = 'Grazie del commento! Un operatore umano o la mia Intelligenza Artificiale lo leggerà!'
 
@@ -151,7 +151,7 @@ UI_message_thank_you = 'Grazie!'
 
 UI_message_already_resent_news = 'Ti ho già rimandato le ultime notizie poco fa, scorri in alto per vederle. (il limite è di un invio di notizie al minuto)'
 
-UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il tipo di news che vuoi ricevere.\n' \
+UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il tipo di notizie che vuoi ricevere.\n' \
                                                     'Per farlo, usa il comando /scegli.'
 
 UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:"
@@ -167,16 +167,16 @@ UI_message_do_you_need_examples_on_me_command = 'Vuoi qualche esempio?'
 UI_message_let_me_ask_you_some_questions = 'Avanti con le domande!'
 UI_message_me_stop_questions = 'Basta così!'
 
-UI_message_do_you_want_news_about = "Vuoi ricevere news su <b>{0}</b>?"
-UI_message_continue_sending_news_about = "Continuo a mandarti news su <b>{0}</b>?"
+UI_message_do_you_want_news_about = "Vuoi ricevere notizie su <b>{0}</b>?"
+UI_message_continue_sending_news_about = "Continuo a mandarti notizie su <b>{0}</b>?"
 
-UI_message_you_are_subscribed_to_news_category = "In questo momento sei iscritto alle news su <b>{0}</b>. "
-UI_message_you_are_not_subscribed_to_news_category = "In questo momento non sei iscritto alle news su <b>{0}</b>. "
+UI_message_you_are_subscribed_to_news_category = "In questo momento sei iscritto alle notizie su <b>{0}</b>. "
+UI_message_you_are_not_subscribed_to_news_category = "In questo momento non sei iscritto alle notizie su <b>{0}</b>. "
 
-UI_message_stop_receive_info_about = "Smetto di mandarti news su <b>{0}</b>?"
+UI_message_stop_receive_info_about = "Smetto di mandarti notizie su <b>{0}</b>?"
 
-UI_message_custom_settings_modified_true = 'OK, riceverai le news su {0}'
-UI_message_custom_settings_modified_false = 'NON riceverai le news su {0}'
+UI_message_custom_settings_modified_true = 'OK, riceverai le notizie su {0}'
+UI_message_custom_settings_modified_false = 'NON riceverai le notizie su {0}'
 
 UI_message_receive_info_about_category = 'ricevi informazioni sulla categoria \'{0}\''
 
@@ -229,6 +229,8 @@ UI_groups_of_categories = 'Gruppi di categorie'
 
 UI_log_of_news_sent_to_users = 'Log delle notizie inviate agli utenti'
 
+UI_statistics_on_news = 'statistiche sulle notizie (negli ultimi 10 giorni):\n'
+
 
 UI_OK = 'OK'
 UI_NO = 'No'
@@ -250,7 +252,7 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 help - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
 privacy - accetta il regolamento sulla privacy di questo bot
-rimanda_ultime_news - ti rimando le notizie degli ultimi 10 giorni
+rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
 statistiche - notizie inviate negli ultimi 10 giorni
 '''
 

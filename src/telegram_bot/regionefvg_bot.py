@@ -562,10 +562,10 @@ def stats_command_handler(update, context, telegram_user_id, telegram_user):
     dict = orm_build_news_stats()
     logger.info(dict)
 
-    text = 'statistiche sulle notizie (ultimi 10 giorni):\n'
+    text = UI_statistics_on_news
 
     for k, v in dict.items():
-        logger.info("k=" + str(k) + " v=" + str(v))
+        # logger.info("k=" + str(k) + " v=" + str(v))
         text += str(k.name) + ': ' + str(v) + "\n"
 
     context.bot.send_message(
@@ -584,6 +584,12 @@ def debug2_command_handler(update, context, telegram_user_id, telegram_user):
     logger.info("debug2_command_handler")
 
     orm_change_user_privacy_setting(telegram_user_id, False)
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text='ok admin, just reset your privacy settings',
+        parse_mode='HTML'
+    )
 
     pass
 
@@ -638,7 +644,7 @@ def debug_sendnews_command_handler(update, context, telegram_user_id, telegram_u
 
 
 def callback_feedback(update, data):
-    """ Gestisce i feedback sugli articoli """
+    """ manages feedback about news items """
 
     feed = data[0]
     news_id = data[1]
