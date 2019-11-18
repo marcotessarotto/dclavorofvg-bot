@@ -138,7 +138,7 @@ class TelegramUser(models.Model):
 
     number_of_received_news_items = models.BigIntegerField(default=0, verbose_name="numero di news ricevute")
 
-    #resend_news_timestamp = models.DateTimeField(blank=True, null=True, editable=False)
+    is_text_to_speech_enabled = models.BooleanField(default=False, verbose_name='text to speech abilitato?')
 
     def categories_str(self):
         result = ''

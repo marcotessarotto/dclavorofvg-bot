@@ -103,6 +103,9 @@ UI_CATEGORIES_HELP = "help_categorie"
 UI_SET_FILTER = "filtro"
 UI_STATS_COMMAND = "statistiche"
 
+UI_AUDIO_ON_COMMAND = "audio_on"
+UI_AUDIO_OFF_COMMAND = "audio_off"
+
 
 UI_message_category = "categoria "
 
@@ -232,6 +235,11 @@ UI_log_of_news_sent_to_users = 'Log delle notizie inviate agli utenti'
 
 UI_statistics_on_news = 'statistiche sulle notizie (negli ultimi 10 giorni):\n'
 
+UI_message_text_to_speech_has_been_enabled = 'lettura audio delle notizie: abilitata'
+
+UI_message_text_to_speech_has_been_disabled = 'lettura audio delle notizie: disabilitata'
+
+UI_external_link = 'collegamento esterno'
 
 UI_OK = 'OK'
 UI_NO = 'No'

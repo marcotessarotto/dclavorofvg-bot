@@ -577,6 +577,32 @@ def stats_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+def audio_on_command_handler(update, context, telegram_user_id, telegram_user: TelegramUser):
+    telegram_user.is_text_to_speech_enabled = True
+    telegram_user.save()
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text=UI_message_text_to_speech_has_been_enabled,
+        parse_mode='HTML'
+    )
+
+
+@log_user_input
+@standard_user_checks
+def audio_off_command_handler(update, context, telegram_user_id, telegram_user):
+    telegram_user.is_text_to_speech_enabled = False
+    telegram_user.save()
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text=UI_message_text_to_speech_has_been_disabled,
+        parse_mode='HTML'
+    )
+
+
+@log_user_input
+@standard_user_checks
 def debug2_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
@@ -916,6 +942,10 @@ def main():
     dp.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))
 
     dp.add_handler(CommandHandler(UI_STATS_COMMAND, stats_command_handler))
+
+    dp.add_handler(CommandHandler(UI_AUDIO_ON_COMMAND, audio_on_command_handler))
+    dp.add_handler(CommandHandler(UI_AUDIO_OFF_COMMAND, audio_off_command_handler))
+
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))
