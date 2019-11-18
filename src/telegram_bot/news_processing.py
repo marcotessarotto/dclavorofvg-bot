@@ -17,8 +17,8 @@ from src.backoffice.definitions import (
     UI_message_request_for_news_item_feedback,
     UI_news,
     UI_message_published_on,
-    UI_external_link
-)
+    UI_external_link,
+    UI_message_read_news_item, UI_message_this_is_audio_version_of_news_item)
 
 from src.backoffice.models import NewsItem, TelegramUser
 
@@ -26,7 +26,6 @@ from src.telegram_bot.ormlayer import orm_get_fresh_news_to_send, orm_get_system
     orm_log_news_sent_to_user, orm_inc_telegram_user_number_received_news_items, orm_get_news_item, \
     orm_has_user_seen_news_item
 from src.telegram_bot.print_utils import my_print
-
 
 # dictionary of file_id cache, used when uploading files to telegram server
 from src.telegram_bot.text_to_speech_utils import text_to_speech
@@ -148,6 +147,24 @@ def _send_file_using_mime_type(
     _lookup_file_id_in_message(_message, _file_path, _file_id)
 
 
+def send_news_as_audio_file(context,
+                            news_id: int,
+                            telegram_user: TelegramUser):
+    news_item = orm_get_news_item(news_id)
+    if news_item is None:
+        return False
+
+    fname = text_to_speech(news_item, news_item.title)
+
+    _send_file_using_mime_type(
+        context,
+        telegram_user.user_id,
+        fname,
+        None,
+        caption=UI_message_this_is_audio_version_of_news_item.format(news_id)
+    )
+
+
 @benchmark_decorator
 def send_news_to_telegram_user(
         context,
@@ -211,18 +228,28 @@ def send_news_to_telegram_user(
     #  title_only == True: used by resend_last_processed_news_command_handler
     if title_only:
 
+        logger.info("***")
         # if news item has no text, do not show the 'show news' command
         # if news_item.text is None:
         #     html_news_content = title_html_content + categories_html_content
         # else:
-        html_news_content = title_html_content + categories_html_content + UI_message_show_complete_news_item.format(news_item.id)
+        html_news_content = title_html_content + categories_html_content + UI_message_show_complete_news_item.format(
+            news_item.id)
+
+        if telegram_user.is_text_to_speech_enabled:
+            html_news_content += "\n" + UI_message_read_news_item.format(news_item.id)
 
         delta = len(html_news_content) - 1024
 
         if delta > 0:  # text is too long; we enforce length limit even if using send_message
-            reduced_len =  len(title_html_content) - delta - 3  # -3 is for the '...' string
+            reduced_len = len(title_html_content) - delta - 3  # -3 is for the '...' string
 
-            html_news_content = title_html_content[:reduced_len] + '...' + categories_html_content + UI_message_show_complete_news_item.format(news_item.id)
+            html_news_content = title_html_content[
+                                :reduced_len] + '...' + categories_html_content + UI_message_show_complete_news_item.format(
+                news_item.id)
+
+            if telegram_user.is_text_to_speech_enabled:
+                html_news_content += "\n" + UI_message_read_news_item.format(news_item.id)
 
             logger.warning("html_news_content too long, has been truncated")
 
@@ -319,7 +346,8 @@ def send_news_to_telegram_user(
                 )
             else:
 
-                _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type, caption=html_news_content)
+                _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type,
+                                           caption=html_news_content)
 
         else:  # file1 is present but it is not an image
             # first, send content of news item
@@ -332,7 +360,7 @@ def send_news_to_telegram_user(
             # file1 is defined but it is not an image, send it as a document
             _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type)
 
-    else: # file1 is not defined, send only content of news item
+    else:  # file1 is not defined, send only content of news item
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=html_news_content,
@@ -401,7 +429,7 @@ def _lookup_file_id_in_message(message, _file_path: str, file_id):
                 except (AttributeError, IndexError) as e:
                     try:
                         _file_id = message.animation[0].file_id
-                    except (AttributeError, IndexError) as e:
+                    except (AttributeError, IndexError, TypeError) as e:
                         try:
                             _file_id = message.voice.file_id
                         except (AttributeError, IndexError) as e:
@@ -447,4 +475,3 @@ def show_news_by_id(context, news_id: int, telegram_user: TelegramUser):
     )
 
     return True
-

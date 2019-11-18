@@ -98,6 +98,7 @@ UI_PING_COMMAND = 'ping'  # admin only
 UI_CLEANUP_COMMAND = 'cleanup'  # admin only
 UI_SEND_NEWS_COMMAND = 'news'  # admin only
 UI_SHOW_NEWS = 'mostra_'  # id of news item is appended
+UI_READ_NEWS = 'leggi_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "help_categorie"
 UI_SET_FILTER = "filtro"
@@ -196,13 +197,16 @@ UI_message_what_is_your_educational_level = 'Ancora una cosa: qual è il tuo tit
 UI_message_enter_custom_educational_level = 'Ok, inserisci il tuo livello di studio'
 UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto <i>{0}</i> come livello studio.\n\n'
 
-UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b>"
+UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b> "
+UI_message_read_news_item = "<b>Per la lettura del titolo della notizia, fai click qui: /leggi_{0}</b>"
 
 UI_message_news_item_category = "categoria della notizia"
 
 UI_message_request_for_news_item_feedback = "Ti è utile questa notizia?"
 
 UI_message_published_on = "pubblicata il"
+
+UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizia {0}"
 
 UI_news = "notizia"
 UI_news_plural = "notizie"

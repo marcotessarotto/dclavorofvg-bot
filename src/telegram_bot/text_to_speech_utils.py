@@ -21,7 +21,7 @@ def text_to_speech(news_item: NewsItem, text, lang='it'):
 
     work_dir = os.path.join(AUDIO_ROOT, str_id)
 
-    fname = os.path.join(work_dir, f"{UI_news}_{str_id}.mp3")
+    fname = os.path.join(work_dir, f"{UI_news}_{str_id}.ogg")
 
     if os.path.isfile(fname) and os.path.getsize(fname) > 0:
         logger.info(f"text_to_speech: file exists, {fname}")
@@ -29,6 +29,8 @@ def text_to_speech(news_item: NewsItem, text, lang='it'):
 
     if not os.path.exists(work_dir):
         os.makedirs(work_dir)
+
+    text = "Notizia numero " + str_id + ". " + text
 
     tts = gTTS(text=text, lang=lang)
 

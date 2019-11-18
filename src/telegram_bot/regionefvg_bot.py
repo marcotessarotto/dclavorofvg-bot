@@ -3,14 +3,14 @@ import os
 from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
-from src.telegram_bot.print_utils import my_print
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
     ChatAction
 
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
-    _get_file_id_for_file_path, intersection, show_news_by_id
+    _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
 from src.telegram_bot.ormlayer import *
+
 from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
     standard_user_checks
 
@@ -286,7 +286,7 @@ def callback(update, context):
 @log_user_input
 @standard_user_checks
 def show_news_command_handler(update, context, telegram_user_id, telegram_user):
-    """show a specific news item (specified by id)"""
+    """show a specific news item (identified by id)"""
 
     str_id = update.message.text.replace('/' + UI_SHOW_NEWS, '')
     if str_id is '':
@@ -300,6 +300,22 @@ def show_news_command_handler(update, context, telegram_user_id, telegram_user):
         return
 
     # update.message.reply_text(id, parse_mode='Markdown')
+
+
+@log_user_input
+@standard_user_checks
+def read_news_item_command_handler(update, context, telegram_user_id, telegram_user):
+    """read a specific news item (identified by id)"""
+
+    str_id = update.message.text.replace('/' + UI_READ_NEWS, '')
+    if str_id is '':
+        return
+
+    news_id = int(str_id)
+
+    logger.info(f"read_news_item_command_handler: {str_id}")
+
+    send_news_as_audio_file(context, news_id, telegram_user)
 
 
 @log_user_input
@@ -933,6 +949,8 @@ def main():
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
     dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
+    dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_READ_NEWS + '[\\d]+)$'), read_news_item_command_handler))
+
 
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
