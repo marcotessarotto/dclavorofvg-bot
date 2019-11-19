@@ -264,10 +264,10 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 '''
 help - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
-privacy - accetta il regolamento sulla privacy di questo bot
 rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
 statistiche - notizie inviate negli ultimi 10 giorni
 '''
+#privacy - accetta il regolamento sulla privacy di questo bot
 
 
 # two newlines (\n) to separate the subject from the message body
