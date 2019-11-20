@@ -12,7 +12,7 @@ class CustomDateTimeField(models.DateTimeField):
         return ''
 
 
-APP_LABEL = "backoffice"  # DO NOT MODIFY
+APP_LABEL = "backoffice"  # DO NOT MODIFY; necessary to telegram bot for import of django models
 
 
 # ****************************************************************************************
@@ -175,7 +175,7 @@ class TelegramUser(models.Model):
     class Meta:
         verbose_name = UI_telegram_user
         verbose_name_plural = UI_telegram_users
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
     def __str__(self):
         return 'user ' + str(self.user_id) + ' (' + \
@@ -194,7 +194,7 @@ class UserFreeText(models.Model):  #
     class Meta:
         verbose_name = UI_free_sentences
         verbose_name_plural = UI_free_sentences_of_telegram_users
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
 
 class RssFeedItem(models.Model):
@@ -219,7 +219,7 @@ class RssFeedItem(models.Model):
 
     class Meta:
         verbose_name = "RssFeedItem"
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
 
 class NewsFile(models.Model):
@@ -227,7 +227,7 @@ class NewsFile(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        app_label = "backoffice"
+        app_label = APP_LABEL
         verbose_name = UI_files_for_news
         verbose_name_plural = UI_files_for_news
 
@@ -293,7 +293,7 @@ class NewsItem(models.Model):
     class Meta:
         verbose_name = UI_news
         verbose_name_plural = UI_news_plural
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
     def __str__(self):
         return 'news #' + str(self.id) + ' (' + \
@@ -311,7 +311,7 @@ class FeedbackToNewsItem(models.Model):
     class Meta:
         verbose_name = UI_feedback_to_news
         verbose_name_plural = UI_feedback_to_news
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
 
 class Comment(models.Model):
@@ -327,7 +327,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = UI_comment_to_news
         verbose_name_plural = UI_comment_to_news_plural
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
     def __str__(self):
         return "Comment FOR " + \
@@ -350,7 +350,7 @@ class LogUserInteraction(models.Model):  # was CommandsFromUser
     class Meta:
         verbose_name = UI_log_of_interactions_between_bot_and_users
         verbose_name_plural = UI_log_of_interactions_between_bot_and_users
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
     def __str__(self):
         return f"LogUserInteraction: user_id={self.user_id} coming_from_user={self.coming_from_user}  {self.created_at}  {self.text}"
@@ -418,7 +418,7 @@ class SystemParameter(models.Model):
     class Meta:
         verbose_name = UI_system_parameter
         verbose_name_plural = UI_system_parameters
-        app_label = "backoffice"
+        app_label = APP_LABEL
 
     def __str__(self):
         return str(self.name)
@@ -469,4 +469,4 @@ class TextToSpeechWordSubstitution(models.Model):
     class Meta:
         # verbose_name = UI_system_parameter
         # verbose_name_plural = UI_system_parameters
-        app_label = "backoffice"
+        app_label = APP_LABEL
