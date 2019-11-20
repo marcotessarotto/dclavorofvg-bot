@@ -34,7 +34,7 @@ DEFAULT_CATEGORY_DICT = {
 
 EXT_DEBUG_MSG = True
 
-NEWS_CHECK_PERIOD = 60 * 30  # seconds
+NEWS_CHECK_PERIOD = 60 * 1  # seconds
 
 MAX_NUM_NEWS_TO_RESEND = 10  # maximum number of news items to resend
 

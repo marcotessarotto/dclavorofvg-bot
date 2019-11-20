@@ -9,7 +9,7 @@ from src.backoffice.definitions import EXT_DEBUG_MSG
 from src.telegram_bot.print_utils import my_print
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='[%(asctime)s] %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 
