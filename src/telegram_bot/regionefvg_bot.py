@@ -250,10 +250,9 @@ def help_command_handler(update, context):
 
 def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
-    msg = ''
+    msg = UI_message_categories_selection
     for cat in categories:
-        msg = msg + '/' + cat.custom_telegram_command + ' : ' + UI_message_receive_info_about_category.format(
-            cat.name) + '\n'
+        msg = msg + '<b>/' + cat.custom_telegram_command + '</b> 🠮 categoria "' + cat.name + '"\n'
 
     update.message.reply_text(
         msg,

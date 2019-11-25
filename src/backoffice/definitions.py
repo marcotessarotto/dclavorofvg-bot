@@ -100,7 +100,7 @@ UI_SEND_NEWS_COMMAND = 'news'  # admin only
 UI_SHOW_NEWS = 'mostra_'  # id of news item is appended
 UI_READ_NEWS = 'leggi_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
-UI_CATEGORIES_HELP = "help_categorie"
+UI_CATEGORIES_HELP = "categorie"
 UI_SET_FILTER = "filtro"
 UI_STATS_COMMAND = "statistiche"
 
@@ -207,6 +207,8 @@ UI_message_request_for_news_item_feedback = "Ti è utile questa notizia?"
 UI_message_published_on = "pubblicata il"
 
 UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizia {0}"
+
+UI_message_categories_selection = "inserisci uno dei seguenti comandi per ricevere informazioni riguardo la relativa categoria:\n"
 
 UI_news = "notizia"
 UI_news_plural = "notizie"
