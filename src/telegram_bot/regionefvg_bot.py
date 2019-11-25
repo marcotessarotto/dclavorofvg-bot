@@ -656,6 +656,30 @@ def debug3_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+def debug4_command_handler(update, context, telegram_user_id, telegram_user):
+    if not telegram_user.is_admin:
+        return
+
+    from time import sleep
+
+    logger.info("sleep 0 ms")
+    for i in range(100):
+        orm_get_telegram_user(telegram_user_id)
+        # sleep(0.10)
+
+    logger.info("sleep 50 ms")
+    for i in range(100):
+        orm_get_telegram_user(telegram_user_id)
+        sleep(0.05)
+
+    logger.info("sleep 100 ms")
+    for i in range(100):
+        orm_get_telegram_user(telegram_user_id)
+        sleep(0.10)
+
+
+@log_user_input
+@standard_user_checks
 def ping_command_handler(update, context, telegram_user_id, telegram_user):
     """get status of system services - admin command"""
     if not telegram_user.is_admin:
@@ -956,6 +980,8 @@ def main():
     dp.add_handler(CommandHandler(UI_FORCE_SEND_NEWS_COMMAND, force_send_news_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
+    dp.add_handler(CommandHandler(UI_DEBUG4_COMMAND, debug4_command_handler))
+
     dp.add_handler(CommandHandler(UI_PING_COMMAND, ping_command_handler))
     dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, debug_sendnews_command_handler))
     dp.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))

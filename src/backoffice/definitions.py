@@ -94,6 +94,7 @@ UI_CHOOSE_CATEGORIES_COMMAND = 'scegli'
 UI_FORCE_SEND_NEWS_COMMAND = 'update'  # admin only
 UI_DEBUG2_COMMAND = 'debug2'  # admin only
 UI_DEBUG3_COMMAND = 'debug3'  # admin only
+UI_DEBUG4_COMMAND = 'debug4'  # admin only
 UI_PING_COMMAND = 'ping'  # admin only
 UI_CLEANUP_COMMAND = 'cleanup'  # admin only
 UI_SEND_NEWS_COMMAND = 'news'  # admin only

@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+import time
 from pytz import timezone, utc
 
 # https://www.electricmonk.nl/log/2017/08/06/understanding-pythons-logging-module/
@@ -15,11 +16,11 @@ logging.basicConfig(
 
 
 def custom_time_converter(*args):  # https://stackoverflow.com/a/45805464/974287
-
     utc_dt = utc.localize(datetime.utcnow())
     my_tz = timezone("Europe/Rome")
     converted = utc_dt.astimezone(my_tz)
     return converted.timetuple()
+
 
 # import time
 # logging.Formatter.converter = time.localtime
@@ -49,16 +50,19 @@ def benchmark_decorator(func):
     @wraps(func)
     def wrapped(*args, **kwargs):
 
-        a = datetime.now()
+        # a = datetime.now()
+        # https://stackoverflow.com/a/49667269/974287
+        a = time.time_ns()
 
         try:
             return func(*args, **kwargs)
         finally:
-            b = datetime.now()
+            # b = datetime.now()
+            b = time.time_ns()
 
             c = b - a
 
-            benchmark_logger.debug(f"{func.__name__} dt={c.microseconds} microseconds")
+            benchmark_logger.debug(f"{func.__name__} dt={c / 1000} microseconds")
 
     return wrapped
 
