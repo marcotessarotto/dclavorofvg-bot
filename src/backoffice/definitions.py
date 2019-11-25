@@ -50,7 +50,7 @@ COMANDI del bot:
 per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/scegli</b>.
 
 <b>/start</b> avvio del bot (l'hai già fatto)
-<b>/scegli</b> scegli le categorie di notizie che ti vuoi ricevere
+<b>/scegli , /categorie</b> scegli le categorie di notizie che ti vuoi ricevere
 <b>/privacy</b> lo hai usato per accettare il regolamento privacy
 
 <b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni
