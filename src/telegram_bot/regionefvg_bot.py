@@ -250,10 +250,9 @@ def help_command_handler(update, context):
 
 def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
-    msg = ''
+    msg = 'Inserisci uno dei seguenti comandi per ricevere informazioni riguardo la relativa categoria:\n\n'
     for cat in categories:
-        msg = msg + '/' + cat.custom_telegram_command + ' : ' + UI_message_receive_info_about_category.format(
-            cat.name) + '\n'
+        msg = msg + '<b>/' + cat.custom_telegram_command + '</b> → Categoria <i>\"' + cat.name + '\"</i>.\n'
 
     update.message.reply_text(
         msg,
@@ -582,7 +581,7 @@ def stats_command_handler(update, context, telegram_user_id, telegram_user):
 
     for k, v in dict.items():
         # logger.info("k=" + str(k) + " v=" + str(v))
-        text += str(k.name) + ': ' + str(v) + "\n"
+        text += ' - ' + str(k.name) + ': <b>' + str(v) + "</b>\n"
 
     context.bot.send_message(
         chat_id=telegram_user.user_id,
@@ -951,7 +950,6 @@ def main():
     dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
     dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_READ_NEWS + '[\\d]+)$'), read_news_item_command_handler))
 
-
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
     dp.add_handler(CommandHandler(UI_FORCE_SEND_NEWS_COMMAND, force_send_news_command_handler))
@@ -965,7 +963,6 @@ def main():
 
     dp.add_handler(CommandHandler(UI_AUDIO_ON_COMMAND, audio_on_command_handler))
     dp.add_handler(CommandHandler(UI_AUDIO_OFF_COMMAND, audio_off_command_handler))
-
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

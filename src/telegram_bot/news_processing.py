@@ -197,7 +197,7 @@ def send_news_to_telegram_user(
     if news_item.title_link is not None and not title_only:
         title_html_content = f'<a href="{news_item.title_link}">[{UI_news} #{news_item.id} {UI_message_published_on} {processed_timestamp_html}] {news_item.title} '                                                        ' </a>\n'
     else:
-        title_html_content = f'<b>[{UI_news} #{news_item.id} {UI_message_published_on} {processed_timestamp_html}] {news_item.title}</b>\n'
+        title_html_content = f'<b>{news_item.title}</b>\n'
 
     show_categories_in_news = SHOW_CATEGORIES_IN_NEWS
 
@@ -253,7 +253,7 @@ def send_news_to_telegram_user(
 
             logger.warning("html_news_content too long, has been truncated")
 
-        if telegram_user.is_text_to_speech_enabled:
+        if False: #telegram_user.is_text_to_speech_enabled:
 
             fname = text_to_speech(news_item, news_item.title)
 

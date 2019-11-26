@@ -47,17 +47,14 @@ help_keyword_list =  ['aiuto', 'help', '?']
 bot_default_help_msg = """Ti aiuto a ricevere notizie ed offerte di lavoro personalizzate sulle tue esigenze.
 
 COMANDI del bot:
-per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/scegli</b>.
 
-<b>/start</b> avvio del bot (l'hai già fatto)
-<b>/scegli</b> scegli le categorie di notizie che ti vuoi ricevere
-<b>/privacy</b> lo hai usato per accettare il regolamento privacy
+<b>/start</b> → Avvio del bot (l'hai già fatto);
+<b>/scegli</b>, <b>/categorie</b> → Scelta delle categorie di interesse;
+<b>/privacy</b> → Invio dell'informativa sulle condizioni d'utilizzo;
+<b>/rimanda_ultime_notizie</b> → Riassunto delle notizie inviate negli ultimi 10 giorni;
+<b>/statistiche</b> → Statistiche sulle notizie inviate negli ultimi 10 giorni.
 
-<b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni
-
-<b>/statistiche</b> sulle notizie inviate negli ultimi 10 giorni
-
-Per mostrare nuovamente questo messaggio digita /help o /aiuto
+Per mostrare nuovamente questo messaggio digita /help o /aiuto.
 """
 
 
@@ -100,7 +97,7 @@ UI_SEND_NEWS_COMMAND = 'news'  # admin only
 UI_SHOW_NEWS = 'mostra_'  # id of news item is appended
 UI_READ_NEWS = 'leggi_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
-UI_CATEGORIES_HELP = "help_categorie"
+UI_CATEGORIES_HELP = "categorie"
 UI_SET_FILTER = "filtro"
 UI_STATS_COMMAND = "statistiche"
 
@@ -175,8 +172,8 @@ UI_message_me_stop_questions = 'Basta così!'
 UI_message_do_you_want_news_about = "Vuoi ricevere notizie su <b>{0}</b>?"
 UI_message_continue_sending_news_about = "Continuo a mandarti notizie su <b>{0}</b>?"
 
-UI_message_you_are_subscribed_to_news_category = "In questo momento sei iscritto alle notizie su <b>{0}</b>. "
-UI_message_you_are_not_subscribed_to_news_category = "In questo momento non sei iscritto alle notizie su <b>{0}</b>. "
+UI_message_you_are_subscribed_to_news_category = "In questo momento stai seguendo la categoria <b>{0}</b>. "
+UI_message_you_are_not_subscribed_to_news_category = "In questo momento non stai seguendo la categoria <b>{0}</b>. "
 
 UI_message_stop_receive_info_about = "Smetto di mandarti notizie su <b>{0}</b>?"
 
@@ -197,8 +194,8 @@ UI_message_what_is_your_educational_level = 'Ancora una cosa: qual è il tuo tit
 UI_message_enter_custom_educational_level = 'Ok, inserisci il tuo livello di studio'
 UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto <i>{0}</i> come livello studio.\n\n'
 
-UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b> "
-UI_message_read_news_item = "<b>Per la lettura del titolo della notizia, fai click qui: /leggi_{0}</b>"
+UI_message_show_complete_news_item = "Per vedere questa notizia completa, fai click qui: <b>/mostra_{0}</b> "
+UI_message_read_news_item = "Per la lettura del titolo della notizia, fai click qui: <b>/leggi_{0}</b>"
 
 UI_message_news_item_category = "categoria della notizia"
 
@@ -206,7 +203,7 @@ UI_message_request_for_news_item_feedback = "Ti è utile questa notizia?"
 
 UI_message_published_on = "pubblicata il"
 
-UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizia {0}"
+UI_message_this_is_audio_version_of_news_item = "Lettura del titolo della notizia {0}."
 
 UI_news = "notizia"
 UI_news_plural = "notizie"
@@ -237,7 +234,7 @@ UI_groups_of_categories = 'Gruppi di categorie'
 
 UI_log_of_news_sent_to_users = 'Log delle notizie inviate agli utenti'
 
-UI_statistics_on_news = 'statistiche sulle notizie (negli ultimi 10 giorni):\n'
+UI_statistics_on_news = 'Statistiche sulle notizie inviate negli ultimi 10 giorni:\n'
 
 UI_message_text_to_speech_has_been_enabled = 'lettura audio delle notizie: abilitata'
 
