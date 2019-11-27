@@ -356,18 +356,6 @@ class LogUserInteraction(models.Model):  # was CommandsFromUser
         return f"LogUserInteraction: user_id={self.user_id} coming_from_user={self.coming_from_user}  {self.created_at}  {self.text}"
 
 
-# class UserActivityLog(models.Model):
-#     user_id = models.BigIntegerField()
-#     news_id = models.BigIntegerField()
-#
-#     value = models.CharField(max_length=1, blank=True, null=True)
-#
-#     created_at = models.DateTimeField(auto_now_add=True)
-#
-#     class Meta:
-#         app_label = "backoffice"
-
-
 class SystemParameter(models.Model):
     name = models.CharField(max_length=256, blank=False)
 
@@ -412,6 +400,9 @@ class SystemParameter(models.Model):
         SystemParameter.add_default_param(RSS_FEED,
                                           "http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/servizi-lavoratori/news/?rss=y",
                                           "rss feed to watch")
+
+        SystemParameter.add_default_param(CREATE_USER_WITH_ALL_CATEGORIES_SELECTED,
+                                          "True", "on /start command, create user with (or without) all categories selected (possible values: True/False)")
 
         return True
 

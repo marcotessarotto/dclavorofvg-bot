@@ -18,7 +18,7 @@ def _update_user_in_cache(telegram_user):
 
 
 def orm_add_telegram_user(user):
-    """ creates a new user, if not existing; returns istance """
+    """ creates a new user, if not existing; returns instance of user """
 
     telegram_user = orm_get_telegram_user(user.id)
 
@@ -31,11 +31,11 @@ def orm_add_telegram_user(user):
         new_telegram_user.language_code = user.language_code
         new_telegram_user.save()
 
-        # new users have no category selected!
-
-        # (select all news categories)
-        # for k in Category.objects.all():
-        #     new_telegram_user.categories.add(k)
+        # new users: should they have all news categories selected? or none?
+        if orm_get_system_parameter(CREATE_USER_WITH_ALL_CATEGORIES_SELECTED) == "True":
+            # (select all news categories)
+            for k in Category.objects.all():
+                new_telegram_user.categories.add(k)
 
         new_telegram_user.save()
 

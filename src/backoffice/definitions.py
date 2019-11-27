@@ -65,13 +65,14 @@ def get_bot_default_help_msg():
     return bot_default_help_msg
 
 
-# DO NOT USE SPACES (for memcache)
+# DO NOT USE SPACES in string values (required by memcache)
 UI_bot_help_message = "UI_bot_help_message"
 UI_bot_presentation = "UI_presentazione_bot"
 UI_PRIVACY = "UI_PRIVACY"
 # UI_request_for_news_item_feedback = "UI_request_for_news_item_feedback"
 # UI_select_news_categories = "UI_seleziona_le_categorie_di_news"
 RSS_FEED = "RSS_FEED"
+CREATE_USER_WITH_ALL_CATEGORIES_SELECTED = "CREATE_USER_WITH_ALL_CATEGORIES_SELECTED"
 
 # param_show_match_category_news = "news_mostra_match_categoria"
 

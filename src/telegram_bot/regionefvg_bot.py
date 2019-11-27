@@ -24,16 +24,18 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 
 import time
 
-#
+# set in main method
 global_bot_instance = None
 
 CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
 
+
 @debug_update
 @log_user_input
 def start_command_handler(update, context):
-    logger.info(f"start args: {context.args}")  # parametro via start; max 64 caratteri
-    # https://telegram.me/marcotts_bot?start=12345
+    logger.info(f"start args: {context.args}")  # parameter received through start command; max length: 64
+    # example:
+    # https://telegram.me/DCLavoroFvg_bot?start=12345
 
     # logger.info("update.message.from_user = " + str(update.message.from_user))
 
