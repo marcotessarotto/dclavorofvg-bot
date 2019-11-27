@@ -52,10 +52,10 @@ def news_dispatcher(context: CallbackContext):
 
     for news_item in list_of_news:
 
-        logger.debug(f"news_dispatcher - elaboration of news item id={news_item.id}")
-
         if len(news_item.categories.all()) == 0:  # do not process news item with no categories specified
             continue
+
+        logger.debug(f"news_dispatcher - elaboration of news item id={news_item.id}")
 
         for telegram_user in all_telegram_users:
 
