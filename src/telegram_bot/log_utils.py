@@ -63,7 +63,10 @@ def benchmark_decorator(func):
 
             c = b - a
 
-            benchmark_logger.debug(f"{func.__name__} dt={c / 1000} microseconds")
+            if c >= 1000000000:
+                benchmark_logger.warning(f"{func.__name__} dt={c / 1000} microseconds")
+            else:
+                benchmark_logger.debug(f"{func.__name__} dt={c / 1000} microseconds")
 
     return wrapped
 

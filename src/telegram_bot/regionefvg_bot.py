@@ -19,7 +19,7 @@ from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
 from telegram.ext import messagequeue as mq, Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, \
-    CallbackQueryHandler
+    CallbackQueryHandler, run_async
 
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
@@ -242,6 +242,7 @@ def undo_privacy_command_handler(update, context):
     )
 
 
+@benchmark_decorator
 def help_command_handler(update, context):
     """ Show available bot commands"""
 
@@ -251,6 +252,7 @@ def help_command_handler(update, context):
     )
 
 
+@benchmark_decorator
 def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
     msg = UI_message_categories_selection
@@ -263,6 +265,8 @@ def help_categories_command_handler(update, context):
     )
 
 
+# @run_async
+@benchmark_decorator
 def callback(update, context):
     """process callback data sent by inline_keyboards """
 
@@ -287,6 +291,8 @@ def callback(update, context):
 
 @log_user_input
 @standard_user_checks
+@run_async
+@benchmark_decorator
 def show_news_command_handler(update, context, telegram_user_id, telegram_user):
     """show a specific news item (identified by id)"""
 
@@ -306,6 +312,8 @@ def show_news_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+@run_async
+@benchmark_decorator
 def read_news_item_command_handler(update, context, telegram_user_id, telegram_user):
     """read a specific news item (identified by id)"""
 
@@ -491,6 +499,8 @@ def me_command_handler(update, context):
 
 @log_user_input
 @standard_user_checks
+@run_async
+@benchmark_decorator
 def resend_last_processed_news_command_handler(update, context, telegram_user_id, telegram_user):
     logger.info("resend_last_processed_news")
 
