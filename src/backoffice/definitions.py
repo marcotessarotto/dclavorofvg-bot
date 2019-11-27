@@ -49,8 +49,8 @@ bot_default_help_msg = """Ti aiuto a ricevere notizie ed offerte di lavoro perso
 COMANDI del bot:
 per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/scegli</b>.
 
-<b>/start</b> avvio del bot (l'hai già fatto)
-<b>/scegli , /categorie</b> scegli le categorie di notizie che ti vuoi ricevere
+
+<b>/scegli , /categorie</b> scegli le categorie di notizie che vuoi ricevere
 <b>/privacy</b> lo hai usato per accettare il regolamento privacy
 
 <b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni
@@ -59,6 +59,9 @@ per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/sce
 
 Per mostrare nuovamente questo messaggio digita /help o /aiuto
 """
+
+# removed:
+# <b>/start</b> avvio del bot (l'hai già fatto)
 
 
 def get_bot_default_help_msg():
@@ -161,7 +164,10 @@ UI_message_already_resent_news = 'Ti ho già rimandato le ultime notizie poco fa
 UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il tipo di notizie che vuoi ricevere.\n' \
                                                     'Per farlo, usa il comando /scegli.'
 
-UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:"
+UI_arrow = '🠮'
+
+UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:\n" + u'\U00002705' + ' 🠮 selezionato, ' + \
+                                    u'\U0000274C' + ' 🠮 non selezionato'
 
 UI_message_ok_suffix = ": Sì"
 UI_message_no_suffix = ": No"
@@ -266,7 +272,7 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 # show available commands in telegram input box:
 # https://stackoverflow.com/questions/34457568/how-to-show-options-in-telegram-bot
 '''
-help - ti mostro i comandi disponibili
+aiuto - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
 rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
 statistiche - notizie inviate negli ultimi 10 giorni

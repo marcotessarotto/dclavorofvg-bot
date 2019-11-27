@@ -17,7 +17,8 @@ from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disa
 from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
-from telegram.ext import messagequeue as mq, Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
+from telegram.ext import messagequeue as mq, Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, \
+    CallbackQueryHandler
 
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
@@ -67,7 +68,6 @@ def privacy_command_handler(update, context):
     logger.info(f"privacy_command_handler - user id={telegram_user.id} privacy accepted: {privacy_state}")
 
     if not privacy_state:
-
         context.bot.send_message(
             chat_id=update.message.chat_id,
             text=UI_message_read_and_accept_privacy_rules_as_follows + orm_get_system_parameter(UI_PRIVACY),
@@ -180,7 +180,6 @@ def ask_educational_level(update, context):
 
 
 def callback_education_level(update, context):
-
     choice = update.message.text
 
     if choice == EDUCATIONAL_LEVELS[-1][1]:
@@ -226,7 +225,6 @@ def callback_custom_education_level(update, context):
 
 
 def fallback_conversation_handler(update, context):
-
     text = update.message.text
     logger.info(f'fallback_conversation_handler {text}')
     return ConversationHandler.END
@@ -256,7 +254,7 @@ def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
     msg = UI_message_categories_selection
     for cat in categories:
-        msg = msg + '<b>/' + cat.custom_telegram_command + '</b> 🠮 categoria "' + cat.name + '"\n'
+        msg = msg + '<b>/' + cat.custom_telegram_command + f'</b> {UI_arrow} categoria "' + cat.name + '"\n'
 
     update.message.reply_text(
         msg,
@@ -324,7 +322,7 @@ def read_news_item_command_handler(update, context, telegram_user_id, telegram_u
 @log_user_input
 @standard_user_checks
 def choose_news_categories_command_handler(update, context, telegram_user_id, telegram_user):
-    """choose news categories"""
+    """let user choose news categories to which subscribe"""
     # telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     # if must_return:
     #     return
@@ -373,7 +371,6 @@ def inline_keyboard(user):
 
 @benchmark_decorator
 def callback_choice(update, choice: str):
-
     telegram_user = orm_get_telegram_user(update.callback_query.from_user.id)
 
     if choice == 'OK':  # show choosen categories
@@ -459,7 +456,7 @@ def set_no_categories_command_handler(update, context, telegram_user_id, telegra
     _set_all_categories(update, context, False)
 
 
-# TODO: remove
+# to be changed or removed
 def me_command_handler(update, context):
     telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
     if must_return:
@@ -542,12 +539,14 @@ def resend_last_processed_news_command_handler(update, context, telegram_user_id
         if news_item.broadcast_message is not True and len(intersection_result) == 0:
             continue
 
-        logger.info(f"resend_last_processed_news - resending news_item.id={news_item.id} to user {telegram_user.user_id}")
+        logger.info(
+            f"resend_last_processed_news - resending news_item.id={news_item.id} to user {telegram_user.user_id}")
 
         news_item_already_shown_to_user = orm_has_user_seen_news_item(telegram_user, news_item)
 
         send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=intersection_result,
-                                   request_feedback=False, title_only=True, news_item_already_shown_to_user=news_item_already_shown_to_user)
+                                   request_feedback=False, title_only=True,
+                                   news_item_already_shown_to_user=news_item_already_shown_to_user)
 
         counter += 1
 
@@ -698,7 +697,6 @@ def ping_command_handler(update, context, telegram_user_id, telegram_user):
     text = 'system services status:\n'
 
     for service_name in system_services:
-
         a = subprocess.run(["systemctl", "status", "--output=json", service_name])
 
         text += f"{service_name}: {a.returncode}\n"
@@ -980,7 +978,6 @@ def main():
     dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
     dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_READ_NEWS + '[\\d]+)$'), read_news_item_command_handler))
 
-
     dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
     dp.add_handler(CommandHandler(UI_FORCE_SEND_NEWS_COMMAND, force_send_news_command_handler))
@@ -996,7 +993,6 @@ def main():
 
     dp.add_handler(CommandHandler(UI_AUDIO_ON_COMMAND, audio_on_command_handler))
     dp.add_handler(CommandHandler(UI_AUDIO_OFF_COMMAND, audio_off_command_handler))
-
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))
