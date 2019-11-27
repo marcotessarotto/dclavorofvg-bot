@@ -60,6 +60,8 @@ COMANDI del bot:
 
 <b>/audio_on</b> per abilitare la lettura dei titoli delle notizie. <b>/audio_off</b> per disabilitare la lettura.
 
+<b>/mostra_categorie_professionali</b> mostra le frequenze delle parole chiave delle categorie professionali nelle offerte di lavoro pubblicate su http://offertelavoro.regione.fvg.it.
+
 Per mostrare nuovamente questo messaggio digita /help o /aiuto
 """
 
