@@ -170,10 +170,10 @@ UI_message_already_resent_news = 'Ti ho già rimandato le ultime notizie poco fa
 UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il tipo di notizie che vuoi ricevere.\n' \
                                                     'Per farlo, usa il comando /scegli.'
 
-UI_arrow = '🠮'
+UI_arrow = "→"# u"\u2192" #'🠮'
 
-UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:\n" + u'\U00002705' + ' 🠮 selezionato, ' + \
-                                    u'\U0000274C' + ' 🠮 non selezionato'
+UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:\n" + u'\U00002705' + ' → selezionato, ' + \
+                                    u'\U0000274C' + ' → non selezionato'
 
 UI_message_ok_suffix = ": Sì"
 UI_message_no_suffix = ": No"
