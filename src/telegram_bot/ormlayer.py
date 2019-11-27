@@ -17,6 +17,24 @@ def _update_user_in_cache(telegram_user):
         cache.set(key_name, telegram_user, timeout=60)
 
 
+def orm_get_obj_from_cache(obj_name: str):
+    """get generic object from django cache"""
+
+    cache_key = "cacheobj" + obj_name
+
+    result = cache.get(cache_key)
+
+    return result
+
+
+def orm_set_obj_in_cache(obj_name: str, obj_instance, timeout=60*60*12):
+    """store object in django cache, default duration is 12 hours"""
+    cache_key = "cacheobj" + obj_name
+
+    cache.set(cache_key, obj_instance, timeout=timeout)
+
+
+
 def orm_add_telegram_user(user):
     """ creates a new user, if not existing; returns instance of user """
 

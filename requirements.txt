@@ -5,3 +5,4 @@ beautifulsoup4
 feedparser==6.0.0b1
 psycopg2-binary
 gTTS
+SolrClient

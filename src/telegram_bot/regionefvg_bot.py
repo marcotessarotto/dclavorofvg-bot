@@ -10,6 +10,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, Key
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
 from src.telegram_bot.ormlayer import *
+from src.telegram_bot.solr.solr_client import solr_get_professional_categories
 
 from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
     standard_user_checks
@@ -621,6 +622,24 @@ def audio_off_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+def show_professional_categories_command_handler(update, context, telegram_user_id, telegram_user):
+
+    dict = solr_get_professional_categories()
+
+    text = 'offerte di lavoro - frequenza parole chiave\n'
+
+    for k, v in dict.items():
+        text += f"{k} {UI_arrow} {v}\n"
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text=text,
+        parse_mode='HTML'
+    )
+
+
+@log_user_input
+@standard_user_checks
 def debug2_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
@@ -983,6 +1002,8 @@ def main():
 
     dp.add_handler(CommandHandler(UI_AUDIO_ON_COMMAND, audio_on_command_handler))
     dp.add_handler(CommandHandler(UI_AUDIO_OFF_COMMAND, audio_off_command_handler))
+
+    dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND, show_professional_categories_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

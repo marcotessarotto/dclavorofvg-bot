@@ -58,6 +58,8 @@ COMANDI del bot:
 
 <b>/statistiche</b> sulle notizie inviate negli ultimi 10 giorni
 
+<b>/audio_on</b> per abilitare la lettura dei titoli delle notizie. <b>/audio_off</b> per disabilitare la lettura.
+
 Per mostrare nuovamente questo messaggio digita /help o /aiuto
 """
 
@@ -113,6 +115,7 @@ UI_STATS_COMMAND = "statistiche"
 UI_AUDIO_ON_COMMAND = "audio_on"
 UI_AUDIO_OFF_COMMAND = "audio_off"
 
+UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND = "mostra_categorie_professionali"
 
 UI_message_category = "categoria "
 
