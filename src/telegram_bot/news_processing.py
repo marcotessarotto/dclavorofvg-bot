@@ -79,7 +79,7 @@ def news_dispatcher(context: CallbackContext):
         # observed issue: sending two (or more news item) with feeback; it has happended that
         # all feedback messages are shown after all the news item messages (lost association
         # between news item and feedback message); add a delay in order to allow telegram to send messages in order
-        time.sleep(1000)  # sleep 1 second
+        time.sleep(1)  # sleep 1 second
 
     logger.info("news_dispatcher - complete")
 

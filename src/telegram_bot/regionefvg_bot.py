@@ -22,6 +22,8 @@ from telegram.ext import messagequeue as mq, Updater, ConversationHandler, Comma
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 
+import time
+
 #
 global_bot_instance = None
 
@@ -546,6 +548,8 @@ def resend_last_processed_news_command_handler(update, context, telegram_user_id
                                    request_feedback=False, title_only=True, news_item_already_shown_to_user=news_item_already_shown_to_user)
 
         counter += 1
+
+        time.sleep(200 / 1000)
 
     if counter == 0:
         context.bot.send_message(
