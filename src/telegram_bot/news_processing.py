@@ -1,6 +1,8 @@
 import datetime
 import mimetypes
 
+import time
+
 from src.telegram_bot.log_utils import news_logger as logger, benchmark_decorator
 
 from src.gfvgbo.settings import MEDIA_ROOT
@@ -73,6 +75,13 @@ def news_dispatcher(context: CallbackContext):
         news_item.processed_timestamp = now()
 
         news_item.save()
+
+        # observed issue: sending two (or more news item) with feeback; it has happended that
+        # all feedback messages are shown after all the news item messages (lost association
+        # between news item and feedback message); add a delay in order to allow telegram to send messages in order
+        time.sleep(1000)  # sleep 1 second
+
+    logger.info("news_dispatcher - complete")
 
 
 def _send_file_using_mime_type(

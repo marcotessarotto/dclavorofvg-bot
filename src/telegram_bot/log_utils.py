@@ -52,6 +52,7 @@ def benchmark_decorator(func):
 
         # a = datetime.now()
         # https://stackoverflow.com/a/49667269/974287
+        # time.time_ns requires python >= 3.7
         a = time.time_ns()
 
         try:
