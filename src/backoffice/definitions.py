@@ -223,6 +223,8 @@ UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizi
 
 UI_message_categories_selection = "inserisci uno dei seguenti comandi per ricevere informazioni riguardo la relativa categoria:\n"
 
+UI_message_professional_categories_stats = 'offerte di lavoro: parole chiave delle categorie professionali e relativa frequenza\n'
+
 UI_news = "notizia"
 UI_news_plural = "notizie"
 
@@ -269,6 +271,7 @@ CALLBACK_INTERNSHIP_OK = 'internship ' + UI_OK
 CALLBACK_INTERNSHIP_NO = 'internship ' + UI_NO
 
 UI_broadcast_message = 'comunicazione di servizio a tutti gli utenti'
+
 
 DATE_FORMAT_STR = '%d-%m-%Y'
 # DATE_FORMAT_STR = '%Y-%m-%d'

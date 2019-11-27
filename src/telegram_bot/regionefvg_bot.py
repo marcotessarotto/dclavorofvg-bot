@@ -626,7 +626,7 @@ def show_professional_categories_command_handler(update, context, telegram_user_
 
     dict = solr_get_professional_categories()
 
-    text = 'offerte di lavoro - frequenza parole chiave\n'
+    text = UI_message_professional_categories_stats
 
     for k, v in dict.items():
         text += f"{k} {UI_arrow} {v}\n"
