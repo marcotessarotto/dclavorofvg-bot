@@ -47,10 +47,9 @@ help_keyword_list =  ['aiuto', 'help', '?']
 bot_default_help_msg = """Ti aiuto a ricevere notizie ed offerte di lavoro personalizzate sulle tue esigenze.
 
 COMANDI del bot:
-per specificare le categorie di notizie che vuoi ricevere usa il comando <b>/scegli</b>.
 
+<b>/scegli , /categorie</b> per scegliere le categorie di notizie che vuoi ricevere
 
-<b>/scegli , /categorie</b> scegli le categorie di notizie che vuoi ricevere
 <b>/privacy</b> lo hai usato per accettare il regolamento privacy
 
 <b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni

@@ -66,7 +66,7 @@ class TextToSpeechWordSubstitutionAdmin(admin.ModelAdmin):
 
 @admin.register(NewsItem)
 class NewsItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'created_at', 'list_of_categories', 'processed', 'processed_timestamp', 'like', 'dislike')
+    list_display = ('id', 'title', 'created_at', 'list_of_categories', 'start_publication',  'processed', 'processed_timestamp', 'like', 'dislike')
     exclude = ('like', 'dislike')
     search_fields = ('id', 'title')
     list_filter = ('categories',)

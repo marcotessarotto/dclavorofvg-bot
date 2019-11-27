@@ -271,7 +271,7 @@ class NewsItem(models.Model):
     dislike = models.BigIntegerField(default=0, editable=False)
 
     start_publication = models.DateTimeField(blank=True, null=True,
-                                             verbose_name="data di invio (opzionale: se non specificata, la news verrà inviata appena possibile)")
+                                             verbose_name="data di invio programmato (opt.)")
     # end_publication = models.DateTimeField(blank=True, null=True, verbose_name="fine periodo di pubblicazione")
 
     recurrent_for_new_users = models.BooleanField(default=False,
@@ -279,9 +279,9 @@ class NewsItem(models.Model):
 
     # if processed is true, this news item has already been sent to all users
     processed = models.BooleanField(default=False, editable=True,
-                                    verbose_name="questa news è stata inviata agli utenti?")
+                                    verbose_name="inviata agli utenti?")
     processed_timestamp = models.DateTimeField(blank=True, null=True, editable=False,
-                                               verbose_name='data di elaborazione')
+                                               verbose_name='data di invio')
 
     rss_id = models.CharField(max_length=256, blank=True, null=True, editable=False)  # used if news comes from rss feed
 
