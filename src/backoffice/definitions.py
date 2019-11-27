@@ -40,6 +40,8 @@ MAX_NUM_NEWS_TO_RESEND = 10  # maximum number of news items to resend
 
 SHOW_CATEGORIES_IN_NEWS = True
 
+SHOW_READ_COMMAND_IN_NEWS_BODY = False  # see also message UI_message_read_news_item
+
 # https://unicode.org/emoji/charts/full-emoji-list.html
 
 help_keyword_list =  ['aiuto', 'help', '?']
@@ -205,7 +207,8 @@ UI_message_enter_custom_educational_level = 'Ok, inserisci il tuo livello di stu
 UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto <i>{0}</i> come livello studio.\n\n'
 
 UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b> "
-UI_message_read_news_item = "<b>Per la lettura del titolo della notizia, fai click qui: /leggi_{0}</b>"
+
+UI_message_read_news_item = "<b>Per la lettura del titolo della notizia, fai click qui: /" + UI_READ_NEWS + "{0}</b>"
 
 UI_message_news_item_category = "categoria della notizia"
 

@@ -492,10 +492,6 @@ def me_command_handler(update, context):
 @standard_user_checks
 def resend_last_processed_news_command_handler(update, context, telegram_user_id, telegram_user):
     logger.info("resend_last_processed_news")
-    #
-    # telegram_user_id, telegram_user, must_return = basic_user_checks(update, context)
-    # if must_return:
-    #     return
 
     now = datetime.now()
 
@@ -503,7 +499,7 @@ def resend_last_processed_news_command_handler(update, context, telegram_user_id
 
     # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - timedelta(minutes=1):
     if lrn is not None and lrn > now - timedelta(minutes=1):
-        logger.warning("resend_last_processed_news: too frequent! skipping")
+        logger.warning("resend_last_processed_news_command_handler: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=UI_message_already_resent_news,
@@ -756,7 +752,7 @@ def callback_feedback(update, data):
     orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)
 
     if comment_enabled:
-        # Attivazione tastiera con pulsante 'commenta'
+        # show keyboard with 'commenta' button
         update.callback_query.edit_message_text(
             text=UI_message_thank_you_for_feedback_newline + UI_message_write_a_comment,
             reply_markup=InlineKeyboardMarkup([
@@ -775,24 +771,21 @@ def callback_comment(update, context, news_id):
     """send a comment about an article"""
     logger.info("callback_comment")
 
-    # Rimuove il pulsante 'commenta'
+    # remove button 'commenta'
     update.callback_query.edit_message_text(
         UI_message_thank_you_for_feedback
     )
 
-    # Invia un messaggio con i dati dell'articolo da commentare
+    # send a message which will become a reply containing a comment to  news item
     context.bot.send_message(
         chat_id=update.callback_query.message.chat_id,
         text=UI_message_comment_to_news_item + str(news_id),
-        reply_markup=ForceReply()  # Invita l'utente a rispondere al messaggio
+        reply_markup=ForceReply()  # Invite user to respond to this message (and thus provide a comment)
     )
 
 
 def comment_handler(update, context):
-    """ Memorizza il commento inserito dall'utente """
-
-    # Testo del messaggio cui il commento fornisce una risposta
-    # (c'è il codice dell'articolo)
+    """ save the comment provided by user """
 
     logger.info(f"comment_handler: reply_to_message.text message={update.message.reply_to_message.text}")
     logger.info(f"comment_handler: message.text message={update.message.text}")
@@ -814,9 +807,6 @@ def comment_handler(update, context):
 @log_user_input
 @standard_user_checks
 def generic_message_handler(update, context, telegram_user_id, telegram_user):
-    # if DEBUG_MSG:
-    #     print("generic_message_handler update:")
-    #     my_print(update, 4)
 
     message_text = update.message.text
 

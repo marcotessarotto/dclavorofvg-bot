@@ -429,7 +429,9 @@ class TextToSpeechWordSubstitution(models.Model):
 
         tuples = (('68/1999', '68 del 1999'),
                   ('L. 68/99', 'legge 68 del 1999'),
-                  ('n.', 'numero'))
+                  ('n.', 'numero'),
+                  ('FVG', 'Friuli Venezia Giulia')
+                  )
 
         for t in tuples:
             sub = TextToSpeechWordSubstitution()

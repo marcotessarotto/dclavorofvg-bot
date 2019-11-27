@@ -20,7 +20,7 @@ from src.backoffice.definitions import (
     UI_news,
     UI_message_published_on,
     UI_external_link,
-    UI_message_read_news_item, UI_message_this_is_audio_version_of_news_item)
+    UI_message_read_news_item, UI_message_this_is_audio_version_of_news_item, SHOW_READ_COMMAND_IN_NEWS_BODY)
 
 from src.backoffice.models import NewsItem, TelegramUser
 
@@ -245,7 +245,8 @@ def send_news_to_telegram_user(
         html_news_content = title_html_content + categories_html_content + UI_message_show_complete_news_item.format(
             news_item.id)
 
-        if telegram_user.is_text_to_speech_enabled:
+        # append text showing command for reading title of news
+        if SHOW_READ_COMMAND_IN_NEWS_BODY and telegram_user.is_text_to_speech_enabled:
             html_news_content += "\n" + UI_message_read_news_item.format(news_item.id)
 
         delta = len(html_news_content) - 1024
@@ -257,7 +258,8 @@ def send_news_to_telegram_user(
                                 :reduced_len] + '...' + categories_html_content + UI_message_show_complete_news_item.format(
                 news_item.id)
 
-            if telegram_user.is_text_to_speech_enabled:
+            # append text showing command for reading title of news
+            if SHOW_READ_COMMAND_IN_NEWS_BODY and telegram_user.is_text_to_speech_enabled:
                 html_news_content += "\n" + UI_message_read_news_item.format(news_item.id)
 
             logger.warning("html_news_content too long, has been truncated")
@@ -400,6 +402,8 @@ def send_news_to_telegram_user(
                 callback_data=f'feedback - {news_item.id}  {news_item.ask_comment_to_user}'
             ),
         ]]
+
+        time.sleep(0.1)  # sleep for 100 ms, to be sure that previous message has been sent
 
         context.bot.send_message(
             chat_id=telegram_user.user_id,
