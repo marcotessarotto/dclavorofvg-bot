@@ -60,7 +60,7 @@ COMANDI del bot:
 
 <b>/audio_on</b> per abilitare la lettura dei titoli delle notizie. <b>/audio_off</b> per disabilitare la lettura.
 
-<b>/mostra_categorie_professionali</b> mostra le frequenze delle parole chiave delle categorie professionali nelle offerte di lavoro pubblicate su http://offertelavoro.regione.fvg.it.
+<b>/categorie_professionali</b> mostra le frequenze delle parole chiave delle categorie professionali nelle offerte di lavoro pubblicate su http://offertelavoro.regione.fvg.it.
 
 Per mostrare nuovamente questo messaggio digita /help o /aiuto
 """
@@ -117,7 +117,7 @@ UI_STATS_COMMAND = "statistiche"
 UI_AUDIO_ON_COMMAND = "audio_on"
 UI_AUDIO_OFF_COMMAND = "audio_off"
 
-UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND = "mostra_categorie_professionali"
+UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND = "categorie_professionali"
 
 UI_message_category = "categoria "
 
@@ -225,7 +225,7 @@ UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizi
 
 UI_message_categories_selection = "inserisci uno dei seguenti comandi per ricevere informazioni riguardo la relativa categoria:\n"
 
-UI_message_professional_categories_stats = 'offerte di lavoro: parole chiave delle categorie professionali e relativa frequenza\n'
+UI_message_professional_categories_stats = 'offerte di lavoro: parole chiave delle categorie professionali e relativa frequenza:\n\n'
 
 UI_news = "notizia"
 UI_news_plural = "notizie"
@@ -286,6 +286,7 @@ aiuto - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
 rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
 statistiche - notizie inviate negli ultimi 10 giorni
+categorie_professionali - ti mostro le categorie professionali delle offerte di lavoro
 '''
 #privacy - accetta il regolamento sulla privacy di questo bot
 
