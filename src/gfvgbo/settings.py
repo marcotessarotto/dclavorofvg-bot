@@ -21,6 +21,7 @@ example secrets.py file:
 DB_NAME="........"
 DB_USERNAME="........"
 DB_PWD="........"
+DB_HOSTNAME="....."
 
 SECRET_KEY = "................................"
 
@@ -81,6 +82,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'gfvgbo.wsgi.application'
 
+try:
+    DB_HOSTNAME
+except NameError:
+    DB_HOSTNAME = 'localhost'
 
 # Database
 DATABASES = {
@@ -89,7 +94,7 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USERNAME,
         'PASSWORD': DB_PWD,
-        'HOST': 'localhost',
+        'HOST': DB_HOSTNAME,
         'PORT': '',
     }
 }
