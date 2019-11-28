@@ -59,7 +59,7 @@ COMANDI del bot:
 
 <b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni
 
-<b>/statistiche</b> sulle notizie inviate negli ultimi 10 giorni
+<b>/statistiche_notizie</b> sulle notizie inviate negli ultimi 10 giorni
 
 <b>/audio_on</b> per abilitare la lettura dei titoli delle notizie. <b>/audio_off</b> per disabilitare la lettura.
 
@@ -115,7 +115,7 @@ UI_READ_NEWS = 'leggi_'  # id of news item is appended
 UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "categorie"
 UI_SET_FILTER = "filtro"
-UI_STATS_COMMAND = "statistiche"
+UI_STATS_COMMAND = "statistiche_notizie"
 
 UI_AUDIO_ON_COMMAND = "audio_on"
 UI_AUDIO_OFF_COMMAND = "audio_off"
@@ -288,7 +288,7 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 aiuto - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
 rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
-statistiche - notizie inviate negli ultimi 10 giorni
+statistiche_notizie - quante notizie inviate negli ultimi 10 giorni, per categoria
 categorie_professionali - ti mostro le categorie professionali delle offerte di lavoro
 '''
 #privacy - accetta il regolamento sulla privacy di questo bot

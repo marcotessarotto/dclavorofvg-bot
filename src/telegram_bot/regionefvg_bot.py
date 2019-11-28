@@ -108,10 +108,6 @@ def privacy_command_handler(update, context):
 
 
 def callback_privacy(update, context):
-    # if DEBUG_MSG:
-    #     logger.info("callback_privacy update:")
-    #     my_print(update, 4, logger)
-
     choice = update.message.text
 
     if choice == UI_ACCEPT_UC:
@@ -272,7 +268,7 @@ def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
     msg = UI_message_categories_selection
     for cat in categories:
-        msg = msg + '<b>/' + cat.custom_telegram_command + f'</b> {UI_arrow} categoria "' + cat.name + '"\n'
+        msg = msg + f'<b>/{cat.custom_telegram_command}</b> {UI_arrow} categoria "{cat.name}"\n'
 
     update.message.reply_text(
         msg,
@@ -725,6 +721,7 @@ def debug4_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+@run_async
 def ping_command_handler(update, context, telegram_user_id, telegram_user):
     """get status of system services - admin command"""
     if not telegram_user.is_admin:
@@ -740,6 +737,9 @@ def ping_command_handler(update, context, telegram_user_id, telegram_user):
         a = subprocess.run(["systemctl", "status", "--output=json", service_name])
 
         text += f"{service_name}: {a.returncode}\n"
+
+    # how many users
+    text += f"users: {len(TelegramUser.objects.all())}\n"
 
     context.bot.send_message(
         chat_id=telegram_user.user_id,
@@ -764,6 +764,7 @@ def cleanup_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+@run_async
 def admin_send_command_handler(update, context, telegram_user_id, telegram_user):
     """create a news item - admin command"""
     # takes content after /news command as content of the news to send
