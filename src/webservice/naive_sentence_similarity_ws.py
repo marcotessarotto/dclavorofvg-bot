@@ -187,6 +187,8 @@ def find_most_similar_sentence(sentence):
 
     d2 = process_sentence(sentence)
 
+    rdict = {}
+
     for row in reference_sentences:
         ref_sentence = row[0]
         ref_target = row[1]
@@ -201,14 +203,18 @@ def find_most_similar_sentence(sentence):
 
         val = (r1[0] + r2[0]) / 2.
 
+        rdict[val] = (ref_sentence,ref_target)
+
         if val > confidence:
             confidence = val
             result = ref_target
             confidence_sentence = ref_sentence
 
+    sorted_dict = {i: rdict[i] for i in sorted(rdict.keys(), reverse=True)}  # sort dict by key value in reverse order
+
     print(f"find_most_similar_sentence(): confidence={confidence} result={result} sentence={sentence} confidence_sentence={confidence_sentence}")
 
-    return result, confidence
+    return result, confidence, sorted_dict
 
 
 # find_most_similar_sentence("dove mi trovo?")

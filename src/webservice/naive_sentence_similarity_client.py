@@ -19,7 +19,7 @@ def naive_sentence_similarity_web_client(sentence, host='localhost'):
 
 # sentence = 'Cosa posso fare per avere più informazioni?'
 #
-# j = naive_sentence_similarity_web_client(sentence, '10.4.100.2')
+# j = naive_sentence_similarity_web_client(sentence)
 #
 # print(j)
 #
