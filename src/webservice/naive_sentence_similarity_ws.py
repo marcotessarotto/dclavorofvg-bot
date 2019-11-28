@@ -236,27 +236,27 @@ def web_service_process():
     cherrypy.config.update({'server.socket_host': '0.0.0.0'})
     cherrypy.quickstart(NaiveSentenceSimilarityWebservice(), '/', conf)
 
-
-def web_service_client(host='localhost'):
-    # sample client
-
-    import json
-    import requests
-
-    url = f'http://{host}:8101/similarity_ws'
-
-    my_dict = {'text': 'Cosa posso fare per avere più informazioni?'}
-
-    json_data = json.dumps(my_dict)
-
-    # data = {'json': json_data}
-
-    # https://2.python-requests.org//en/latest/user/quickstart/#post-a-multipart-encoded-file
-    r = requests.post(url, json=json_data)
-
-    print(f"JSON results from web service: {r.text}")
-
-    pass
+#
+# def web_service_client(host='localhost'):
+#     # sample client
+#
+#     import json
+#     import requests
+#
+#     url = f'http://{host}:8101/similarity_ws'
+#
+#     my_dict = {'text': 'Cosa posso fare per avere più informazioni?'}
+#
+#     json_data = json.dumps(my_dict)
+#
+#     # data = {'json': json_data}
+#
+#     # https://2.python-requests.org//en/latest/user/quickstart/#post-a-multipart-encoded-file
+#     r = requests.post(url, json=json_data)
+#
+#     print(f"JSON results from web service: {r.text}")
+#
+#     pass
 
 
 # if __name__ == '__main__':

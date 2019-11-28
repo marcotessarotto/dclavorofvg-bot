@@ -27,6 +27,8 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
 import time
 
 # set in main method
+from src.webservice.naive_sentence_similarity_client import naive_sentence_similarity_web_client
+
 global_bot_instance = None
 
 CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
@@ -867,6 +869,7 @@ def comment_handler(update, context):
 
 @log_user_input
 @standard_user_checks
+@run_async
 def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
     message_text = update.message.text
@@ -886,8 +889,27 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
         )
     else:
         global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
+
         # generic user utterance
         orm_store_free_text(message_text, telegram_user)
+
+        res = naive_sentence_similarity_web_client(message_text, '10.4.100.2')
+
+        import json
+        d = json.loads(res)
+
+        logger.info(f"*** naive_sentence_similarity_web_client returns {d}")
+
+        update.message.reply_text(
+            f"AI says: {d}",
+            parse_mode='HTML'
+        )
+
+        if d["similarity_ws"][0] == 'MORE_INFO':
+            update.message.reply_text(
+                orm_get_system_parameter(UI_bot_help_message),
+                parse_mode='HTML'
+            )
 
 
 # def callback_minute(context: telegram.ext.CallbackContext):
