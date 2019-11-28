@@ -46,6 +46,9 @@ SHOW_READ_COMMAND_IN_NEWS_BODY = False  # see also message UI_message_read_news_
 
 help_keyword_list =  ['aiuto', 'help', '?']
 
+# chat id for sending bot log messages
+BOT_LOGS_CHAT_ID = -358633344
+
 bot_default_help_msg = """Ti aiuto a ricevere notizie ed offerte di lavoro personalizzate sulle tue esigenze.
 
 COMANDI del bot:

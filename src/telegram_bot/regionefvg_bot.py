@@ -32,6 +32,21 @@ global_bot_instance = None
 CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
 
 
+def send_message_to_log_group(text):
+    """send bot log message to dedicated chat"""
+    if not text or not global_bot_instance:
+        return
+
+    try:
+
+        global_bot_instance.send_message(
+            chat_id=BOT_LOGS_CHAT_ID,
+            text=text,
+        )
+    except Exception:
+        logger.error("send_message_to_log_group")
+
+
 @debug_update
 @log_user_input
 def start_command_handler(update, context):
@@ -749,7 +764,7 @@ def cleanup_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
-def debug_sendnews_command_handler(update, context, telegram_user_id, telegram_user):
+def admin_send_command_handler(update, context, telegram_user_id, telegram_user):
     """create a news item - admin command"""
     # takes content after /news command as content of the news to send
 
@@ -758,6 +773,22 @@ def debug_sendnews_command_handler(update, context, telegram_user_id, telegram_u
         return
 
     data = update.message.text[len(UI_SEND_NEWS_COMMAND) + 1:].strip()
+
+    words = data.split()
+
+    s = words[0]
+
+    if (s.startswith('-') and s[1:].isdigit()) or s.isdigit():
+        chat_id = s
+        data = " ".join(words[1:])
+
+        context.bot.send_message(
+            chat_id=chat_id,
+            text=data,
+        )
+
+        return
+
     logger.info(f"sendnews_command_handler: {data}")
 
     orm_add_news_item(data, telegram_user)
@@ -922,6 +953,10 @@ def error_callback(update, error):
         # print(error)
         logger.error("TelegramError")
 
+    now = datetime.datetime.now()
+
+    send_message_to_log_group(f"{now}\n{update}\n{error}")
+
 
 def main():
     logger.info("starting bot...")
@@ -1005,7 +1040,7 @@ def main():
     dp.add_handler(CommandHandler(UI_DEBUG4_COMMAND, debug4_command_handler))
 
     dp.add_handler(CommandHandler(UI_PING_COMMAND, ping_command_handler))
-    dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, debug_sendnews_command_handler))
+    dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, admin_send_command_handler))
     dp.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))
 
     dp.add_handler(CommandHandler(UI_STATS_COMMAND, stats_command_handler))
