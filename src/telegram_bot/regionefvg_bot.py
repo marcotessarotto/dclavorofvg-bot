@@ -1,5 +1,7 @@
 import os
 
+from more_itertools import take
+
 from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
@@ -900,16 +902,26 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
         logger.info(f"*** naive_sentence_similarity_web_client returns {d}")
 
+        od = d["similarity_ws"][2]
+        # print(od)
+        n_items = take(3, od.items())
+        content = ''
+
+        for k,v in n_items:
+            content += f"{v}=>{k}\n"
+
+        # if telegram_user.is_admin:
+        # suggested_action={d["similarity_ws"][0]} confidence={d["similarity_ws"][1]}\n
         update.message.reply_text(
-            f"AI says: {d}",
+            f'AI says: {content}',
             parse_mode='HTML'
         )
 
-        if d["similarity_ws"][0] == 'MORE_INFO':
-            update.message.reply_text(
-                orm_get_system_parameter(UI_bot_help_message),
-                parse_mode='HTML'
-            )
+        # if d["similarity_ws"][0] == 'MORE_INFO':
+        #     update.message.reply_text(
+        #         orm_get_system_parameter(UI_bot_help_message),
+        #         parse_mode='HTML'
+        #     )
 
 
 # def callback_minute(context: telegram.ext.CallbackContext):

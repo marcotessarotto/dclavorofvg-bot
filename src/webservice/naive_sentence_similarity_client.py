@@ -12,7 +12,7 @@ def naive_sentence_similarity_web_client(sentence, host='localhost'):
 
     r = requests.post(url, json=json_data)
 
-    print(f"naive_sentence_similarity_web_client: result={r.text} sentence='{sentence}'")
+    # print(f"naive_sentence_similarity_web_client: result={r.text} sentence='{sentence}'")
 
     return r.text
 
