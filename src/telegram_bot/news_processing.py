@@ -198,15 +198,17 @@ def send_news_to_telegram_user(
     # cannot embed <b> inside <a> tag
 
     if news_item.processed and news_item.processed_timestamp is not None:
-        processed_timestamp_html = news_item.processed_timestamp.strftime(DATE_FORMAT_STR)
+        processed_timestamp_html = ' ' + UI_message_published_on + ' ' + news_item.processed_timestamp.strftime(DATE_FORMAT_STR)
     else:
         processed_timestamp_html = ''
 
+    news_id_block = f"[{UI_news} #{news_item.id}{processed_timestamp_html}]"
+
     # title/header
     if news_item.title_link is not None and not title_only:
-        title_html_content = f'<a href="{news_item.title_link}">[{UI_news} #{news_item.id} {UI_message_published_on} {processed_timestamp_html}] {news_item.title} '                                                        ' </a>\n'
+        title_html_content = f'<a href="{news_item.title_link}">{news_id_block} {news_item.title} '                                                        ' </a>\n'
     else:
-        title_html_content = f'<b>[{UI_news} #{news_item.id} {UI_message_published_on} {processed_timestamp_html}] {news_item.title}</b>\n'
+        title_html_content = f'<b>{news_id_block} {news_item.title}</b>\n'
 
     show_categories_in_news = SHOW_CATEGORIES_IN_NEWS
 
