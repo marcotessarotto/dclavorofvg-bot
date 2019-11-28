@@ -226,9 +226,9 @@ UI_message_published_on = "pubblicata il"
 
 UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizia {0}"
 
-UI_message_categories_selection = "inserisci uno dei seguenti comandi per ricevere informazioni riguardo la relativa categoria:\n"
+UI_message_categories_selection = "inserisci uno dei seguenti comandi per ricevere informazioni riguardo la categoria di notizie:\n"
 
-UI_message_professional_categories_stats = 'offerte di lavoro: parole chiave delle categorie professionali e relativa frequenza:\n\n'
+UI_message_professional_categories_stats = 'offerte di lavoro: parole chiave delle categorie professionali e loro frequenze:\n\n'
 
 UI_news = "notizia"
 UI_news_plural = "notizie"

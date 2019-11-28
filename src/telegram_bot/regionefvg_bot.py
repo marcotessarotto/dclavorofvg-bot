@@ -809,7 +809,7 @@ def callback_feedback(update, data):
     else:
         logger.info(f"wrong value for comment_enabled: {comment_enabled}")
 
-    logger.info(f"callback_feedback feed={feed} news_id={news_id} comment_enabled={comment_enabled}")
+    logger.info(f"callback_feedback val={feed} news_id={news_id} comment_enabled={comment_enabled}")
     orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)
 
     if comment_enabled:
