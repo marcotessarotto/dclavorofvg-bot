@@ -1,3 +1,4 @@
+nltk
 cherrypy
 django
 python-telegram-bot

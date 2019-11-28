@@ -47,6 +47,7 @@ class TreetaggerWebservice(object):
 
         return {'treetagger_result': result}
 
+
 conf = {
     'treetagger_ws': {
     }
@@ -59,13 +60,13 @@ def web_service_process():
     cherrypy.quickstart(TreetaggerWebservice(), '/', conf)
 
 
-def web_service_client():
+def web_service_client(host='localhost'):
     # sample client
 
     import json
     import requests
 
-    url = 'http://localhost:8100/treetagger_ws'
+    url = f'http://{host}:8100/treetagger_ws'
 
     my_dict = {'text': 'Come posso fare per avere più informazioni?'}
 
@@ -83,6 +84,9 @@ def web_service_client():
 
 web_service_process()
 
+# web_service_client("10.4.100.2")
+
+
 # if __name__ == '__main__':
 #     p = Process(target=web_service_process, args=())
 #     p.start()
@@ -90,3 +94,4 @@ web_service_process()
 #     web_service_client()
 #
 #     p.join()
+
