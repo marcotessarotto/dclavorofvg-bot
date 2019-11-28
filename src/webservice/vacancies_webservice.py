@@ -6,9 +6,7 @@ import cherrypy
 from cherrypy._cpreqbody import Part
 
 
-
-
-class VacanciesWebservice:
+class VacanciesWebservice(object):
 
     # https://docs.cherrypy.org/en/latest/_modules/cherrypy/tutorial/tut09_files.html#FileDemo.upload
 
