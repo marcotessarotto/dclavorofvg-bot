@@ -55,7 +55,7 @@ conf = {
 
 def web_service_process():
     cherrypy.config.update({'server.socket_port': 8100})
-    # cherrypy.config.update({'server.host': 'localhost'})
+    cherrypy.config.update({'server.host': '0.0.0.0'})
     cherrypy.quickstart(TreetaggerWebservice(), '/', conf)
 
 
