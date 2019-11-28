@@ -28,7 +28,7 @@ reference_sentences = [
     ("chi posso contattare","MORE_INFO_CONTACT"),
     ("ho bisogno di una mano","HELP"),
     ("non capisco","HELP"),
-    ("",""),
+    ("esiste un tutorial","HELP_TUTORIAL"),
     ("",""),
     ("",""),
     ("",""),
