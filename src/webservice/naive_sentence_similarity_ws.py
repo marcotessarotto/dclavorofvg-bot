@@ -4,6 +4,13 @@ from functools import wraps
 from treetaggerwrapper import TreeTagger
 from nltk.corpus import wordnet as wn
 
+import cherrypy
+import json
+
+from treetaggerwrapper import TreeTagger
+
+from multiprocessing import Process
+
 # reference_sentence = "Come posso fare per avere più informazioni?"
 
 reference_sentences = [
@@ -181,7 +188,7 @@ def find_most_similar_sentence(sentence):
 
     print(f"find_most_similar_sentence(): confidence={confidence} result={result} sentence={sentence} confidence_sentence={confidence_sentence}")
 
-    return result
+    return result, confidence
 
 
 # find_most_similar_sentence("dove mi trovo?")
@@ -197,3 +204,68 @@ def find_most_similar_sentence(sentence):
 # find_most_similar_sentence("a chi posso mandare una email?")
 #
 # find_most_similar_sentence("a chi posso chiedere chiarimenti su dove si terrà?")
+
+
+class NaiveSentenceSimilarityWebservice(object):
+
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def similarity_ws(self):
+        data = cherrypy.request.json
+        # print(data)
+        # print(type(data))
+
+        j = json.loads(data)
+
+        sentence = j['text']
+
+        result = find_most_similar_sentence(sentence)
+
+        return {'similarity_ws': result}
+
+
+conf = {
+    'similarity_ws': {
+    }
+}
+
+
+def web_service_process():
+    cherrypy.config.update({'server.socket_port': 8101})
+    cherrypy.config.update({'server.socket_host': '0.0.0.0'})
+    cherrypy.quickstart(NaiveSentenceSimilarityWebservice(), '/', conf)
+
+
+def web_service_client(host='localhost'):
+    # sample client
+
+    import json
+    import requests
+
+    url = f'http://{host}:8101/similarity_ws'
+
+    my_dict = {'text': 'Cosa posso fare per avere più informazioni?'}
+
+    json_data = json.dumps(my_dict)
+
+    # data = {'json': json_data}
+
+    # https://2.python-requests.org//en/latest/user/quickstart/#post-a-multipart-encoded-file
+    r = requests.post(url, json=json_data)
+
+    print(f"JSON results from web service: {r.text}")
+
+    pass
+
+
+# if __name__ == '__main__':
+#     p = Process(target=web_service_process, args=())
+#     p.start()
+#
+#     web_service_client()
+#
+#     p.join()
+
+
+web_service_process()
