@@ -902,13 +902,13 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
         logger.info(f"*** naive_sentence_similarity_web_client returns {d}")
 
-        od = d["similarity_ws"][2]
-        # print(od)
-        n_items = take(3, od.items())
+        od = d["similarity_ws"][2]  # dictionary
+        n_items = take(3, od.items())  # first 3 items of dictionary
         content = ''
 
         for k,v in n_items:
-            content += f"{v}=>{k}\n"
+            ks = format(float(k), '.3f')
+            content += f"{v}=>{ks}\n"
 
         # if telegram_user.is_admin:
         # suggested_action={d["similarity_ws"][0]} confidence={d["similarity_ws"][1]}\n

@@ -17,7 +17,7 @@ def naive_sentence_similarity_web_client(sentence, host='localhost'):
     return r.text
 
 
-# sentence = 'Cosa posso fare per avere più informazioni?'
+# sentence = 'chi organizza il corso'
 #
 # j = naive_sentence_similarity_web_client(sentence)
 #
