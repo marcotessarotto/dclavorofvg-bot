@@ -9,6 +9,10 @@ import json
 
 from treetaggerwrapper import TreeTagger
 
+from src.telegram_bot.log_utils import ws_logger as logger, log_user_input, debug_update
+
+from src.backoffice.models import *
+
 from multiprocessing import Process
 
 # reference_sentence = "Come posso fare per avere più informazioni?"

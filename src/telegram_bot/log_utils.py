@@ -45,6 +45,9 @@ benchmark_logger.setLevel(logging.DEBUG)
 email_logger = logging.getLogger('email')
 email_logger.setLevel(logging.DEBUG)
 
+ws_logger = logging.getLogger('ws')
+ws_logger.setLevel(logging.DEBUG)
+
 
 def benchmark_decorator(func):
     @wraps(func)
