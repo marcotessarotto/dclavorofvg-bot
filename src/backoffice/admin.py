@@ -9,6 +9,29 @@ from .models import *
 admin.site.site_header = 'backoffice LavoroFVG'
 
 
+@admin.register(AiQAActivityLog)
+class AiQAActivityLogAdmin(admin.ModelAdmin):
+    list_display = ('id', 'telegram_user', 'news_item', 'naive_sentence_similarity_action', 'naive_sentence_similarity_confidence', 'user_question')
+    ordering = ('id',)
+
+
+@admin.register(NaiveSentenceSimilarityDb)
+class NaiveSentenceSimilarityDbAdmin(admin.ModelAdmin):
+    list_display = ('id', 'reference_sentence', 'action', 'context', 'enabled', )
+    ordering = ('id',)
+
+    formfield_overrides = {
+        # https://stackoverflow.com/questions/910169/resize-fields-in-django-admin
+        models.CharField: {'widget': TextInput(attrs={'size': '80'})},
+        #        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':40})},
+
+    }
+
+
+admin.site.register(AiContext)
+admin.site.register(AiAction)
+
+
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'first_name', 'last_name', 'user_id', 'is_admin', 'has_accepted_privacy_rules')
@@ -55,8 +78,6 @@ class CategoryAdmin(admin.ModelAdmin):
             path('add_default_categories/', self.add_default_categories),
         ]
         return my_urls + urls
-
-    #actions = [add_default_categories]
 
 
 @admin.register(TextToSpeechWordSubstitution)

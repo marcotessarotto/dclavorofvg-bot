@@ -15,7 +15,81 @@ class CustomDateTimeField(models.DateTimeField):
 APP_LABEL = "backoffice"  # DO NOT MODIFY; necessary to telegram bot for import of django models
 
 
-# ****************************************************************************************
+class AiQAActivityLog(models.Model):
+    """log of activity by AI on question/answers with users"""
+
+    telegram_user = models.ForeignKey('TelegramUser', on_delete=models.CASCADE)
+    news_item = models.ForeignKey('NewsItem', blank=True, null=True, on_delete=models.CASCADE)
+
+    user_question = models.CharField(max_length=1024)
+
+    naive_sentence_similarity_action = models.CharField(max_length=1024, verbose_name="AI action")
+    naive_sentence_similarity_confidence = models.FloatField(default=0, verbose_name="AI confidence")
+    naive_most_similar_sentence = models.CharField(max_length=1024)
+    ai_answer = models.CharField(max_length=1024, default="", blank=True,)
+
+    supervisor_evaluation = models.FloatField(default=-1, verbose_name="supervisore - valutazione")
+    supervisor_suggested_action = models.CharField(max_length=256, blank=True, default="", verbose_name="supervisore - azione suggerita")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "AI - log QA con utente"
+        verbose_name_plural = "AI - log attività QA con utenti"
+        app_label = APP_LABEL
+
+
+class AiContext(models.Model):
+    context = models.CharField(max_length=1024)
+    description = models.CharField(max_length=1024, blank=True, default="")
+
+    class Meta:
+        verbose_name = "AI - Context"
+        # verbose_name_plural = "AI - "
+        app_label = APP_LABEL
+
+    def __str__(self):
+        if self.description:
+            return f"{self.id} - {self.context} ({self.description})"
+        else:
+            return f"{self.id} - {self.context} "
+
+
+class AiAction(models.Model):
+    action = models.CharField(max_length=1024)
+    description = models.CharField(max_length=1024, blank=True, default="")
+
+    class Meta:
+        verbose_name = "AI - Action"
+        # verbose_name_plural = "AI - "
+        app_label = APP_LABEL
+
+    def __str__(self):
+        if self.description:
+            return f"{self.id} - {self.action} ({self.description})"
+        else:
+            return f"{self.id} - {self.action} "
+
+
+class NaiveSentenceSimilarityDb(models.Model):
+    reference_sentence = models.CharField(max_length=1024)
+    action = models.ForeignKey('AiAction', on_delete=models.PROTECT,  blank=True, null=True)    #models.CharField(max_length=1024)
+    context = models.ForeignKey('AiContext', on_delete=models.PROTECT,  blank=True, null=True)    #models.CharField(default="", blank=True,max_length=1024)
+    multiplier = models.FloatField(default=1, verbose_name="moltiplicatore (per naive s.s.)")
+
+    enabled = models.BooleanField(default=True)
+
+    lang = models.CharField(max_length=4, default="it")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "AI - Naive Sentence Similarity Db"
+        # verbose_name_plural = "AI - "
+        app_label = APP_LABEL
+
+
 class Category(models.Model):
     """ Classe CATEGORY: rappresenta le informazioni legate alle categorie """
 
@@ -245,6 +319,17 @@ class NewsItem(models.Model):
 
     text = models.TextField(max_length=2048, blank=True, null=True,
                             verbose_name="testo della news (max 2048 caratteri)")
+
+    # fields used by AI
+    when_question = models.DateTimeField(blank=True, null=True,
+                                  verbose_name='[AI] quando?')
+
+    where_question = models.CharField(max_length=1024, blank=True, null=True,
+                                     verbose_name='[AI] dove?')
+
+    contact_question = models.CharField(max_length=1024, blank=True, null=True,
+                                  verbose_name='[AI] chi contattare?')
+    # end of AI fields section
 
     show_all_text = models.BooleanField(default=True, verbose_name="mostra tutto il testo della news all'utente?")
     show_first_n_words = models.IntegerField(default=30, verbose_name="mostra le prime n parole")
