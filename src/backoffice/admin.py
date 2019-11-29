@@ -12,7 +12,7 @@ admin.site.site_header = 'backoffice LavoroFVG'
 @admin.register(AiQAActivityLog)
 class AiQAActivityLogAdmin(admin.ModelAdmin):
     list_display = ('id', 'telegram_user', 'news_item', 'naive_sentence_similarity_action', 'naive_sentence_similarity_confidence', 'user_question')
-    ordering = ('id',)
+    ordering = ('-id',)
 
     formfield_overrides = {
         # https://stackoverflow.com/questions/910169/resize-fields-in-django-admin
