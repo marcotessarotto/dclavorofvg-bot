@@ -567,4 +567,10 @@ def orm_build_news_stats(last_days=10):
     return result_dict
 
 
+def orm_find_ai_action(action: str):
+    queryset = AiAction.objects.filter(action=action)
 
+    if len(queryset) == 0:
+        return None
+
+    return queryset[0]

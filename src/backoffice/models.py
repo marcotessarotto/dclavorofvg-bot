@@ -19,17 +19,22 @@ class AiQAActivityLog(models.Model):
     """log of activity by AI on question/answers with users"""
 
     telegram_user = models.ForeignKey('TelegramUser', on_delete=models.CASCADE)
-    news_item = models.ForeignKey('NewsItem', blank=True, null=True, on_delete=models.CASCADE)
+    news_item = models.ForeignKey('NewsItem', blank=True, null=True, on_delete=models.CASCADE) # optional
+    job_offer_id = models.CharField(max_length=256, blank=True, null=True)
+    event_id = models.CharField(max_length=256, blank=True, null=True)
 
     user_question = models.CharField(max_length=1024)
 
-    naive_sentence_similarity_action = models.CharField(max_length=1024, verbose_name="AI action")
+    naive_sentence_similarity_action = models.ForeignKey('AiAction', on_delete=models.PROTECT,  blank=True, null=True, related_name='naive_action') # models.CharField(max_length=1024, verbose_name="AI action")
     naive_sentence_similarity_confidence = models.FloatField(default=0, verbose_name="AI confidence")
     naive_most_similar_sentence = models.CharField(max_length=1024)
     ai_answer = models.CharField(max_length=1024, default="", blank=True,)
 
+    context = models.ForeignKey('AiContext', on_delete=models.PROTECT, blank=True, null=True)
+
     supervisor_evaluation = models.FloatField(default=-1, verbose_name="supervisore - valutazione")
-    supervisor_suggested_action = models.CharField(max_length=256, blank=True, default="", verbose_name="supervisore - azione suggerita")
+
+    supervisor_suggested_action = models.ForeignKey('AiAction', on_delete=models.PROTECT,  blank=True, null=True, related_name='sup_action')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -360,7 +365,7 @@ class NewsItem(models.Model):
     # end_publication = models.DateTimeField(blank=True, null=True, verbose_name="fine periodo di pubblicazione")
 
     recurrent_for_new_users = models.BooleanField(default=False,
-                                                  verbose_name="invia questa news ad ogni nuovo utente del bot?")
+                                                  verbose_name="invia questa news ad ogni nuovo utente del bot?", editable=False)
 
     # if processed is true, this news item has already been sent to all users
     processed = models.BooleanField(default=False, editable=True,

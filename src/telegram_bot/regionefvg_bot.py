@@ -282,7 +282,7 @@ def help_categories_command_handler(update, context):
 
 # @run_async
 @benchmark_decorator
-def callback(update, context):
+def callback_handler(update, context):
     """process callback data sent by inline_keyboards """
 
     data = update.callback_query.data.split()
@@ -880,6 +880,7 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
     expected_input = orm_get_user_expected_input(telegram_user)
 
+    # TODO: check: is expected_input still used?
     if expected_input == 'a':  # expecting age from user
         callback_age(update, context, telegram_user, message_text)
         return
@@ -902,13 +903,36 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
         logger.info(f"*** naive_sentence_similarity_web_client returns {d}")
 
+        suggested_action = d["similarity_ws"][0]
+        confidence = d["similarity_ws"][1]
+
+        if suggested_action is None:
+            suggested_action = ''
+
         od = d["similarity_ws"][2]  # dictionary
         n_items = take(3, od.items())  # first 3 items of dictionary
         content = ''
 
+        first_value = None
+
         for k,v in n_items:
-            ks = format(float(k), '.3f')
+            ks = format(float(k), '.3f') # key is confidence
             content += f"{v}=>{ks}\n"
+            if not first_value:
+                first_value = v
+
+        ai_log = AiQAActivityLog()
+        ai_log.telegram_user = telegram_user
+        ai_log.news_item = None
+        ai_log.user_question = message_text # original text provided by user
+
+        ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action) # as suggested by naive s.s.
+        ai_log.naive_sentence_similarity_confidence = confidence # as suggested by naive s.s.
+        ai_log.naive_most_similar_sentence = first_value[0] # as suggested by naive s.s.
+
+        ai_log.ai_answer = "TODO"
+
+        ai_log.save()
 
         # if telegram_user.is_admin:
         # suggested_action={d["similarity_ws"][0]} confidence={d["similarity_ws"][1]}\n
@@ -1043,7 +1067,7 @@ def main():
     dp.add_handler(conv_handler)
 
     # Handler to serve categories, feedbacks and comments inline keboards
-    dp.add_handler(CallbackQueryHandler(callback))
+    dp.add_handler(CallbackQueryHandler(callback_handler))
 
     # Other handlers
     dp.add_handler(CommandHandler(UI_HELP_COMMAND, help_command_handler))
@@ -1059,8 +1083,7 @@ def main():
     dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
 
     dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news_command_handler))
-    dp.add_handler(MessageHandler(Filters.reply, comment_handler))
-    dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
+
 
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
@@ -1087,6 +1110,9 @@ def main():
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))
+
+    dp.add_handler(MessageHandler(Filters.reply, comment_handler))
+    dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
     dp.add_error_handler(error_callback)
