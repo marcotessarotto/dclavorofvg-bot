@@ -1,3 +1,4 @@
+scikit-learn
 nltk
 cherrypy
 django
