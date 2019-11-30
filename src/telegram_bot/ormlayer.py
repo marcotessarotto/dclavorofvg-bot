@@ -1,3 +1,4 @@
+import threading
 from datetime import datetime, timedelta
 from django.utils.timezone import now
 from django.core.cache import cache
@@ -32,7 +33,6 @@ def orm_set_obj_in_cache(obj_name: str, obj_instance, timeout=60*60*12):
     cache_key = "cacheobj" + obj_name
 
     cache.set(cache_key, obj_instance, timeout=timeout)
-
 
 
 def orm_add_telegram_user(user):
@@ -575,3 +575,26 @@ def orm_find_ai_action(action: str):
 
     return queryset[0]
 
+
+def orm_reload_nss_reference_sentences():
+    queryset = NaiveSentenceSimilarityDb.objects.filter(enabled=True)
+
+    return queryset
+
+
+nss_mutex = threading.Lock()
+
+
+def orm_get_nss_reference_sentences():
+    key_name = "nss_ref_sen"
+    result = orm_get_obj_from_cache(key_name)
+
+    if result is None or len(result) == 0:
+
+        with nss_mutex:
+
+            if result is None or len(result) == 0:
+                result = orm_reload_nss_reference_sentences()
+                orm_set_obj_in_cache(key_name, result, 60 * 5)
+
+    return result
