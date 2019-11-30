@@ -184,6 +184,9 @@ def send_news_to_telegram_user(
         title_only=False,
         news_item_already_shown_to_user=False
 ):
+    if not telegram_user.has_accepted_privacy_rules:
+        return
+
     logger.info(
         f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
 
