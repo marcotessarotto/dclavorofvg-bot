@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from .definitions import *
 
@@ -78,8 +80,8 @@ class AiAction(models.Model):
 
 class NaiveSentenceSimilarityDb(models.Model):
     reference_sentence = models.CharField(max_length=1024)
-    action = models.ForeignKey('AiAction', on_delete=models.PROTECT,  blank=True, null=True)    #models.CharField(max_length=1024)
-    context = models.ForeignKey('AiContext', on_delete=models.PROTECT,  blank=True, null=True)    #models.CharField(default="", blank=True,max_length=1024)
+    action = models.ForeignKey('AiAction', on_delete=models.PROTECT,  blank=True, null=True)
+    context = models.ForeignKey('AiContext', on_delete=models.PROTECT,  blank=True, null=True)
     multiplier = models.FloatField(default=1, verbose_name="moltiplicatore (per naive s.s.)")
 
     enabled = models.BooleanField(default=True)
@@ -334,6 +336,8 @@ class NewsItem(models.Model):
 
     contact_question = models.CharField(max_length=1024, blank=True, null=True,
                                   verbose_name='[AI] chi contattare?')
+
+    context = models.ForeignKey(AiContext, default=None, on_delete=models.PROTECT, blank=True, null=True, verbose_name="[AI] contesto")
     # end of AI fields section
 
     show_all_text = models.BooleanField(default=True, verbose_name="mostra tutto il testo della news all'utente?")
@@ -389,6 +393,12 @@ class NewsItem(models.Model):
         return 'news #' + str(self.id) + ' (' + \
                str(self.title) + ')'
         return f"news #{self.id} "
+
+
+# @receiver(pre_save, sender=NewsItem)
+# def newsitem_pre_save(sender, instance, *args, **kwargs):
+#
+#     pass
 
 
 class FeedbackToNewsItem(models.Model):

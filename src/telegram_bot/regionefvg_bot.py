@@ -849,14 +849,22 @@ def callback_comment(update, context, news_id):
     )
 
 
-def comment_handler(update, context):
+@log_user_input
+@standard_user_checks
+@run_async
+def comment_handler(update, context, telegram_user_id, telegram_user):
     """ save the comment provided by user """
+
+    message_text = update.message.text
 
     logger.info(f"comment_handler: reply_to_message.text message={update.message.reply_to_message.text}")
     logger.info(f"comment_handler: message.text message={update.message.text}")
 
     if not update.message.reply_to_message.text.startswith(UI_message_comment_to_news_item):
         logger.info("comment_handler - not a comment for a news item")
+
+        respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
+
         return
 
     reply_data = update.message.reply_to_message.text.split()
@@ -866,6 +874,60 @@ def comment_handler(update, context):
     context.bot.send_message(
         chat_id=update.message.chat_id,
         text=UI_message_comment_successful
+    )
+
+    respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
+
+
+def respond_to_user(update, context, telegram_user_id, telegram_user, message_text):
+    # generic user utterance
+    orm_store_free_text(message_text, telegram_user)
+
+    res = naive_sentence_similarity_web_client(message_text, '10.4.100.2')
+
+    import json
+    d = json.loads(res)
+
+    logger.info(f"*** naive_sentence_similarity_web_client returns {d}")
+
+    suggested_action = d["similarity_ws"][0]
+    confidence = d["similarity_ws"][1]
+
+    if suggested_action is None:
+        suggested_action = ''
+
+    od = d["similarity_ws"][2]  # dictionary
+    n_items = take(6, od.items())  # first n items of dictionary
+    content = ''
+
+    first_value = None
+
+    for k, v in n_items:
+        ks = format(float(k), '.3f')  # key is confidence
+        content += f"{v}=>{ks}\n"
+        if not first_value:
+            first_value = v
+
+    orm_save_ai_log(telegram_user, None, message_text, suggested_action, confidence, first_value[0], "TODO")
+
+    # ai_log = AiQAActivityLog()
+    # ai_log.telegram_user = telegram_user
+    # ai_log.news_item = None
+    # ai_log.user_question = message_text # original text provided by user
+    #
+    # ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action)  # as suggested by naive s.s.
+    # ai_log.naive_sentence_similarity_confidence = confidence  # as suggested by naive s.s.
+    # ai_log.naive_most_similar_sentence = first_value[0]  # as suggested by naive s.s.
+    #
+    # ai_log.ai_answer = "TODO"
+    #
+    # ai_log.save()
+
+    # if telegram_user.is_admin:
+    # suggested_action={d["similarity_ws"][0]} confidence={d["similarity_ws"][1]}\n
+    update.message.reply_text(
+        f'AI says: {content}',
+        parse_mode='HTML'
     )
 
 
@@ -893,53 +955,7 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
     else:
         global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
 
-        # generic user utterance
-        orm_store_free_text(message_text, telegram_user)
-
-        res = naive_sentence_similarity_web_client(message_text, '10.4.100.2')
-
-        import json
-        d = json.loads(res)
-
-        logger.info(f"*** naive_sentence_similarity_web_client returns {d}")
-
-        suggested_action = d["similarity_ws"][0]
-        confidence = d["similarity_ws"][1]
-
-        if suggested_action is None:
-            suggested_action = ''
-
-        od = d["similarity_ws"][2]  # dictionary
-        n_items = take(6, od.items())  # first n items of dictionary
-        content = ''
-
-        first_value = None
-
-        for k,v in n_items:
-            ks = format(float(k), '.3f') # key is confidence
-            content += f"{v}=>{ks}\n"
-            if not first_value:
-                first_value = v
-
-        ai_log = AiQAActivityLog()
-        ai_log.telegram_user = telegram_user
-        ai_log.news_item = None
-        ai_log.user_question = message_text # original text provided by user
-
-        ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action)  # as suggested by naive s.s.
-        ai_log.naive_sentence_similarity_confidence = confidence  # as suggested by naive s.s.
-        ai_log.naive_most_similar_sentence = first_value[0]  # as suggested by naive s.s.
-
-        ai_log.ai_answer = "TODO"
-
-        ai_log.save()
-
-        # if telegram_user.is_admin:
-        # suggested_action={d["similarity_ws"][0]} confidence={d["similarity_ws"][1]}\n
-        update.message.reply_text(
-            f'AI says: {content}',
-            parse_mode='HTML'
-        )
+        respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
 
         # if d["similarity_ws"][0] == 'MORE_INFO':
         #     update.message.reply_text(

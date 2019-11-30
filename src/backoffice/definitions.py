@@ -20,7 +20,7 @@
 
 DEFAULT_CATEGORY_DICT = {
     '01': ['Lavoro', u'\U0001F4BC', 'lavoro'],
-    '02': ['Studio, formazione e corsi', u'\U0001F4DA', 'formazione'],
+    '02': ['Studio/formazione e corsi', u'\U0001F4DA', 'formazione'],
     '03': ['Mobilità all’estero', u'\U00002708', 'estero'],
     '06': ['Eventi e recruiting', u'\U0001F3AD', 'eventi'],
     '12': ['Offerte di lavoro', u'\U0001F3D7', 'offerte_lavoro'],

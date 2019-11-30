@@ -598,3 +598,19 @@ def orm_get_nss_reference_sentences():
                 orm_set_obj_in_cache(key_name, result, 60 * 1)
 
     return result
+
+
+def orm_save_ai_log(telegram_user, news_item, message_text, suggested_action, confidence, most_similar_sentence, ai_answer):
+    ai_log = AiQAActivityLog()
+    ai_log.telegram_user = telegram_user
+    ai_log.news_item = news_item
+    ai_log.user_question = message_text  # original text provided by user
+
+    ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action)  # as suggested by naive s.s.
+    ai_log.naive_sentence_similarity_confidence = confidence  # as suggested by naive s.s.
+    ai_log.naive_most_similar_sentence = most_similar_sentence  # as suggested by naive s.s.
+
+    ai_log.ai_answer = ai_answer
+
+    ai_log.save()
+
