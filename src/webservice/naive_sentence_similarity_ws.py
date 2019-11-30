@@ -22,7 +22,7 @@ class NaiveSentenceSimilarityWebservice(object):
 
         result = find_most_similar_sentence(sentence)
 
-        print(result)
+        # print(result)
 
         return {'similarity_ws': result}
 

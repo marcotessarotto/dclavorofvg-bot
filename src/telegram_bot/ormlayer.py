@@ -595,6 +595,6 @@ def orm_get_nss_reference_sentences():
 
             if result is None or len(result) == 0:
                 result = orm_reload_nss_reference_sentences()
-                orm_set_obj_in_cache(key_name, result, 60 * 5)
+                orm_set_obj_in_cache(key_name, result, 60 * 1)
 
     return result

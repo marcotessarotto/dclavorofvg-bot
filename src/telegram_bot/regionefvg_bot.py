@@ -910,7 +910,7 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
             suggested_action = ''
 
         od = d["similarity_ws"][2]  # dictionary
-        n_items = take(3, od.items())  # first 3 items of dictionary
+        n_items = take(6, od.items())  # first n items of dictionary
         content = ''
 
         first_value = None
@@ -926,9 +926,9 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
         ai_log.news_item = None
         ai_log.user_question = message_text # original text provided by user
 
-        ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action) # as suggested by naive s.s.
-        ai_log.naive_sentence_similarity_confidence = confidence # as suggested by naive s.s.
-        ai_log.naive_most_similar_sentence = first_value[0] # as suggested by naive s.s.
+        ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action)  # as suggested by naive s.s.
+        ai_log.naive_sentence_similarity_confidence = confidence  # as suggested by naive s.s.
+        ai_log.naive_most_similar_sentence = first_value[0]  # as suggested by naive s.s.
 
         ai_log.ai_answer = "TODO"
 

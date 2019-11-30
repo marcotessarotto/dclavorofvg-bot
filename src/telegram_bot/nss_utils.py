@@ -205,9 +205,9 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
     sorted_dict = {i: rdict[i] for i in sorted(rdict.keys(), reverse=True)}  # sort dict by key value in reverse order
 
     print(f"find_most_similar_sentence(): confidence={confidence} result={result} sentence={sentence} confidence_sentence={confidence_sentence}")
-    print(result)
-    print(confidence)
-    print(sorted_dict)
+    # print(result)
+    # print(confidence)
+    # print(sorted_dict)
 
     return result, confidence, sorted_dict
 
