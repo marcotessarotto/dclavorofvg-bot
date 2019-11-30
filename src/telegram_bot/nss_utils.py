@@ -180,7 +180,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
 
         try:
             ref_sentence = item.reference_sentence
-            ref_target = item.action.action
+            ref_target = item.action.action if item.action is not None else ""
         except AttributeError:
             ref_sentence = item[0]
             ref_target = item[1]
