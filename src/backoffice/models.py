@@ -379,6 +379,7 @@ class NewsItem(models.Model):
 
     rss_id = models.CharField(max_length=256, blank=True, null=True, editable=False)  # used if news comes from rss feed
 
+    ask_like_dislike_to_user = models.BooleanField(default=True, verbose_name='chiedi +1/-1 agli utenti')
     ask_comment_to_user = models.BooleanField(default=False, verbose_name='chiedi un commento testuale agli utenti')
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')

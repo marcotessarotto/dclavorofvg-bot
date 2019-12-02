@@ -70,7 +70,7 @@ def news_dispatcher(context: CallbackContext):
                 continue
 
             # send this news_item to this telegram_user
-            send_news_to_telegram_user(context, news_item, telegram_user, intersection_result)
+            send_news_to_telegram_user(context, news_item, telegram_user, intersection_result, request_feedback=news_item.ask_like_dislike_to_user)
 
         news_item.processed = True
         from django.utils.timezone import now
@@ -497,7 +497,7 @@ def show_news_by_id(context, news_id: int, telegram_user: TelegramUser):
         context,
         news_item,
         telegram_user,
-        request_feedback=not news_item_already_shown_to_user,
+        request_feedback=not news_item_already_shown_to_user and news_item.ask_like_dislike_to_user,
         news_item_already_shown_to_user=news_item_already_shown_to_user
     )
 
