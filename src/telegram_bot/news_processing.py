@@ -195,11 +195,11 @@ def send_news_to_telegram_user(
     telegram_user_id = telegram_user.user_id
 
     if news_item.context:
-        current_context = news_item.context
+        current_ai_context = news_item.context
     else:
-        current_context = orm_find_ai_context('NEWS')
+        current_ai_context = orm_find_ai_context('NEWS')
 
-    orm_set_current_user_context(telegram_user_id, current_context, news_item)
+    orm_set_current_user_context(telegram_user_id, current_ai_context, news_item)
 
     # title_html_content = ''
     categories_html_content = ''

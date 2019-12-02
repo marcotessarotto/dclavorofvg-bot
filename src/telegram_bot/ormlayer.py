@@ -629,20 +629,20 @@ _current_context_users = {}
 
 class CurrentUserContext(object):
     def __init__(self):
-        self.current_context = None
-        self.item = None
+        self.current_ai_context = None  # AiContext
+        self.item = None  # NewsItem or other types
         self.timestamp = datetime.now()
 
     def __str__(self):
-        return f"CurrentUserContext: context='{self.current_context}' item id={self.item.id if self.item is not None else None} timestamp={self.timestamp}"
+        return f"CurrentUserContext: context='{self.current_ai_context}' item id={self.item.id if self.item is not None else None} timestamp={self.timestamp}"
     pass
 
 
-def orm_set_current_user_context(telegram_user_id: int, current_context: AiContext, item):
+def orm_set_current_user_context(telegram_user_id: int, current_ai_context: AiContext, item):
     global _current_context_users
 
     obj = CurrentUserContext()
-    obj.current_context = current_context
+    obj.current_ai_context = current_ai_context
     obj.item = item
     # obj.timestamp = datetime.now()
 
@@ -650,7 +650,7 @@ def orm_set_current_user_context(telegram_user_id: int, current_context: AiConte
     print(str(obj))
 
 
-def orm_get_current_user_context(telegram_user_id: int):
+def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:
     global _current_context_users
 
     obj = _current_context_users.get(telegram_user_id)

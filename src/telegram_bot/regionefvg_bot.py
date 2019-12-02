@@ -5,6 +5,8 @@ from more_itertools import take
 # note: when execution starts from this file, the next import implies that src.telegram_bot.__init__.py is executed (after the import)
 from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
+from src.ml.suggested_actions import perform_suggested_action
+
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
@@ -887,17 +889,17 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
     res = naive_sentence_similarity_web_client(message_text, '10.4.100.2')
 
     import json
-    d = json.loads(res)
+    nss_result = json.loads(res)
 
-    logger.info(f"*** naive_sentence_similarity_web_client returns {d}")
+    logger.info(f"*** naive_sentence_similarity_web_client returns {nss_result}")
 
-    suggested_action = d["similarity_ws"][0]
-    confidence = d["similarity_ws"][1]
+    suggested_action = nss_result["similarity_ws"][0]
+    confidence = nss_result["similarity_ws"][1]
 
     if suggested_action is None:
         suggested_action = ''
 
-    od = d["similarity_ws"][2]  # dictionary
+    od = nss_result["similarity_ws"][2]  # dictionary
     n_items = take(6, od.items())  # first n items of dictionary
     content = ''
 
@@ -909,12 +911,17 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
         if not first_value:
             first_value = v
 
-    obj = orm_get_current_user_context(telegram_user.user_id)
-    print(obj)
+    current_user_context = orm_get_current_user_context(telegram_user.user_id)
 
-    content += f'current context: {obj}'
+    content += f'current context: {current_user_context}'
 
-    orm_save_ai_log(telegram_user, None, message_text, suggested_action, confidence, first_value[0], "TODO")
+    orm_save_ai_log(telegram_user,
+                    current_user_context.item if current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
+                    message_text,
+                    suggested_action,
+                    confidence,
+                    first_value[0],
+                    "TODO")
 
     # ai_log = AiQAActivityLog()
     # ai_log.telegram_user = telegram_user
@@ -937,6 +944,8 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
             f'AI says: {content}',
             parse_mode='HTML'
         )
+
+    perform_suggested_action(update, context, telegram_user, current_user_context, nss_result)
 
 
 @log_user_input
