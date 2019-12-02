@@ -916,7 +916,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
     content += f'current context: {current_user_context}'
 
     orm_save_ai_log(telegram_user,
-                    current_user_context.item if current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
+                    current_user_context.item if current_user_context is not None and current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
                     message_text,
                     suggested_action,
                     confidence,
