@@ -1,9 +1,7 @@
 import cherrypy
 import json
 
-from multiprocessing import Process
-
-from src.telegram_bot.nss_utils import find_most_similar_sentence
+from src.ml.nss_utils import find_most_similar_sentence
 
 
 class NaiveSentenceSimilarityWebservice(object):

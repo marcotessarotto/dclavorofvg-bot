@@ -1,50 +1,21 @@
- # naive_sentence_similarity
+# naive_sentence_similarity
+
+print(__file__)
 
 import time
 from functools import wraps
 
 from nltk.corpus import wordnet as wn
-
-import cherrypy
-import json
+from nltk.corpus import stopwords
+from nltk import word_tokenize
 
 from treetaggerwrapper import TreeTagger
 
-from src.telegram_bot.log_utils import ws_logger as logger, log_user_input, debug_update
+# from src.telegram_bot.log_utils import ws_logger as logger, log_user_input, debug_update
 
-from src.backoffice.models import *
+# from src.backoffice.models import *
 
 from src.telegram_bot.ormlayer import orm_get_nss_reference_sentences, orm_get_obj_from_cache, orm_set_obj_in_cache
-
- # reference_sentence = "Come posso fare per avere più informazioni?"
-
-# reference_sentences = [
-#     ("come posso fare per avere più informazioni?", "MORE_INFO"),
-#     ("a chi posso chiedere informazioni?", "MORE_INFO_WHO"),
-#     ("dove posso chiedere informazioni?", "MORE_INFO_WHERE"),
-#     ("come mi iscrivo?", "HOW_TO_ENROLL"),
-#     ("quando si tiene l'evento?", "WHEN_IS_EVENT"),
-#     ("quando ci sarà l'evento?", "WHEN_IS_EVENT"),
-#     ("quando si tiene il corso?", "WHEN_IS_COURSE"),
-#     ("quando ci sarà il corso?", "WHEN_IS_COURSE"),
-#     ("chi tiene il corso?","WHO_IS_COURSE_ORGANIZER"),
-#     ("chi organizza il corso?","WHO_IS_COURSE_ORGANIZER"),
-#     ("mi sono perso","HELP"),
-#     ("non capisco","HELP"),
-#     ("maggiori informazioni","MORE_INFO_GENERAL"),
-#     ("chi posso contattare","MORE_INFO_CONTACT"),
-#     ("ho bisogno di una mano","HELP"),
-#     ("non capisco","HELP"),
-#     ("esiste un tutorial","HELP_TUTORIAL"),
-#     ("aiuto con i comandi del bot","HELP_BOT_COMMANDS"),
-#     ("come scelgo le categorie?","HELP_CHOOSE_NEWS_CATEGORIES"),
-#     ("voglio più informazioni sui comandi","HELP_BOT_COMMANDS"),
-#     ("dove sono le offerte di lavoro?","HELP_JOB_OFFERS"),
-#     ("in che linguaggio è scritto il bot","HELP_BOT_DEV"),
-#     ("info comandi bot","HELP_BOT_COMMANDS"),
-#     ("", ""),
-#     ("", ""),
-# ]
 
 
 tagbuildopt = {"TAGDIR": '/opt/bot/treetagger', "TAGLANG": "it"}
@@ -72,10 +43,25 @@ def my_benchmark_decorator(func):
     return wrapped
 
 
+_stoplist = set(stopwords.words('italian'))
+
+
+def remove_stop_words(text):
+    tokenized_sent = word_tokenize(text.lower())
+    tokenized_sent_nostop = [token for token in tokenized_sent if token not in _stoplist]
+    result = " ".join(tokenized_sent_nostop)
+    # print(f"remove_stop_words:\n***BEFORE: {text}\n***AFTER : {result}")
+    return result
+
+
 process_sentence_cache_dict = {}
 
 
-def process_sentence(sentence):
+def process_sentence(sentence, remove_stop_words_arg=True):
+
+    if remove_stop_words_arg:
+        sentence = remove_stop_words(sentence)
+
     key_name = "nss_sentence_" + sentence
     res = process_sentence_cache_dict.get(key_name)
     if res:
@@ -204,24 +190,53 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
 
     sorted_dict = {i: rdict[i] for i in sorted(rdict.keys(), reverse=True)}  # sort dict by key value in reverse order
 
-    print(f"find_most_similar_sentence(): confidence={confidence} result={result} sentence={sentence} confidence_sentence={confidence_sentence}")
-    # print(result)
-    # print(confidence)
-    # print(sorted_dict)
+    print(f"find_most_similar_sentence(): confidence={confidence} | result={result} | sentence='{sentence}' | confidence_sentence='{confidence_sentence}'")
 
     return result, confidence, sorted_dict
 
 
-# find_most_similar_sentence("dove mi trovo?")
-#
-# find_most_similar_sentence("maggiori info")
-#
-# find_most_similar_sentence("maggiori informazioni")
-#
-# find_most_similar_sentence("a chi posso chiedere?")
-#
-# find_most_similar_sentence("a chi posso telefonare?")
-#
-# find_most_similar_sentence("a chi posso mandare una email?")
-#
-# find_most_similar_sentence("a chi posso chiedere chiarimenti su dove si terrà?")
+ # reference_sentence = "Come posso fare per avere più informazioni?"
+
+# reference_sentences = [
+#     ("come posso fare per avere più informazioni?", "MORE_INFO"),
+#     ("a chi posso chiedere informazioni?", "MORE_INFO_WHO"),
+#     ("dove posso chiedere informazioni?", "MORE_INFO_WHERE"),
+#     ("come mi iscrivo?", "HOW_TO_ENROLL"),
+#     ("quando si tiene l'evento?", "WHEN_IS_EVENT"),
+#     ("quando ci sarà l'evento?", "WHEN_IS_EVENT"),
+#     ("quando si tiene il corso?", "WHEN_IS_COURSE"),
+#     ("quando ci sarà il corso?", "WHEN_IS_COURSE"),
+#     ("chi tiene il corso?","WHO_IS_COURSE_ORGANIZER"),
+#     ("chi organizza il corso?","WHO_IS_COURSE_ORGANIZER"),
+#     ("mi sono perso","HELP"),
+#     ("non capisco","HELP"),
+#     ("maggiori informazioni","MORE_INFO_GENERAL"),
+#     ("chi posso contattare","MORE_INFO_CONTACT"),
+#     ("ho bisogno di una mano","HELP"),
+#     ("non capisco","HELP"),
+#     ("esiste un tutorial","HELP_TUTORIAL"),
+#     ("aiuto con i comandi del bot","HELP_BOT_COMMANDS"),
+#     ("come scelgo le categorie?","HELP_CHOOSE_NEWS_CATEGORIES"),
+#     ("voglio più informazioni sui comandi","HELP_BOT_COMMANDS"),
+#     ("dove sono le offerte di lavoro?","HELP_JOB_OFFERS"),
+#     ("in che linguaggio è scritto il bot","HELP_BOT_DEV"),
+#     ("info comandi bot","HELP_BOT_COMMANDS"),
+#     ("", ""),
+#     ("", ""),
+# ]
+
+
+def test_nss():
+    find_most_similar_sentence("dove mi trovo?")
+
+    find_most_similar_sentence("maggiori info")
+
+    find_most_similar_sentence("maggiori informazioni")
+
+    find_most_similar_sentence("a chi posso chiedere?")
+
+    find_most_similar_sentence("a chi posso telefonare?")
+
+    find_most_similar_sentence("a chi posso mandare una email?")
+
+    find_most_similar_sentence("a chi posso chiedere chiarimenti su dove si terrà?")

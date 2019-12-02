@@ -2,6 +2,7 @@ import os
 
 from more_itertools import take
 
+# note: when execution starts from this file, the next import implies that src.telegram_bot.__init__.py is executed (after the import)
 from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
