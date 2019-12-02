@@ -909,6 +909,11 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
         if not first_value:
             first_value = v
 
+    obj = orm_get_current_user_context(telegram_user.user_id)
+    print(obj)
+
+    content += f'current context: {obj}'
+
     orm_save_ai_log(telegram_user, None, message_text, suggested_action, confidence, first_value[0], "TODO")
 
     # ai_log = AiQAActivityLog()
@@ -926,10 +931,12 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 
     # if telegram_user.is_admin:
     # suggested_action={d["similarity_ws"][0]} confidence={d["similarity_ws"][1]}\n
-    update.message.reply_text(
-        f'AI says: {content}',
-        parse_mode='HTML'
-    )
+
+    if telegram_user.is_admin:
+        update.message.reply_text(
+            f'AI says: {content}',
+            parse_mode='HTML'
+        )
 
 
 @log_user_input

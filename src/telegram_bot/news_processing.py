@@ -20,13 +20,15 @@ from src.backoffice.definitions import (
     UI_news,
     UI_message_published_on,
     UI_external_link,
-    UI_message_read_news_item, UI_message_this_is_audio_version_of_news_item, SHOW_READ_COMMAND_IN_NEWS_BODY)
+    UI_message_read_news_item, UI_message_this_is_audio_version_of_news_item, SHOW_READ_COMMAND_IN_NEWS_BODY,
+    CURRENT_CONTEXT)
 
 from src.backoffice.models import NewsItem, TelegramUser
 
 from src.telegram_bot.ormlayer import orm_get_fresh_news_to_send, orm_get_system_parameter, orm_get_all_telegram_users, \
     orm_log_news_sent_to_user, orm_inc_telegram_user_number_received_news_items, orm_get_news_item, \
-    orm_has_user_seen_news_item
+    orm_has_user_seen_news_item, orm_find_ai_action, orm_find_ai_context, orm_update_telegram_user, \
+    orm_set_current_user_context
 from src.telegram_bot.print_utils import my_print
 
 # dictionary of file_id cache, used when uploading files to telegram server
@@ -191,6 +193,13 @@ def send_news_to_telegram_user(
         f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
 
     telegram_user_id = telegram_user.user_id
+
+    if news_item.context:
+        current_context = news_item.context
+    else:
+        current_context = orm_find_ai_context('NEWS')
+
+    orm_set_current_user_context(telegram_user_id, current_context, news_item)
 
     # title_html_content = ''
     categories_html_content = ''

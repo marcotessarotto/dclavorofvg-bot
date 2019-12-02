@@ -85,6 +85,8 @@ UI_PRIVACY = "UI_PRIVACY"
 RSS_FEED = "RSS_FEED"
 CREATE_USER_WITH_ALL_CATEGORIES_SELECTED = "CREATE_USER_WITH_ALL_CATEGORIES_SELECTED"
 
+CURRENT_CONTEXT = 'CURRENT_CONTEXT'
+
 # param_show_match_category_news = "news_mostra_match_categoria"
 
 # UC: upper case

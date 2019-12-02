@@ -576,6 +576,15 @@ def orm_find_ai_action(action: str):
     return queryset[0]
 
 
+def orm_find_ai_context(context: str):
+    queryset = AiContext.objects.filter(context=context)
+
+    if len(queryset) == 0:
+        return None
+
+    return queryset[0]
+
+
 def orm_reload_nss_reference_sentences():
     queryset = NaiveSentenceSimilarityDb.objects.filter(enabled=True)
 
@@ -613,4 +622,38 @@ def orm_save_ai_log(telegram_user, news_item, message_text, suggested_action, co
     ai_log.ai_answer = ai_answer
 
     ai_log.save()
+
+
+_current_context_users = {}
+
+
+class CurrentUserContext(object):
+    def __init__(self):
+        self.current_context = None
+        self.item = None
+        self.timestamp = datetime.now()
+
+    def __str__(self):
+        return f"CurrentUserContext: {self.current_context} {self.item.id if self.item is not None else None} {self.timestamp}"
+    pass
+
+
+def orm_set_current_user_context(telegram_user_id: int, current_context: AiContext, item):
+    global _current_context_users
+
+    obj = CurrentUserContext()
+    obj.current_context = current_context
+    obj.item = item
+    # obj.timestamp = datetime.now()
+
+    _current_context_users[telegram_user_id] = obj
+    print(str(obj))
+
+
+def orm_get_current_user_context(telegram_user_id: int):
+    global _current_context_users
+
+    obj = _current_context_users.get(telegram_user_id)
+
+    return obj
 
