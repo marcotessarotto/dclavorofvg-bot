@@ -634,7 +634,7 @@ class CurrentUserContext(object):
         self.timestamp = datetime.now()
 
     def __str__(self):
-        return f"CurrentUserContext: {self.current_context} {self.item.id if self.item is not None else None} {self.timestamp}"
+        return f"CurrentUserContext: context='{self.current_context}' item id={self.item.id if self.item is not None else None} timestamp={self.timestamp}"
     pass
 
 

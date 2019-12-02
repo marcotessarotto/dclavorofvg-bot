@@ -62,7 +62,18 @@ class NaiveSentenceSimilarityDbAdmin(admin.ModelAdmin, ExportCsvMixin):
 
 
 admin.site.register(AiContext)
-admin.site.register(AiAction)
+
+
+@admin.register(AiAction)
+class AiActionAdmin(admin.ModelAdmin, ExportCsvMixin):
+    actions = ["export_as_csv"]
+
+    formfield_overrides = {
+        # https://stackoverflow.com/questions/910169/resize-fields-in-django-admin
+        models.CharField: {'widget': TextInput(attrs={'size': '80'})},
+        #        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':40})},
+
+    }
 
 
 @admin.register(TelegramUser)
