@@ -48,7 +48,7 @@ class AiQAActivityLogAdmin(admin.ModelAdmin):
 @admin.register(NaiveSentenceSimilarityDb)
 class NaiveSentenceSimilarityDbAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('id', 'reference_sentence', 'action', 'context', 'enabled', )
-    ordering = ('-id',)
+    ordering = ('-id', 'reference_sentence', 'action', 'context')
     search_fields = ('reference_sentence', )
     actions = ["export_as_csv"]
     # TODO: add import csv command
