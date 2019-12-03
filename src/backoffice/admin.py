@@ -49,7 +49,7 @@ class AiQAActivityLogAdmin(admin.ModelAdmin):
 class NaiveSentenceSimilarityDbAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('id', 'reference_sentence', 'action', 'context', 'enabled', )
     ordering = ('-id',)
-    search_fields = ('reference_sentence', 'action', 'context', )
+    search_fields = ('reference_sentence', )
     actions = ["export_as_csv"]
     # TODO: add import csv command
     # https://books.agiliq.com/projects/django-admin-cookbook/en/latest/import.html
