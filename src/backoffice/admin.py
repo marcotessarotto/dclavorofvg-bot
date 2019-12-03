@@ -67,7 +67,9 @@ admin.site.register(AiContext)
 
 @admin.register(AiAction)
 class AiActionAdmin(admin.ModelAdmin, ExportCsvMixin):
+    list_display = ('id', 'action',)
     actions = ["export_as_csv"]
+    ordering = ('-id', 'action')
 
     formfield_overrides = {
         # https://stackoverflow.com/questions/910169/resize-fields-in-django-admin
