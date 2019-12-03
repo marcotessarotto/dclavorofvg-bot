@@ -57,15 +57,15 @@ def remove_stop_words(text):
 process_sentence_cache_dict = {}
 
 
-def process_sentence(sentence, remove_stop_words_arg=True):
-
-    if remove_stop_words_arg:
-        sentence = remove_stop_words(sentence)
+def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=True):
 
     key_name = "nss_sentence_" + sentence
     res = process_sentence_cache_dict.get(key_name)
     if res:
         return res
+
+    if remove_stop_words_arg:
+        sentence = remove_stop_words(sentence)
 
     dict = {}
 
@@ -75,8 +75,13 @@ def process_sentence(sentence, remove_stop_words_arg=True):
     for s in tagger_result:
         w = s.split('\t')
 
-        if w[1] != 'PON':
-            result.append(w)
+        if len(w) <= 1:
+            continue
+
+        if remove_punctuation and w[1] == 'PON':
+            continue
+
+        result.append(w)
 
     for row in result:
         word = row[2]
