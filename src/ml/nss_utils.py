@@ -1,4 +1,5 @@
 # naive_sentence_similarity
+from src.telegram_bot.log_utils import benchmark_decorator
 
 print(__file__)
 
@@ -8,6 +9,10 @@ from functools import wraps
 from nltk.corpus import wordnet as wn
 from nltk.corpus import stopwords
 from nltk import word_tokenize
+
+
+# install treetagger from here:
+# https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/
 
 from treetaggerwrapper import TreeTagger
 
@@ -20,27 +25,6 @@ from src.telegram_bot.ormlayer import orm_get_nss_reference_sentences, orm_get_o
 
 tagbuildopt = {"TAGDIR": '/opt/bot/treetagger', "TAGLANG": "it"}
 tagger = TreeTagger(**tagbuildopt)
-
-
-def my_benchmark_decorator(func):
-    @wraps(func)
-    def wrapped(*args, **kwargs):
-
-        # a = datetime.now()
-        # https://stackoverflow.com/a/49667269/974287
-        # time.time_ns requires python >= 3.7
-        a = time.time_ns()
-
-        try:
-            return func(*args, **kwargs)
-        finally:
-            # b = datetime.now()
-            b = time.time_ns()
-
-            c = b - a
-            print(f"{func.__name__} dt={c / 1000000} milliseconds")
-
-    return wrapped
 
 
 _stoplist = set(stopwords.words('italian'))
@@ -153,7 +137,7 @@ def compare_sentences(d1, d2, lch_similarity=False):
     return calc_dict_average(dict), dict
 
 
-@my_benchmark_decorator
+@benchmark_decorator
 def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_nss_reference_sentences):
     """returns most similar sentence: confidence and string value"""
 
