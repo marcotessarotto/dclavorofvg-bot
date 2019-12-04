@@ -917,37 +917,21 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 
     content += f'current context: {current_user_context}'
 
-    orm_save_ai_log(telegram_user,
-                    current_user_context.item if current_user_context is not None and current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
-                    message_text,
-                    suggested_action,
-                    confidence,
-                    first_value[0],
-                    "TODO")
-
-    # ai_log = AiQAActivityLog()
-    # ai_log.telegram_user = telegram_user
-    # ai_log.news_item = None
-    # ai_log.user_question = message_text # original text provided by user
-    #
-    # ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action)  # as suggested by naive s.s.
-    # ai_log.naive_sentence_similarity_confidence = confidence  # as suggested by naive s.s.
-    # ai_log.naive_most_similar_sentence = first_value[0]  # as suggested by naive s.s.
-    #
-    # ai_log.ai_answer = "TODO"
-    #
-    # ai_log.save()
-
-    # if telegram_user.is_admin:
-    # suggested_action={d["similarity_ws"][0]} confidence={d["similarity_ws"][1]}\n
-
     if telegram_user.is_admin:
         update.message.reply_text(
             f'AI says: {content}',
             parse_mode='HTML'
         )
 
-    perform_suggested_action(update, context, telegram_user, current_user_context, nss_result)
+    ai_answer = perform_suggested_action(update, context, telegram_user, current_user_context, nss_result)
+
+    orm_save_ai_log(telegram_user,
+                    current_user_context.item if current_user_context is not None and current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
+                    message_text,
+                    suggested_action,
+                    confidence,
+                    first_value[0],
+                    ai_answer)
 
 
 @log_user_input

@@ -50,17 +50,17 @@ def tell_when_is_event(update, context, current_context: CurrentUserContext, row
     pass
 
 
-def show_mobile_app_url(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+def show_mobile_app_url(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     update.message.reply_text(
-        f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
+        f'ho interpretato la tua domanda come "{row[0]}" con sicurezza pari al {int(confidence_perc)}%, ecco la mia risposta:\n\n'
         f'puoi scaricare la <a href="https://play.google.com/store/apps/details?id=it.insiel.ergonet.linksmt.applavoro">APP per Android da questo link</a>  \n'
         f'oppure la  <a href="https://itunes.apple.com/it/app/lavoro-fvg/id1327283831?mt=8">APP per iOS da questo link</a> ',
         parse_mode='HTML'
     )
 
 
-def show_last_news(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+def show_last_news(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     # TODO: check if user has selected at least one category
 
@@ -74,7 +74,7 @@ def show_last_news(update, context, current_context: CurrentUserContext, row, *a
     )
 
 
-def show_offices_opening_times(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+def show_offices_opening_times(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
@@ -96,29 +96,36 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
     suggested_action = nss_result["similarity_ws"][0]
     confidence = nss_result["similarity_ws"][1]
 
+    logger.info(f"perform_suggested_action confidence={confidence}  suggested_action='{suggested_action}' current_context={current_context}")
+
     if suggested_action is None:
         suggested_action = ''
 
-    od = nss_result["similarity_ws"][2]  # dictionary
+    od = nss_result["similarity_ws"][2]  # complete ordered dictionary of similarity results:
+    # {'0.5': ['<reference question>', '<ACTION>'], '0.16666666666666666': ['non capisco', 'USER_DOES_NOT_UNDERSTAND'],  ....
 
     # if current_context is None:
     #     return None
 
-    print(current_context)
-    print(od)
+    # print(current_context)
+    # print(od)
 
-    first_row = next(iter(od.values()))
-    print(first_row)
+    first_row_key = next(iter(od.keys()))
+    first_row_values = next(iter(od.values()))
+    # print(first_row_key)
+    # print(first_row_values)
+
+    confidence_perc = confidence * 100
 
     item = _suggested_actions_dict.get(suggested_action)
-        # current_context.current_ai_context.action)
 
     if item is None:
-        return "mi dispiace....non capisco e/o non so cosa fare.";
+        logger.warning("perform_suggested_action: I don't know what to do!!!")
+        return None
 
-    item(update, context, current_context, first_row)
+    item(update, context, current_context, first_row_values, confidence_perc)
 
-    return
+    return f"answer by method {item.__name__}"
 
 
 def get_supported_actions():
