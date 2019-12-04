@@ -155,7 +155,7 @@ UI_message_i_have_removed_all_your_categories = 'Ho rimosso tutte le tue categor
 
 UI_message_no_previous_news_to_send_again = 'non ho trovato notizie precedenti da rimandarti! ' \
                                             'Se vuoi, puoi provare a cambiare le categorie di notizie che vuoi ricevere con il comando /scegli'
-UI_message_no_matching_previous_news = 'non ci sono news precedenti che corrispondono alle tue impostazioni. ' \
+UI_message_no_matching_previous_news = 'non ci sono notizie precedenti che corrispondono alle tue impostazioni. ' \
                                        'Se vuoi, prova a cambiare le categorie di notizie con il comando /scegli e poi riprova /rimanda_ultime_notizie.'
 
 UI_message_thank_you_for_feedback_newline = 'Grazie per il feedback!\n'
@@ -177,7 +177,7 @@ UI_message_now_you_can_choose_news_categories = 'Ci siamo quasi!\nOra scegli il 
 
 UI_arrow = "→"# u"\u2192" #'🠮'
 
-UI_message_select_news_categories = "Seleziona le categorie di news a cui sei interessato:\n" + u'\U00002705' + ' → selezionato, ' + \
+UI_message_select_news_categories = "Seleziona le categorie di notizie a cui sei interessato:\n" + u'\U00002705' + ' → selezionato, ' + \
                                     u'\U0000274C' + ' → non selezionato'
 
 UI_message_ok_suffix = ": Sì"

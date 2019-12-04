@@ -59,8 +59,19 @@ def show_mobile_app_url(update, context, current_context: CurrentUserContext, ro
     )
 
 
+def show_last_news(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+    update.message.reply_text(
+        f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
+        f'usa il comando /rimanda_ultime_notizie per rivedere le ultime notizie inviate.\n\n'
+        f"Per ricevere le NUOVE notizie, non occorre che tu faccia niente! Te le mando io.\n"
+        f"L'importante è che tu scelga le categorie di notizie che ti interessano ( con il comando /scegli ). Ma penso che tu lo abbia già fatto :)",
+        parse_mode='HTML'
+    )
+
+
 _suggested_actions_dict["ANS_WHEN_IS_COURSE"] = tell_when_is_event
 _suggested_actions_dict["DOWNLOAD_MOBILE_APP"] = show_mobile_app_url
+_suggested_actions_dict["SHOW_LAST_NEWS"] = show_last_news
 
 
 def perform_suggested_action(update, context, telegram_user, current_context: CurrentUserContext, nss_result) -> str:

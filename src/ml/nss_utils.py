@@ -13,6 +13,8 @@ from nltk import word_tokenize
 
 # install treetagger from here:
 # https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/
+# italian tagset:
+# https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/data/italian-tagset.txt
 
 from treetaggerwrapper import TreeTagger
 
