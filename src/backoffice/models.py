@@ -30,7 +30,7 @@ class AiQAActivityLog(models.Model):
     naive_sentence_similarity_action = models.ForeignKey('AiAction', on_delete=models.PROTECT,  blank=True, null=True, related_name='naive_action') # models.CharField(max_length=1024, verbose_name="AI action")
     naive_sentence_similarity_confidence = models.FloatField(default=0, verbose_name="AI confidence")
     naive_most_similar_sentence = models.CharField(max_length=1024)
-    ai_answer = models.CharField(max_length=1024, default="", blank=True,)
+    ai_answer = models.CharField(max_length=1024, default="", blank=True, null=True,)
 
     context = models.ForeignKey('AiContext', on_delete=models.PROTECT, blank=True, null=True)
 
