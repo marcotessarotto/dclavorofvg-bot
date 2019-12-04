@@ -182,7 +182,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
     sorted_dict = {i: rdict[i] for i in sorted(rdict.keys(), reverse=True)}  # sort dict by key value in reverse order
 
     if len(sorted_dict) > 0:
-        first_key = sorted_dict.keys()[0]
+        first_key = next(iter(sorted_dict))
         first_val = sorted_dict[first_key]
 
         print(first_key)
