@@ -134,7 +134,7 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
 
     if item is None:
         logger.warning("perform_suggested_action: I don't know what to do!!!")
-        return None
+        return "-"
 
     item(update, context, current_context, first_row_values, confidence_perc)
 
