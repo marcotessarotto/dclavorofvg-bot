@@ -1,7 +1,7 @@
 
 
 from src.backoffice.models import AiAction
-from src.telegram_bot.ormlayer import CurrentUserContext
+from src.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences
 
 from src.telegram_bot.log_utils import main_logger as logger
 
@@ -51,6 +51,7 @@ def tell_when_is_event(update, context, current_context: CurrentUserContext, row
 
 
 def show_mobile_app_url(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
         f'puoi scaricare la <a href="https://play.google.com/store/apps/details?id=it.insiel.ergonet.linksmt.applavoro">APP per Android da questo link</a>  \n'
@@ -73,9 +74,21 @@ def show_last_news(update, context, current_context: CurrentUserContext, row, *a
     )
 
 
+def show_offices_opening_times(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+
+    update.message.reply_text(
+        f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
+        f"visita la seguente pagina per vedere gli orari dei Centri per l'Impiego: http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/ ",
+        parse_mode='HTML'
+    )
+
+
 _suggested_actions_dict["ANS_WHEN_IS_COURSE"] = tell_when_is_event
 _suggested_actions_dict["DOWNLOAD_MOBILE_APP"] = show_mobile_app_url
 _suggested_actions_dict["SHOW_LAST_NEWS"] = show_last_news
+_suggested_actions_dict["CPI_OPENING_TIMES"] = show_offices_opening_times
+
+# http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
 
 def perform_suggested_action(update, context, telegram_user, current_context: CurrentUserContext, nss_result) -> str:
@@ -106,3 +119,37 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
     item(update, context, current_context, first_row)
 
     return
+
+
+def get_supported_actions():
+    result = {}
+
+    for k in _suggested_actions_dict:
+        # result.append(k)
+
+        sentences = orm_get_all_sentences(k)
+
+        result[k] = sentences
+
+    return result
+
+
+def help_on_supported_ai_questions():
+
+    library = get_supported_actions()
+    result = 'Ad oggi, le domande a cui so rispondere :) sono:\n'
+
+    for k,v in library.items():
+
+        if v is None or len(v) == 0:
+            continue
+
+        # print(v)
+
+        for s in v:
+            result += s + "\n"
+
+    # print(result)
+
+    return result
+

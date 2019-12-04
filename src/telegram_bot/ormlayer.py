@@ -591,6 +591,23 @@ def orm_reload_nss_reference_sentences():
     return queryset
 
 
+def orm_get_all_sentences(action: str):
+
+    ai_action = orm_find_ai_action(action)
+
+    if not ai_action:
+        return None
+
+    queryset = NaiveSentenceSimilarityDb.objects.filter(action=ai_action)
+
+    result = []
+
+    for item in queryset:
+        result.append(item.reference_sentence)
+
+    return result
+
+
 nss_mutex = threading.Lock()
 
 

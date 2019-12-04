@@ -5,7 +5,7 @@ from more_itertools import take
 # note: when execution starts from this file, the next import implies that src.telegram_bot.__init__.py is executed (after the import)
 from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
-from src.ml.suggested_actions import perform_suggested_action
+from src.ml.suggested_actions import perform_suggested_action, help_on_supported_ai_questions
 
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 
@@ -265,7 +265,9 @@ def help_command_handler(update, context):
     """ Show available bot commands"""
 
     update.message.reply_text(
-        orm_get_system_parameter(UI_bot_help_message),
+        orm_get_system_parameter(UI_bot_help_message) +
+        "\n\n" +
+        help_on_supported_ai_questions(),
         parse_mode='HTML'
     )
 
