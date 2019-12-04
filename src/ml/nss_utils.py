@@ -190,8 +190,8 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
         first_key = next(iter(sorted_dict))
         first_val = sorted_dict[first_key]
 
-        print(first_key)
-        print(first_val)
+        # print(first_key)
+        # print(first_val)
         confidence = first_key
         result = first_val[1]
 

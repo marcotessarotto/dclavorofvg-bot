@@ -396,13 +396,13 @@ def send_news_to_telegram_user(
         file_path = MEDIA_ROOT + news_item.file2.file_field.name
         logger.info(f"send_news_to_telegram_user - fs path of file2 to send: {file_path}")
 
-        _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
+        _send_file_using_mime_type(context, telegram_user_id, file_path, _file_mime_type=None)
 
     if news_item.file3 is not None:
         file_path = MEDIA_ROOT + news_item.file3.file_field.name
         logger.info(f"send_news_to_telegram_user - fs path of file3 to send: {file_path}")
 
-        _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type=None)
+        _send_file_using_mime_type(context, telegram_user_id, file_path, _file_mime_type=None)
 
     if request_feedback:
         # keyboard with 'like' and 'dislike' buttons
