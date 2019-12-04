@@ -60,11 +60,15 @@ def show_mobile_app_url(update, context, current_context: CurrentUserContext, ro
 
 
 def show_last_news(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+
+    # TODO: check if user has selected at least one category
+
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
         f'usa il comando /rimanda_ultime_notizie per rivedere le ultime notizie inviate.\n\n'
         f"Per ricevere le NUOVE notizie, non occorre che tu faccia niente! Te le mando io.\n"
-        f"L'importante è che tu scelga le categorie di notizie che ti interessano ( con il comando /scegli ). Ma penso che tu lo abbia già fatto :)",
+        f"L'importante è che tu scelga le categorie di notizie che ti interessano ( con il comando /scegli ). "
+        f"Ma penso che tu lo abbia già fatto :)",
         parse_mode='HTML'
     )
 

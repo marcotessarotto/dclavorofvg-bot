@@ -141,7 +141,7 @@ def compare_sentences(d1, d2, lch_similarity=False):
 
 @benchmark_decorator
 def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_nss_reference_sentences):
-    """returns most similar sentence: confidence and string value"""
+    """returns (result, confidence, ordered dictionary of most similar sentences) """
 
     confidence = 0
     result = None
@@ -180,6 +180,13 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
             confidence_sentence = ref_sentence
 
     sorted_dict = {i: rdict[i] for i in sorted(rdict.keys(), reverse=True)}  # sort dict by key value in reverse order
+
+    if len(sorted_dict) > 0:
+        first_key = sorted_dict.keys()[0]
+        first_val = sorted_dict[first_key]
+
+        print(first_key)
+        print(first_val)
 
     print(f"find_most_similar_sentence(): confidence={confidence} | result={result} | sentence='{sentence}' | confidence_sentence='{confidence_sentence}'")
 
