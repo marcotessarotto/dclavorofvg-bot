@@ -34,7 +34,7 @@ class ExportCsvMixin:
 
 @admin.register(AiQAActivityLog)
 class AiQAActivityLogAdmin(admin.ModelAdmin):
-    list_display = ('id', 'telegram_user', 'news_item', 'naive_sentence_similarity_action', 'naive_sentence_similarity_confidence', 'user_question')
+    list_display = ('id', 'telegram_user', 'user_question', 'naive_sentence_similarity_action', 'naive_sentence_similarity_confidence', 'user_question')
     ordering = ('-id',)
 
     formfield_overrides = {
