@@ -137,7 +137,7 @@ def get_supported_actions():
 def help_on_supported_ai_questions():
 
     library = get_supported_actions()
-    result = 'Ad oggi, le domande a cui so rispondere :) sono:\n'
+    result = 'Ad oggi, le domande a cui so rispondere :) sono:\n\n'
 
     for k,v in library.items():
 
@@ -147,7 +147,7 @@ def help_on_supported_ai_questions():
         # print(v)
 
         for s in v:
-            result += s + "\n"
+            result += "- " + s + "\n"
 
     # print(result)
 
