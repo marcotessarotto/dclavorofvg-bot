@@ -180,11 +180,11 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
             result = ref_target
             confidence_sentence = ref_sentence
 
-    print(rdict)
+    # print(rdict)
 
     sorted_dict = {i: rdict[i] for i in sorted(rdict.keys(), reverse=True)}  # sort dict by key value in reverse order
 
-    print(sorted_dict)
+    # print(sorted_dict)
 
     if len(sorted_dict) > 0:
         first_key = next(iter(sorted_dict))
@@ -192,7 +192,11 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
 
         print(first_key)
         print(first_val)
+        confidence = first_key
+        result = first_val[1]
 
+
+        # mismatch between (result, confidence) and first item of sorted_dict
         # issue:  'dove stanno le notizie?' => {'similarity_ws': ['SHOW_PARTICULAR_NEWS_ITEM', 0.7589285714285714, {'0.7589285714285714': ['dove trovo le notizie?', 'SHOW_LAST_NEWS'], '0.6857638888888888': .....
 
     print(f"find_most_similar_sentence(): confidence={confidence} | result={result} | sentence='{sentence}' | confidence_sentence='{confidence_sentence}'")
