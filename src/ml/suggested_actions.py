@@ -83,10 +83,20 @@ def show_offices_opening_times(update, context, current_context: CurrentUserCont
     )
 
 
+def how_to_enroll(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+
+    update.message.reply_text(
+        f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
+        f"ok, devo imparare a scoprire come si fa ad iscriversi in questo contesto ({current_context}) .... non lo so ancora fare :(",
+        parse_mode='HTML'
+    )
+
+
 _suggested_actions_dict["ANS_WHEN_IS_COURSE"] = tell_when_is_event
 _suggested_actions_dict["DOWNLOAD_MOBILE_APP"] = show_mobile_app_url
 _suggested_actions_dict["SHOW_LAST_NEWS"] = show_last_news
 _suggested_actions_dict["CPI_OPENING_TIMES"] = show_offices_opening_times
+_suggested_actions_dict["HOW_TO_ENROLL"] = how_to_enroll
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
@@ -104,8 +114,11 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
     od = nss_result["similarity_ws"][2]  # complete ordered dictionary of similarity results:
     # {'0.5': ['<reference question>', '<ACTION>'], '0.16666666666666666': ['non capisco', 'USER_DOES_NOT_UNDERSTAND'],  ....
 
-    # if current_context is None:
-    #     return None
+    if confidence <= 0.20:
+        logger.warning("low confidence")
+
+        # TODO: show different alternatives
+
 
     # print(current_context)
     # print(od)
