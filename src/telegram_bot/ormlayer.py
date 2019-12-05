@@ -63,7 +63,29 @@ def orm_add_telegram_user(user):
         return new_telegram_user
     else:
         logger.info(f"orm_add_telegram_user: existing user {telegram_user.user_id}")
+
+        telegram_user.has_user_blocked_bot = False
+
+        telegram_user.save()
+
+        _update_user_in_cache(telegram_user)
+
         return telegram_user
+
+
+def orm_user_blocks_bot(chat_id):
+
+    logger.info(f"orm_user_blocks_bot: user {chat_id}")
+
+    telegram_user = orm_get_telegram_user(chat_id)
+
+    if not telegram_user:
+        logger.info(f"orm_user_blocks_bot: telegram_user not found!")
+        return
+
+    telegram_user.has_user_blocked_bot = True
+    telegram_user.when_user_blocked_bot_timestamp = now()
+    orm_update_telegram_user(telegram_user)
 
 
 def orm_log_news_sent_to_user(news_item, telegram_user):
@@ -661,10 +683,8 @@ def orm_set_current_user_context(telegram_user_id: int, current_ai_context: AiCo
     obj = CurrentUserContext()
     obj.current_ai_context = current_ai_context
     obj.item = item
-    # obj.timestamp = datetime.now()
 
     _current_context_users[telegram_user_id] = obj
-    print(str(obj))
 
 
 def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:

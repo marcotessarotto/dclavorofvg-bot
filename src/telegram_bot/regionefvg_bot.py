@@ -993,10 +993,17 @@ class MQBot(Bot):
             pass
 
     @mq.queuedmessage
-    def send_message(self, *args, **kwargs):
+    def send_message(self, chat_id, *args, **kwargs):
         '''Wrapped method would accept new `queued` and `isgroup`
         OPTIONAL arguments'''
-        return super(MQBot, self).send_message(*args, **kwargs)
+        try:
+            return super(MQBot, self).send_message(chat_id, *args, **kwargs)
+        except Unauthorized:
+            # logger.info(f"user {chat_id} has blocked bot")
+            # print(Unauthorized)
+            # print(chat_id)
+            orm_user_blocks_bot(chat_id)
+            pass
 
 
 def error_callback(update, error):
@@ -1060,6 +1067,8 @@ def main():
 
     updater = Updater(bot=my_bot, use_context=True)
     dp = updater.dispatcher
+
+    dp.add_error_handler(error_callback)
 
     job_queue = updater.job_queue
 
@@ -1134,7 +1143,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
-    dp.add_error_handler(error_callback)
+
 
     # start updater
     updater.start_polling()

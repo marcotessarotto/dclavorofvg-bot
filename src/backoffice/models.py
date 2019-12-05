@@ -250,6 +250,9 @@ class TelegramUser(models.Model):
 
     email = models.CharField(max_length=256, blank=True, null=True)
 
+    has_user_blocked_bot = models.BooleanField(default=False, verbose_name="l'utente ha bloccato il bot?")
+    when_user_blocked_bot_timestamp = models.DateTimeField(blank=True, null=True, verbose_name="quando l'utente ha bloccato il bot")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -189,6 +189,9 @@ def send_news_to_telegram_user(
     if not telegram_user.has_accepted_privacy_rules:
         return
 
+    if telegram_user.has_user_blocked_bot:
+        return
+
     logger.info(
         f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
 
@@ -251,7 +254,6 @@ def send_news_to_telegram_user(
     #  title_only == True: used by resend_last_processed_news_command_handler
     if title_only:
 
-        logger.info("***")
         # if news item has no text, do not show the 'show news' command
         # if news_item.text is None:
         #     html_news_content = title_html_content + categories_html_content
@@ -326,7 +328,7 @@ def send_news_to_telegram_user(
     # complete html body of news item (separate from title. link...)
     html_news_content = title_html_content + categories_html_content + body_html_content + link_html_content
 
-    logger.info(f"send_news_to_telegram_user - len(html_content) = {len(html_news_content)}")
+    # logger.info(f"send_news_to_telegram_user - len(html_content) = {len(html_news_content)}")
     # logger.info(f"send_news_to_telegram_user - html_content =  {html_news_content}")
 
     # print("len(title_html_content) = " + str(len(title_html_content)))
@@ -419,6 +421,7 @@ def send_news_to_telegram_user(
 
         time.sleep(0.1)  # sleep for 100 ms, to be sure that previous message has been sent
 
+        logger.info(f"send_news_to_telegram_user - context.bot.send_message chat_id={telegram_user.user_id}")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=UI_message_request_for_news_item_feedback,
