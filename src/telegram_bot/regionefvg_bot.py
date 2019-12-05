@@ -960,12 +960,6 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
         respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
 
-        # if d["similarity_ws"][0] == 'MORE_INFO':
-        #     update.message.reply_text(
-        #         orm_get_system_parameter(UI_bot_help_message),
-        #         parse_mode='HTML'
-        #     )
-
 
 # def callback_minute(context: telegram.ext.CallbackContext):
 #     all_telegram_users = orm_get_all_telegram_users()
@@ -999,13 +993,11 @@ class MQBot(Bot):
         try:
             return super(MQBot, self).send_message(chat_id, *args, **kwargs)
         except Unauthorized:
-            # logger.info(f"user {chat_id} has blocked bot")
-            # print(Unauthorized)
-            # print(chat_id)
+            # remove chat_id from conversation list
             orm_user_blocks_bot(chat_id)
-            pass
 
 
+# issue: error_callback is not called
 def error_callback(update, error):
     logger.error("***error_callback***")
     logger.error(update)
