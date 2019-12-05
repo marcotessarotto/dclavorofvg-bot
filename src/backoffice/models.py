@@ -1,6 +1,9 @@
+from datetime import timedelta, datetime, tzinfo
+
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
+from django.db.models import Max
 
 from .definitions import *
 
@@ -396,10 +399,43 @@ class NewsItem(models.Model):
         return f"news #{self.id} "
 
 
-# @receiver(pre_save, sender=NewsItem)
-# def newsitem_pre_save(sender, instance, *args, **kwargs):
-#
-#     pass
+@receiver(pre_save, sender=NewsItem)
+def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
+    if instance.start_publication:
+        print("nothing to do")
+        return
+
+    # Generates a "SELECT MAX" query
+    result = NewsItem.objects.aggregate(Max('start_publication'))
+    # {'start_publication__max': datetime.datetime(2019, 11, 7, 10, 30, 19, tzinfo=<UTC>)}
+    # print(result)
+    # print(result["start_publication__max"])
+
+    latest_timestamp = result["start_publication__max"]
+
+    from django.utils import timezone
+    now_aware = timezone.now()
+
+    if latest_timestamp is None:
+        latest_timestamp = now_aware
+
+    if latest_timestamp < now_aware:
+        latest_timestamp = now_aware
+
+    # print(type(latest_timestamp))
+    # print(type(now_aware))
+
+    t = latest_timestamp + timedelta(hours=2)
+
+    while t.hour < 8 or t.hour > 18 or t.weekday() == 6: # skip sundays
+        t = t + timedelta(hours=4)
+
+    # print(t.weekday())
+    print(f"set start_publication to {t}")
+
+    instance.start_publication = t
+
+    return
 
 
 class FeedbackToNewsItem(models.Model):
