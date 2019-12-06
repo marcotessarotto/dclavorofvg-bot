@@ -982,6 +982,7 @@ class MQBot(Bot):
 
     def __del__(self):
         try:
+            logger.info("MQBot - __del__")
             self._msg_queue.stop()
         except:
             pass
@@ -1060,6 +1061,8 @@ def main():
     updater = Updater(bot=my_bot, use_context=True)
     dp = updater.dispatcher
 
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
+    # ISSUE: error_callback is not called byt dispatcher
     dp.add_error_handler(error_callback)
 
     job_queue = updater.job_queue
@@ -1104,7 +1107,6 @@ def main():
 
     dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news_command_handler))
 
-
     dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
     dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
@@ -1134,9 +1136,6 @@ def main():
     dp.add_handler(MessageHandler(Filters.reply, comment_handler))
     dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
-    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
-
-
     # start updater
     updater.start_polling()
 
@@ -1144,6 +1143,17 @@ def main():
     updater.idle()
 
     logger.info("terminating bot")
+
+    try:
+        request.stop()
+        q.stop()
+        my_bot.__del__()
+    except Exception as e:
+        logger.error(e)
+
+    # https://stackoverflow.com/a/40525942/974287
+    logger.info("before os._exit")
+    os._exit(0)
 
 
 if __name__ == '__main__':
