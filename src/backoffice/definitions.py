@@ -269,6 +269,9 @@ UI_message_text_to_speech_has_been_disabled = 'lettura audio delle notizie: disa
 
 UI_external_link = 'collegamento esterno'
 
+UI_message_to_user = "messaggio all'utente"
+UI_messages_to_user = "messaggi agli utenti"
+
 UI_OK = 'OK'
 UI_NO = 'No'
 

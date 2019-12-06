@@ -193,6 +193,22 @@ EDUCATIONAL_LEVELS = (
 )
 
 
+class MessageToUser(models.Model): # message to specific user from admins
+
+    text = models.CharField(max_length=1024, blank=True, null=True)
+    telegram_user = models.ForeignKey('TelegramUser', on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return 'MessageToUser ' + str(self.telegram_user.user_id) + ' : ' + self.text
+
+    class Meta:
+        verbose_name = UI_message_to_user
+        verbose_name_plural = UI_messages_to_user
+        app_label = APP_LABEL
+
+
 class TelegramUser(models.Model):
     """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 

@@ -194,6 +194,11 @@ class UserFreeTextAdmin(admin.ModelAdmin):
     list_display = ('telegram_user', 'created_at', 'text',)
 
 
+@admin.register(MessageToUser)
+class MessageToUserAdmin(admin.ModelAdmin):
+    list_display = ('telegram_user', 'created_at', 'text',)
+
+
 @admin.register(RssFeedItem)
 class RssFeedItemAdmin(admin.ModelAdmin):
     list_display = ('data_feed_was_last_updated', 'category', 'processed', 'rss_title',)
