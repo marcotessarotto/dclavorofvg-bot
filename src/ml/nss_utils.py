@@ -104,7 +104,7 @@ def compare_sentences(d1, d2, lch_similarity=False):
 
     for k1,v1 in d1.items():  # v1 is a list
 
-        maxval = 0
+        max_similarity = 0
         # best_match = None
         maxpos = 0
 
@@ -117,24 +117,24 @@ def compare_sentences(d1, d2, lch_similarity=False):
                 for synset2 in v2:
 
                     if lch_similarity:
-                        v = synset1.lch_similarity(synset2)
+                        similarity = synset1.lch_similarity(synset2)
                     else:
-                        v = synset1.path_similarity(synset2)
+                        similarity = synset1.path_similarity(synset2)
 
-                    if v and v > maxval:
-                        maxval = v
+                    if similarity and similarity > max_similarity:
+                        max_similarity = similarity
                         # best_match = synset2
                         maxpos = pos
 
                     pos = pos + 1
 
-        calc_maxval = maxval
+        calc_max_similarity = max_similarity
         if maxpos > 0:
-            calc_maxval = calc_maxval / maxpos
+            calc_max_similarity = calc_max_similarity / maxpos
 
         # print(f"max similarity between '{k1}' and sentence: max={maxval}, calc_maxval={calc_maxval}, best_match={best_match}, maxpos={maxpos}")
 
-        dict[k1] = calc_maxval
+        dict[k1] = calc_max_similarity
 
     return calc_dict_average(dict), dict
 
