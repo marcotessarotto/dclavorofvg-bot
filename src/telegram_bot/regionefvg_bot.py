@@ -871,6 +871,15 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
     if not update.message.reply_to_message.text.startswith(UI_message_comment_to_news_item):
         logger.info("comment_handler - not a comment for a news item")
 
+        # [notizia #56 pubblicata il 05-12-2019] blah
+
+        # >>> a="[notizia #56 pubblicata il .... ]"
+        # >>> a.split()
+        # ['[notizia', '#56', 'pubblicata', 'il', '....', ']']
+
+        # TODO: extract new id (if it is a news item)
+
+
         respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
 
         return

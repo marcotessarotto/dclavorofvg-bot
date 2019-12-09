@@ -349,6 +349,8 @@ class NewsItem(models.Model):
     text = models.TextField(max_length=2048, blank=True, null=True,
                             verbose_name="testo della news (max 2048 caratteri)")
 
+    # TODO: add disable_web_page_preview field (default: None)
+
     # fields used by AI
     when_question = models.DateTimeField(blank=True, null=True,
                                   verbose_name='[AI] quando?')
