@@ -112,6 +112,9 @@ def calc_dict_average(d):
     return res
 
 
+similarity_cache = {}
+
+
 def compare_sentences(d1, d2, lch_similarity=False, print_log=False):
 
     dict = {}
@@ -130,10 +133,30 @@ def compare_sentences(d1, d2, lch_similarity=False, print_log=False):
 
                 for synset2 in v2:
 
-                    if lch_similarity:
-                        similarity = synset1.lch_similarity(synset2)
+                    cache_key = synset1._name + "**" + synset2._name
+
+                    similarity = similarity_cache.get(cache_key)
+
+                    if similarity is None:
+
+                        if lch_similarity:
+                            similarity = synset1.lch_similarity(synset2)
+                        else:
+                            similarity = synset1.path_similarity(synset2)  # can return None
+
+                        if similarity is None:
+                            similarity_cache[cache_key] = -1
+                        else:
+                            similarity_cache[cache_key] = similarity
+
+                        # print(f"stored cache_key={cache_key}")
+
                     else:
-                        similarity = synset1.path_similarity(synset2)
+                        if similarity == -1:
+                            similarity = None
+                        # print(f"cache_key={cache_key} is *CACHED*")
+
+                    # print(f"similarity={similarity}  synset1={synset1} synset2={synset2}")
 
                     if similarity and similarity > max_similarity:
                         max_similarity = similarity
