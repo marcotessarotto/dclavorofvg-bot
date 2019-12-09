@@ -125,7 +125,7 @@ def how_to_enroll(update, context, current_context: CurrentUserContext, row, con
     )
 
 
-def explain_bot_help(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+def send_bot_help(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n' +
@@ -141,7 +141,7 @@ _suggested_actions_dict["DOWNLOAD_MOBILE_APP"] = show_mobile_app_url
 _suggested_actions_dict["SHOW_LAST_NEWS"] = show_last_news
 _suggested_actions_dict["CPI_OPENING_TIMES"] = show_offices_opening_times
 _suggested_actions_dict["HOW_TO_ENROLL"] = how_to_enroll
-_suggested_actions_dict["BOT_HELP"] = explain_bot_help
+_suggested_actions_dict["BOT_HELP"] = send_bot_help
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
