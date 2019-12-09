@@ -1,7 +1,7 @@
 
 
-from src.backoffice.models import AiAction
-from src.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences
+from src.backoffice.models import AiAction, UI_bot_help_message
+from src.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences, orm_get_system_parameter
 
 from src.telegram_bot.log_utils import main_logger as logger
 
@@ -30,6 +30,39 @@ from src.telegram_bot.log_utils import main_logger as logger
 """
 
 _suggested_actions_dict = {}
+
+
+def get_supported_actions():
+    result = {}
+
+    for k in _suggested_actions_dict:
+        # result.append(k)
+
+        sentences = orm_get_all_sentences(k)
+
+        result[k] = sentences
+
+    return result
+
+
+def help_on_supported_ai_questions():
+
+    library = get_supported_actions()
+    result = 'Ad oggi, le domande a cui so rispondere :) sono:\n\n'
+
+    for k,v in library.items():
+
+        if v is None or len(v) == 0:
+            continue
+
+        # print(v)
+
+        for s in v:
+            result += "- " + s + "\n"
+
+    # print(result)
+
+    return result
 
 
 def tell_when_is_event(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
@@ -92,11 +125,23 @@ def how_to_enroll(update, context, current_context: CurrentUserContext, row, con
     )
 
 
+def explain_bot_help(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+
+    update.message.reply_text(
+        f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n' +
+        orm_get_system_parameter(UI_bot_help_message) +
+        "\n\n" +
+        help_on_supported_ai_questions(),
+        parse_mode='HTML'
+    )
+
+
 _suggested_actions_dict["ANS_WHEN_IS_COURSE"] = tell_when_is_event
 _suggested_actions_dict["DOWNLOAD_MOBILE_APP"] = show_mobile_app_url
 _suggested_actions_dict["SHOW_LAST_NEWS"] = show_last_news
 _suggested_actions_dict["CPI_OPENING_TIMES"] = show_offices_opening_times
 _suggested_actions_dict["HOW_TO_ENROLL"] = how_to_enroll
+_suggested_actions_dict["BOT_HELP"] = explain_bot_help
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
@@ -139,37 +184,4 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
     item(update, context, current_context, first_row_values, confidence_perc)
 
     return f"answer by method {item.__name__}"
-
-
-def get_supported_actions():
-    result = {}
-
-    for k in _suggested_actions_dict:
-        # result.append(k)
-
-        sentences = orm_get_all_sentences(k)
-
-        result[k] = sentences
-
-    return result
-
-
-def help_on_supported_ai_questions():
-
-    library = get_supported_actions()
-    result = 'Ad oggi, le domande a cui so rispondere :) sono:\n\n'
-
-    for k,v in library.items():
-
-        if v is None or len(v) == 0:
-            continue
-
-        # print(v)
-
-        for s in v:
-            result += "- " + s + "\n"
-
-    # print(result)
-
-    return result
 
