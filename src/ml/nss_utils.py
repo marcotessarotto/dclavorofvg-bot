@@ -236,7 +236,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
         # mismatch between (result, confidence) and first item of sorted_dict
         # issue:  'dove stanno le notizie?' => {'similarity_ws': ['SHOW_PARTICULAR_NEWS_ITEM', 0.7589285714285714, {'0.7589285714285714': ['dove trovo le notizie?', 'SHOW_LAST_NEWS'], '0.6857638888888888': .....
 
-    print(f"find_most_similar_sentence(): confidence={confidence} | result={result} | sentence='{sentence}' | confidence_sentence='{confidence_sentence}'")
+    print(f"find_most_similar_sentence(): confidence={confidence} | result={result} | sentence='{sentence}' | confidence_sentence='{confidence_sentence}' | remove_stop_words_arg='{remove_stop_words_arg}'")
 
     return result, confidence, sorted_dict
 
