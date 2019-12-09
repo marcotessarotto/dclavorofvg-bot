@@ -22,7 +22,7 @@ class NaiveSentenceSimilarityWebservice(object):
         param = orm_get_system_parameter("DROP_STOP_WORDS")
         remove_stop_words_arg = True if param == "True" else False
 
-        result = find_most_similar_sentence(sentence, remove_stop_words_arg=False)
+        result = find_most_similar_sentence(sentence, remove_stop_words_arg=remove_stop_words_arg)
 
         # print(result)
 
