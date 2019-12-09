@@ -444,10 +444,10 @@ def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
     # print(type(latest_timestamp))
     # print(type(now_aware))
 
-    t = latest_timestamp + timedelta(hours=2)
+    t = latest_timestamp + timedelta(hours=3)
 
     while t.hour < 8 or t.hour > 18 or t.weekday() == 6: # skip sundays
-        t = t + timedelta(hours=4)
+        t = t + timedelta(hours=3)
 
     # print(t.weekday())
     print(f"set start_publication to {t}")
