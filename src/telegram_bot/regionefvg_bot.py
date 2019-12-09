@@ -1,5 +1,6 @@
 import os
 
+from django.utils import timezone
 from more_itertools import take
 
 # note: when execution starts from this file, the next import implies that src.telegram_bot.__init__.py is executed (after the import)
@@ -1067,8 +1068,18 @@ def main():
 
     job_queue = updater.job_queue
 
+    now_tz_aware = timezone.now()
+    if now_tz_aware.minute == 0:
+        minutes = 0
+    elif now_tz_aware.minute <= 30:
+        minutes = 30-now_tz_aware.minute
+    else:
+        minutes = 60-now_tz_aware.minute
+
+    td = timedelta(minutes=minutes)
+
     logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
-    job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=0)  # callback_minute
+    job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=td)  # callback_minute
 
     # Handler to start user iteration
     conv_handler = ConversationHandler(
