@@ -137,12 +137,23 @@ def send_bot_help(update, context, current_context: CurrentUserContext, row, con
     )
 
 
+def puzzling(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+
+    update.message.reply_text(
+        f'mi dispiace, non riesco a capire che cosa mi stai dicendo :((( \n\n'
+        f'prova a riformulare la domanda oppure guarda i comandi con /aiuto',
+        disable_web_page_preview=True,
+        parse_mode='HTML'
+    )
+
+
 _suggested_actions_dict["ANS_WHEN_IS_COURSE"] = tell_when_is_event
 _suggested_actions_dict["DOWNLOAD_MOBILE_APP"] = show_mobile_app_url
 _suggested_actions_dict["SHOW_LAST_NEWS"] = show_last_news
 _suggested_actions_dict["CPI_OPENING_TIMES"] = show_offices_opening_times
 _suggested_actions_dict["HOW_TO_ENROLL"] = how_to_enroll
 _suggested_actions_dict["BOT_HELP"] = send_bot_help
+_suggested_actions_dict["PUZZLING"] = puzzling
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
@@ -158,25 +169,26 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
         suggested_action = ''
 
     od = nss_result["similarity_ws"][2]  # complete ordered dictionary of similarity results:
-    # {'0.5': ['<reference question>', '<ACTION>'], '0.16666666666666666': ['non capisco', 'USER_DOES_NOT_UNDERSTAND'],  ....
+    #  {'0.5': ['<reference question>', '<ACTION>'], '0.16666666666666666': ['non capisco', 'USER_DOES_NOT_UNDERSTAND'],  ....
 
     if confidence <= 0.20:
         logger.warning("low confidence")
 
         # TODO: show different alternatives
 
-
-    # print(current_context)
-    # print(od)
-
-    first_row_key = next(iter(od.keys()))
-    first_row_values = next(iter(od.values()))
+    first_row_key = next(iter(od.keys()))  # i.e.  '0.5'
+    first_row_values = next(iter(od.values()))  # i.e. ['<reference question>', '<ACTION>']
     # print(first_row_key)
     # print(first_row_values)
 
     confidence_perc = confidence * 100
 
     item = _suggested_actions_dict.get(suggested_action)
+
+    if confidence <= 0.05:
+        logger.warning("confidence too low, puzzling input by user")
+
+        item = _suggested_actions_dict.get("PUZZLING")
 
     if item is None:
         logger.warning("perform_suggested_action: I don't know what to do!!!")
