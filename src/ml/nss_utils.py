@@ -31,7 +31,12 @@ tagger = TreeTagger(**tagbuildopt)
 
 _stoplist = set(stopwords.words('italian'))
 
-# print(_stoplist)
+keep_words = {"non", "dove", "quanto", "quando"}
+for w in keep_words:
+    if w in _stoplist:
+        _stoplist.remove(w)
+
+print(_stoplist)
 
 
 def remove_stop_words(text, print_log=False):
@@ -56,8 +61,8 @@ def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=Tr
     if print_log:
         print(f"process_sentence sentence='{sentence}'")
 
-    if remove_stop_words_arg:
-        sentence = remove_stop_words(sentence, print_log=print_log)
+    # if remove_stop_words_arg:
+    #     sentence = remove_stop_words(sentence, print_log=print_log)
 
     dict = {}
 
@@ -71,6 +76,9 @@ def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=Tr
             continue
 
         if remove_punctuation and w[1] == 'PON':
+            continue
+
+        if remove_stop_words_arg and w[2] in _stoplist:
             continue
 
         result.append(w)
