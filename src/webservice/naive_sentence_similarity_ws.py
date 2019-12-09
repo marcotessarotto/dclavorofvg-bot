@@ -2,6 +2,7 @@ import cherrypy
 import json
 
 from src.ml.nss_utils import find_most_similar_sentence
+from src.telegram_bot.ormlayer import orm_get_system_parameter
 
 
 class NaiveSentenceSimilarityWebservice(object):
@@ -17,6 +18,9 @@ class NaiveSentenceSimilarityWebservice(object):
         j = json.loads(data)
 
         sentence = j['text']
+
+        param = orm_get_system_parameter("DROP_STOP_WORDS")
+        remove_stop_words_arg = True if param == "True" else False
 
         result = find_most_similar_sentence(sentence, remove_stop_words_arg=False)
 
