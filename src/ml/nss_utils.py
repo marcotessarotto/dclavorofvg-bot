@@ -31,27 +31,33 @@ tagger = TreeTagger(**tagbuildopt)
 
 _stoplist = set(stopwords.words('italian'))
 
+# print(_stoplist)
 
-def remove_stop_words(text):
+
+def remove_stop_words(text, print_log=False):
     tokenized_sent = word_tokenize(text.lower())
     tokenized_sent_nostop = [token for token in tokenized_sent if token not in _stoplist]
     result = " ".join(tokenized_sent_nostop)
-    # print(f"remove_stop_words:\n***BEFORE: {text}\n***AFTER : {result}")
+    if print_log:
+        print(f"remove_stop_words:\n***BEFORE: {text}\n***AFTER : {result}")
     return result
 
 
 process_sentence_cache_dict = {}
 
 
-def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=True):
+def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=True, print_log=False):
 
-    key_name = "nss_sentence_" + sentence
+    key_name = "nss_sentence_" + sentence + "-rsw" if remove_punctuation else ""
     res = process_sentence_cache_dict.get(key_name)
     if res:
         return res
 
+    if print_log:
+        print(f"process_sentence sentence='{sentence}'")
+
     if remove_stop_words_arg:
-        sentence = remove_stop_words(sentence)
+        sentence = remove_stop_words(sentence, print_log=print_log)
 
     dict = {}
 
@@ -69,6 +75,9 @@ def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=Tr
 
         result.append(w)
 
+    if print_log:
+        print(f"tagger_result: {result}")
+
     for row in result:
         word = row[2]
         # print(f"analysis of word '{word}'")
@@ -77,6 +86,11 @@ def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=Tr
         synsets = wn.synsets(word, lang="ita")
 
         dict[word] = synsets
+
+    if print_log:
+        print(f"process_sentence result  sentence='{sentence}'")
+        for k,v in dict.items():
+            print(f"'{k}' = '{v}'")
 
     process_sentence_cache_dict[key_name] = dict
 
@@ -98,7 +112,7 @@ def calc_dict_average(d):
     return res
 
 
-def compare_sentences(d1, d2, lch_similarity=False):
+def compare_sentences(d1, d2, lch_similarity=False, print_log=False):
 
     dict = {}
 
@@ -140,14 +154,14 @@ def compare_sentences(d1, d2, lch_similarity=False):
 
 
 @benchmark_decorator
-def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_nss_reference_sentences):
+def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_nss_reference_sentences, print_log=False, remove_stop_words_arg=True):
     """returns (result, confidence, ordered dictionary of most similar sentences) """
 
     confidence = 0
     result = None
     confidence_sentence = None
 
-    d2 = process_sentence(sentence)
+    d2 = process_sentence(sentence, print_log=print_log, remove_stop_words_arg=remove_stop_words_arg)
 
     rdict = {}
 
@@ -166,7 +180,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
         if ref_sentence is None or len(ref_sentence) == 0:
             continue
 
-        d1 = process_sentence(ref_sentence)
+        d1 = process_sentence(ref_sentence, print_log=print_log, remove_stop_words_arg=remove_stop_words_arg)
 
         r1 = compare_sentences(d1, d2)
         r2 = compare_sentences(d2, d1)

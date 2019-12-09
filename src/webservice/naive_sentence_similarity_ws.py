@@ -18,7 +18,7 @@ class NaiveSentenceSimilarityWebservice(object):
 
         sentence = j['text']
 
-        result = find_most_similar_sentence(sentence)
+        result = find_most_similar_sentence(sentence, remove_stop_words_arg=False)
 
         # print(result)
 
