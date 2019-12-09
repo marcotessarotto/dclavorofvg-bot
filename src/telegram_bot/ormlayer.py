@@ -620,7 +620,7 @@ def orm_get_all_sentences(action: str):
     if not ai_action:
         return None
 
-    queryset = NaiveSentenceSimilarityDb.objects.filter(action=ai_action)
+    queryset = NaiveSentenceSimilarityDb.objects.filter(action=ai_action).filter(enabled=True)
 
     result = []
 

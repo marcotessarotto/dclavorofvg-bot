@@ -270,6 +270,7 @@ def help_command_handler(update, context):
         orm_get_system_parameter(UI_bot_help_message) +
         "\n\n" +
         help_on_supported_ai_questions(),
+        disable_web_page_preview=True,
         parse_mode='HTML'
     )
 

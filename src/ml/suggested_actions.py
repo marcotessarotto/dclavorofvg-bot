@@ -78,8 +78,6 @@ def tell_when_is_event(update, context, current_context: CurrentUserContext, row
         logger.warning("current_context.item.when_question is None")
         return
 
-
-
     pass
 
 
@@ -89,6 +87,7 @@ def show_mobile_app_url(update, context, current_context: CurrentUserContext, ro
         f'ho interpretato la tua domanda come "{row[0]}" con sicurezza pari al {int(confidence_perc)}%, ecco la mia risposta:\n\n'
         f'puoi scaricare la <a href="https://play.google.com/store/apps/details?id=it.insiel.ergonet.linksmt.applavoro">APP per Android da questo link</a>  \n'
         f'oppure la  <a href="https://itunes.apple.com/it/app/lavoro-fvg/id1327283831?mt=8">APP per iOS da questo link</a> ',
+        disable_web_page_preview=True,
         parse_mode='HTML'
     )
 
@@ -112,6 +111,7 @@ def show_offices_opening_times(update, context, current_context: CurrentUserCont
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
         f"visita la seguente pagina per vedere gli orari dei Centri per l'Impiego: http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/ ",
+        disable_web_page_preview=True,
         parse_mode='HTML'
     )
 
@@ -132,6 +132,7 @@ def send_bot_help(update, context, current_context: CurrentUserContext, row, con
         orm_get_system_parameter(UI_bot_help_message) +
         "\n\n" +
         help_on_supported_ai_questions(),
+        disable_web_page_preview=True,
         parse_mode='HTML'
     )
 
