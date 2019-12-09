@@ -40,7 +40,7 @@ global_bot_instance = None
 CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
 
 
-def send_message_to_log_group(text):
+def send_message_to_log_group(text, disable_notification=False):
     """send bot log message to dedicated chat"""
     if not text or not global_bot_instance:
         return
@@ -50,6 +50,7 @@ def send_message_to_log_group(text):
         global_bot_instance.send_message(
             chat_id=BOT_LOGS_CHAT_ID,
             text=text,
+            disable_notification=disable_notification
         )
     except Exception:
         logger.error("send_message_to_log_group")
@@ -985,18 +986,48 @@ class MQBot(Bot):
         try:
             logger.info("MQBot - __del__")
             self._msg_queue.stop()
-        except:
+        except Exception as error:
+            logger.error(f"error in MQBot.__del__ : {error}")
             pass
 
     @mq.queuedmessage
     def send_message(self, chat_id, *args, **kwargs):
-        '''Wrapped method would accept new `queued` and `isgroup`
-        OPTIONAL arguments'''
+        """Wrapped method would accept new `queued` and `isgroup`
+        OPTIONAL arguments"""
+
+        e = None
         try:
             return super(MQBot, self).send_message(chat_id, *args, **kwargs)
-        except Unauthorized:
+        except Unauthorized as error:
             # remove chat_id from conversation list
             orm_user_blocks_bot(chat_id)
+            e = error
+        except BadRequest as error:
+            # handle malformed requests - read more below!
+            logger.error("BadRequest")
+            e = error
+        except TimedOut as error:
+            # handle slow connection problems
+            logger.error("TimedOut")
+            e = error
+        except NetworkError as error:
+            # handle other connection problems
+            logger.error("NetworkError")
+            e = error
+        except ChatMigrated as error:
+            # the chat_id of a group has changed, use e.new_chat_id instead
+            logger.error("ChatMigrated")
+            e = error
+        except TelegramError as error:
+            # handle all other telegram related errors
+            logger.error("TelegramError")
+            e = error
+
+        if e:
+            now = datetime.datetime.now()
+            send_message_to_log_group(f"bot exception\n{now}\n{error}")
+
+            raise e
 
 
 # issue: error_callback is not called
@@ -1080,6 +1111,8 @@ def main():
 
     logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
     job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=td)  # callback_minute
+
+    send_message_to_log_group(f"bot started! {now_tz_aware}\nnext news check in {td} minutes", disable_notification=True)
 
     # Handler to start user iteration
     conv_handler = ConversationHandler(
