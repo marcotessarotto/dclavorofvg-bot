@@ -1,5 +1,4 @@
-
-
+from src.backoffice.definitions import SHOW_SUPPORTED_AI_QUESTIONS
 from src.backoffice.models import AiAction, UI_bot_help_message
 from src.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences, orm_get_system_parameter
 
@@ -190,11 +189,16 @@ def how_to_enroll(update, context, current_context: CurrentUserContext, row, con
 
 def send_bot_help(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
+    show_supported_ai_questions = orm_get_system_parameter(SHOW_SUPPORTED_AI_QUESTIONS) == "True"
+
+    if show_supported_ai_questions:
+        additional_help = "\n\n" + help_on_supported_ai_questions()
+    else:
+        additional_help = ""
+
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n' +
-        orm_get_system_parameter(UI_bot_help_message) +
-        "\n\n" +
-        help_on_supported_ai_questions(),
+        orm_get_system_parameter(UI_bot_help_message) + additional_help,
         disable_web_page_preview=True,
         parse_mode='HTML'
     )
