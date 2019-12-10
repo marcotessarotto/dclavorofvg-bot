@@ -36,7 +36,7 @@ for w in keep_words:
     if w in _stoplist:
         _stoplist.remove(w)
 
-print(_stoplist)
+# print(_stoplist)
 
 
 def remove_stop_words(text, print_log=False):
@@ -51,9 +51,9 @@ def remove_stop_words(text, print_log=False):
 process_sentence_cache_dict = {}
 
 
-def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=True, print_log=False):
+def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=True, print_log=False, return_all_results=False):
 
-    key_name = "nss_sentence_" + sentence + "-rsw" if remove_punctuation else ""
+    key_name = "nss_sentence_" + sentence + "-rsw" if remove_stop_words_arg else ""
     res = process_sentence_cache_dict.get(key_name)
     if res:
         return res
@@ -81,6 +81,8 @@ def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=Tr
         if remove_stop_words_arg and w[2] in _stoplist:
             continue
 
+        w.append(None)
+
         result.append(w)
 
     if print_log:
@@ -95,14 +97,19 @@ def process_sentence(sentence, remove_stop_words_arg=True, remove_punctuation=Tr
 
         dict[word] = synsets
 
+    # mark_entities(result)
+
     if print_log:
         print(f"process_sentence result  sentence='{sentence}'")
         for k,v in dict.items():
             print(f"'{k}' = '{v}'")
 
-    process_sentence_cache_dict[key_name] = dict
+    if not return_all_results:
+        result = None
 
-    return dict
+    process_sentence_cache_dict[key_name] = (dict, result)
+
+    return dict, result
 
 
 def calc_dict_average(d):
@@ -185,14 +192,15 @@ def compare_sentences(d1, d2, lch_similarity=False, print_log=False):
 
 
 @benchmark_decorator
-def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_nss_reference_sentences, print_log=False, remove_stop_words_arg=True):
+def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_nss_reference_sentences, print_log=False, remove_stop_words_arg=True, return_all_results=False):
     """returns (result, confidence, ordered dictionary of most similar sentences) """
 
     confidence = 0
     result = None
     confidence_sentence = None
+    tree_tagger_best_match = None
 
-    d2 = process_sentence(sentence, print_log=print_log, remove_stop_words_arg=remove_stop_words_arg)
+    d2, tr2 = process_sentence(sentence, print_log=print_log, remove_stop_words_arg=remove_stop_words_arg, return_all_results=return_all_results)
 
     rdict = {}
 
@@ -211,7 +219,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
         if ref_sentence is None or len(ref_sentence) == 0:
             continue
 
-        d1 = process_sentence(ref_sentence, print_log=print_log, remove_stop_words_arg=remove_stop_words_arg)
+        d1, tr1 = process_sentence(ref_sentence, print_log=print_log, remove_stop_words_arg=remove_stop_words_arg, return_all_results=return_all_results)
 
         r1 = compare_sentences(d1, d2)
         r2 = compare_sentences(d2, d1)
@@ -224,6 +232,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
             confidence = val
             result = ref_target
             confidence_sentence = ref_sentence
+            tree_tagger_best_match = tr1
 
     # print(rdict)
 
@@ -240,13 +249,12 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
         confidence = first_key
         result = first_val[1]
 
-
         # mismatch between (result, confidence) and first item of sorted_dict
         # issue:  'dove stanno le notizie?' => {'similarity_ws': ['SHOW_PARTICULAR_NEWS_ITEM', 0.7589285714285714, {'0.7589285714285714': ['dove trovo le notizie?', 'SHOW_LAST_NEWS'], '0.6857638888888888': .....
 
     print(f"find_most_similar_sentence(): confidence={confidence} | result={result} | sentence='{sentence}' | confidence_sentence='{confidence_sentence}' | remove_stop_words_arg='{remove_stop_words_arg}'")
 
-    return result, confidence, sorted_dict
+    return result, confidence, sorted_dict, tr2, tree_tagger_best_match
 
 
  # reference_sentence = "Come posso fare per avere più informazioni?"
