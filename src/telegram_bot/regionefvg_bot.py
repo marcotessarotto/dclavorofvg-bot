@@ -72,6 +72,10 @@ def start_command_handler(update, context):
 
     bot_presentation = orm_get_system_parameter(UI_bot_presentation)
 
+    name = update.message.from_user.first_name
+    if not name:
+        name = ""
+
     update.message.reply_text(
         f'{UI_HELLO} {update.message.from_user.first_name}! {bot_presentation}'
     )
@@ -868,6 +872,15 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
     logger.info(f"comment_handler: reply_to_message.text message={update.message.reply_to_message.text}")
     logger.info(f"comment_handler: message.text message={update.message.text}")
 
+    if telegram_user_id == BOT_LOGS_CHAT_ID:
+        logger.info("message from admin on logs group - ok")
+        # TODO: process command from admin
+        return
+
+    send_message_to_log_group(
+        f"source='comment_handler', user={telegram_user_id}, text='{message_text}'",
+        disable_notification=True)
+
     if not update.message.reply_to_message.text.startswith(UI_message_comment_to_news_item):
         logger.info("comment_handler - not a comment for a news item")
 
@@ -877,8 +890,7 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
         # >>> a.split()
         # ['[notizia', '#56', 'pubblicata', 'il', '....', ']']
 
-        # TODO: extract new id (if it is a news item)
-
+        # TODO: extract news id (if it is a news item)
 
         respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
 
@@ -972,6 +984,10 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
         # )
     else:
         global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
+
+        send_message_to_log_group(
+            f"source='generic_message_handler', user={telegram_user_id}, text='{message_text}'",
+            disable_notification=True)
 
         respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
 

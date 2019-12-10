@@ -1,14 +1,18 @@
 from functools import wraps
 
-from src.backoffice.definitions import UI_message_accept_privacy_rules_to_continue, UI_message_disabled_account
+from src.backoffice.definitions import UI_message_accept_privacy_rules_to_continue, UI_message_disabled_account, \
+    BOT_LOGS_CHAT_ID
 from src.backoffice.models import TelegramUser
-from src.telegram_bot.ormlayer import orm_get_telegram_user
+from src.telegram_bot.ormlayer import orm_get_telegram_user, orm_add_telegram_user, orm_add_telegram_log_group
 
 
 def basic_user_checks(update, context):
     telegram_user_id = update.message.chat.id
 
-    telegram_user = orm_get_telegram_user(telegram_user_id)
+    if telegram_user_id == BOT_LOGS_CHAT_ID:
+        telegram_user = orm_add_telegram_log_group(telegram_user_id)
+    else:
+        telegram_user = orm_get_telegram_user(telegram_user_id)
 
     must_return = False
 
@@ -34,6 +38,7 @@ def check_user_privacy_approval(telegram_user: TelegramUser, update, context):
 
 
 def check_if_user_is_disabled(telegram_user: TelegramUser, update, context):
+
     if not telegram_user.enabled:
         update.message.reply_text(
             UI_message_disabled_account
