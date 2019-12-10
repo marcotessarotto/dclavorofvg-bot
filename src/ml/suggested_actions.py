@@ -62,20 +62,44 @@ def get_supported_actions():
     return result
 
 
-def help_on_supported_ai_questions():
+def help_on_supported_ai_questions(show_random_questions=False):
 
     library = get_supported_actions()
-    result = 'Ad oggi, le domande a cui so rispondere :) sono:\n\n'
+    result = 'Ad oggi, alcune delle domande a cui so rispondere :) sono:\n\n'
 
-    for k,v in library.items():
+    if show_random_questions:
+        import random
+        rnd_list = []
 
-        if v is None or len(v) == 0:
-            continue
+        for iter in range(5):
+            r = random.randint(0, len(library)-1)
+            if r not in rnd_list:
+                rnd_list.append(r)
 
-        # print(v)
+        # rnd_list = [random.randint(0, len(library)-1) for iter in range(5)]
 
-        for s in v:
-            result += "- " + s + "\n"
+        key_list = [k for k in library.keys()]
+
+        for i in rnd_list:
+            k = key_list[i]
+            v = library[k]
+
+            if v is None or len(v) == 0:
+                continue
+            for s in v:
+                result += "- " + s + "\n"
+
+    else:  # show all supported questions
+
+        for k, v in library.items():
+
+            if v is None or len(v) == 0:
+                continue
+
+            # print(v)
+
+            for s in v:
+                result += "- " + s + "\n"
 
     # print(result)
 

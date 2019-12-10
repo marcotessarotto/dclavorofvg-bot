@@ -269,7 +269,7 @@ def help_command_handler(update, context):
     update.message.reply_text(
         orm_get_system_parameter(UI_bot_help_message) +
         "\n\n" +
-        help_on_supported_ai_questions(),
+        help_on_supported_ai_questions(show_random_questions=True),
         disable_web_page_preview=True,
         parse_mode='HTML'
     )
@@ -963,10 +963,13 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
         return
 
     if message_text.lower() in help_keyword_list or len(message_text) <= 2:
-        update.message.reply_text(
-            orm_get_system_parameter(UI_bot_help_message),
-            parse_mode='HTML'
-        )
+
+        help_command_handler(update, context)
+
+        # update.message.reply_text(
+        #     orm_get_system_parameter(UI_bot_help_message),
+        #     parse_mode='HTML'
+        # )
     else:
         global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
 
