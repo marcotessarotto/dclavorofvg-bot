@@ -221,7 +221,7 @@ def send_news_to_telegram_user(
 
     # title/header
     if news_item.title_link is not None and not title_only:
-        title_html_content = f'<a href="{news_item.title_link}">{news_id_block} {news_item.title} '                                                        ' </a>\n'
+        title_html_content = f'<a href="{news_item.title_link}">{news_id_block} {news_item.title}</a>\n'
     else:
         title_html_content = f'<b>{news_id_block} {news_item.title}</b>\n'
 
@@ -425,7 +425,8 @@ def send_news_to_telegram_user(
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=UI_message_request_for_news_item_feedback,
-            reply_markup=InlineKeyboardMarkup(like_dislike_keyboard)
+            reply_markup=InlineKeyboardMarkup(like_dislike_keyboard),
+            disable_notification=True
         )
 
     # we record this activity only once (if the news item has already been shown to user, do not log this activity)
