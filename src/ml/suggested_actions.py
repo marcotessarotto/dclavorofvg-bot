@@ -62,7 +62,7 @@ def get_supported_actions():
     return result
 
 
-def help_on_supported_ai_questions(show_random_questions=False):
+def help_on_supported_ai_questions(show_random_questions=False, max_number_of_questions_to_show=6):
 
     library = get_supported_actions()
     result = 'Ad oggi, alcune delle domande a cui so rispondere :) sono:\n\n'
@@ -80,14 +80,26 @@ def help_on_supported_ai_questions(show_random_questions=False):
 
         key_list = [k for k in library.keys()]
 
-        for i in rnd_list:
-            k = key_list[i]
-            v = library[k]
+        def do_it(result):
+            counter = 0
+            for i in rnd_list:
+                k = key_list[i]
+                v = library[k]
 
-            if v is None or len(v) == 0:
-                continue
-            for s in v:
-                result += "- " + s + "\n"
+                if v is None or len(v) == 0:
+                    continue
+
+                for s in v:
+                    result += "- " + s + "\n"
+
+                    counter += 1
+
+                    if counter >= max_number_of_questions_to_show:
+                        return result
+
+            return result
+
+        result = do_it(result)
 
     else:  # show all supported questions
 
