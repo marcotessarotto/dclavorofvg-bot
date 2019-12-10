@@ -1,3 +1,4 @@
+import json
 import os
 
 from django.utils import timezone
@@ -872,9 +873,22 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
     logger.info(f"comment_handler: reply_to_message.text message={update.message.reply_to_message.text}")
     logger.info(f"comment_handler: message.text message={update.message.text}")
 
+    # if we a receive a reply from BOT_LOGS_CHAT_ID, this is considered a message from one administrator to a user
     if telegram_user_id == BOT_LOGS_CHAT_ID:
         logger.info("message from admin on logs group - ok")
-        # TODO: process command from admin
+
+        tokens = update.message.reply_to_message.text.split()
+
+        chat_id = next(x for x in tokens if x.startswith("user="))[5:]
+
+        logger.info(f"message from admin to user {chat_id}: {message_text}")
+
+        context.bot.send_message(
+            chat_id=chat_id,
+            text="messaggio dall'operatore: " + message_text,
+            parse_mode='HTML'
+        )
+
         return
 
     send_message_to_log_group(

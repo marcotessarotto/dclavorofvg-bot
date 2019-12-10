@@ -248,7 +248,7 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
 
     item = _suggested_actions_dict.get(suggested_action)
 
-    if confidence <= 0.05:
+    if confidence <= 0.10:
         logger.warning("confidence too low, puzzling input by user")
 
         item = _suggested_actions_dict.get("PUZZLING")
