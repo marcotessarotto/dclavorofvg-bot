@@ -31,3 +31,18 @@ def solr_get_professional_categories():
     orm_set_obj_in_cache("solr_get_professional_categories", od, timeout=60*60*12)
 
     return od
+
+
+def solr_get_vacancy(vacancy_id: str):
+
+    solr = SolrClient('http://10.4.100.2:8983/solr')
+    res = solr.query('bot_core', {
+        'q': f'id:{vacancy_id}',
+    })
+
+    documents = res.data['response']['docs']
+
+    if len(documents) == 0:
+        return None
+    else:
+        return documents[0]

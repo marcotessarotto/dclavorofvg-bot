@@ -214,6 +214,23 @@ def puzzling(update, context, current_context: CurrentUserContext, row, confiden
     )
 
 
+def vacancy_issues(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+
+    # 1 - identify vacancy code: i.e. C957-28472
+    # regexp_ \w\d\d\d-\d{5,6}
+
+    # 2 - check if vacancy exists
+
+    # 3 - check if email field exists
+
+
+
+    pass
+
+"in caso di problemi tecnici, contatta il numero verde di Insiel 800xxxxxxx " \
+"oppure scrivi a comunicazione.lavoro@regione.fvg.it"
+
+
 _suggested_actions_dict["ANS_WHEN_IS_COURSE"] = tell_when_is_event
 _suggested_actions_dict["DOWNLOAD_MOBILE_APP"] = show_mobile_app_url
 _suggested_actions_dict["SHOW_LAST_NEWS"] = show_last_news
