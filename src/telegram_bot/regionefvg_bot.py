@@ -829,30 +829,98 @@ def callback_feedback(update, data):
     logger.info(f"callback_feedback val={feed} news_id={news_id} comment_enabled={comment_enabled}")
     orm_add_feedback(feed, news_id, update.callback_query.message.chat.id)
 
+    # user has provided feedback (+1 or -1) on news item,
+    # now we want to remove the two buttons but we have to keep the body of news item:
+
+    # if message is a text only message, we need to use update.callback_query.message.text
+    # but if message contains an image (or document or...) then it has a caption rather than a text,
+    # so in this case we need to use update.callback_query.message.caption
+    # print(update)
+
+    # edit_message = True
+    # previous_text = update.callback_query.message.text
+    # if previous_text is None:
+    #     previous_text = update.callback_query.message.caption
+    #     edit_message = False
+    #
+    # logger.info(f"previous_text: {previous_text}")
+
+    # def join_check_max_len(a, b):
+    #     if len(a) + len(b) > 1024:
+    #         return a[:-len(b)] + b
+    #     else:
+    #         return a + b
+
     if comment_enabled:
-        # show keyboard with 'commenta' button
-        update.callback_query.edit_message_text(
-            text=UI_message_thank_you_for_feedback_newline + UI_message_write_a_comment,
-            reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton(
-                    text=UI_message_write_a_comment_button,
-                    callback_data=f'comment {news_id}')]
-            ])
-        )
+
+        global_bot_instance.edit_message_reply_markup(message_id=update.callback_query.message.message_id,
+                                                      chat_id=update.callback_query.message.chat.id,
+                                                      reply_markup=InlineKeyboardMarkup([
+                                                        [InlineKeyboardButton(
+                                                            text=UI_message_write_a_comment_button,
+                                                            callback_data=f'comment {news_id}')]
+                                                        ]))
+
+        # # show keyboard with 'commenta' button
+        # if edit_message:
+        #     update.callback_query.edit_message_text(
+        #         text=previous_text + "\n\n" + UI_message_thank_you_for_feedback_newline + "\n" + UI_message_write_a_comment,
+        #         reply_markup=InlineKeyboardMarkup([
+        #             [InlineKeyboardButton(
+        #                 text=UI_message_write_a_comment_button,
+        #                 callback_data=f'comment {news_id}')]
+        #         ])
+        #     )
+        # else:
+        #     update.callback_query.edit_message_caption(
+        #         caption=join_check_max_len(previous_text, "\n\n" + UI_message_thank_you_for_feedback_newline + "\n" + UI_message_write_a_comment),
+        #         reply_markup=InlineKeyboardMarkup([
+        #             [InlineKeyboardButton(
+        #                 text=UI_message_write_a_comment_button,
+        #                 callback_data=f'comment {news_id}')]
+        #         ])
+        #     )
     else:
-        update.callback_query.edit_message_text(
-            text=UI_message_thank_you_for_feedback,
-        )
+        # print(update)
+
+        # logger.info(f"callback_feedback: previous_text={previous_text}")
+
+        global_bot_instance.edit_message_reply_markup(message_id=update.callback_query.message.message_id,
+                                                      chat_id=update.callback_query.message.chat.id)
+
+        # if edit_message:
+        #     update.callback_query.edit_message_text(
+        #         text=previous_text + "\n\n" + UI_message_thank_you_for_feedback,
+        #     )
+        # else:
+        #     update.callback_query.edit_message_caption(
+        #         caption=join_check_max_len(previous_text, "\n\n" + UI_message_thank_you_for_feedback),
+        #     )
 
 
 def callback_comment(update, context, news_id):
     """send a comment about an article"""
     logger.info("callback_comment")
 
-    # remove button 'commenta'
-    update.callback_query.edit_message_text(
-        UI_message_thank_you_for_feedback
-    )
+    # edit_message = True
+    # previous_text = update.callback_query.message.text
+    # if previous_text is None:
+    #     previous_text = update.callback_query.message.caption
+    #     edit_message = False
+
+    global_bot_instance.edit_message_reply_markup(message_id=update.callback_query.message.message_id,
+                                                  chat_id=update.callback_query.message.chat.id)
+
+    # if edit_message:
+    #     # remove button 'commenta'
+    #     update.callback_query.edit_message_text(
+    #         previous_text[:len(UI_message_write_a_comment)]
+    #     )
+    # else:
+    #     # remove button 'commenta'
+    #     update.callback_query.edit_message_caption(
+    #         previous_text[:len(UI_message_write_a_comment)]
+    #     )
 
     # send a message which will become a reply containing a comment to  news item
     context.bot.send_message(

@@ -423,7 +423,7 @@ class NewsItem(models.Model):
 @receiver(pre_save, sender=NewsItem)
 def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
     if instance.start_publication:
-        print("nothing to do")
+        # print("nothing to do")
         return
 
     # Generates a "SELECT MAX" query

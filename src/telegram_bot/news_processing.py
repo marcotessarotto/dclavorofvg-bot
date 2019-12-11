@@ -21,7 +21,7 @@ from src.backoffice.definitions import (
     UI_message_published_on,
     UI_external_link,
     UI_message_read_news_item, UI_message_this_is_audio_version_of_news_item, SHOW_READ_COMMAND_IN_NEWS_BODY,
-    CURRENT_CONTEXT)
+    CURRENT_CONTEXT, UI_message_news_item_is_useful, UI_message_news_item_is_not_useful)
 
 from src.backoffice.models import NewsItem, TelegramUser
 
@@ -91,7 +91,8 @@ def _send_file_using_mime_type(
         _telegram_user_id: int,
         _file_path,
         _file_mime_type: str,
-        caption=None
+        caption=None,
+        reply_markup=None,
 ):
     if caption is None:
         caption = ''
@@ -110,13 +111,15 @@ def _send_file_using_mime_type(
             chat_id=_telegram_user_id,
             animation=_file_id if _file_id is not None else open(_file_path, 'rb'),
             caption=caption,
-            parse_mode='HTML'
+            parse_mode='HTML',
+            reply_markup=reply_markup,
         )
     elif _file_mime_type.startswith('image'):
         _message = context.bot.send_photo(
             chat_id=_telegram_user_id,
             photo=_file_id if _file_id is not None else open(_file_path, 'rb'),
             caption=caption,
+            reply_markup=reply_markup,
             parse_mode='HTML'
         )
     elif _file_mime_type.startswith('application'):
@@ -124,6 +127,7 @@ def _send_file_using_mime_type(
             chat_id=_telegram_user_id,
             document=_file_id if _file_id is not None else open(_file_path, 'rb'),
             caption=caption,
+            reply_markup=reply_markup,
             parse_mode='HTML'
         )
     elif _file_mime_type == 'audio/ogg':
@@ -131,6 +135,7 @@ def _send_file_using_mime_type(
             chat_id=_telegram_user_id,
             voice=_file_id if _file_id is not None else open(_file_path, 'rb'),
             caption=caption,
+            reply_markup=reply_markup,
             parse_mode='HTML'
         )
     elif _file_mime_type == 'video/mp4':
@@ -138,6 +143,7 @@ def _send_file_using_mime_type(
             chat_id=_telegram_user_id,
             video=_file_id if _file_id is not None else open(_file_path, 'rb'),
             caption=caption,
+            reply_markup=reply_markup,
             parse_mode='HTML'
         )
     elif _file_mime_type.startswith('audio'):
@@ -145,6 +151,7 @@ def _send_file_using_mime_type(
             chat_id=_telegram_user_id,
             audio=_file_id if _file_id is not None else open(_file_path, 'rb'),
             caption=caption,
+            reply_markup=reply_markup,
             parse_mode='HTML'
         )
     else:
@@ -152,6 +159,7 @@ def _send_file_using_mime_type(
             chat_id=_telegram_user_id,
             document=_file_id if _file_id is not None else open(_file_path, 'rb'),
             caption=caption,
+            reply_markup=reply_markup,
             parse_mode='HTML'
         )
 
@@ -160,7 +168,8 @@ def _send_file_using_mime_type(
 
 def send_news_as_audio_file(context,
                             news_id: int,
-                            telegram_user: TelegramUser):
+                            telegram_user: TelegramUser,
+                            reply_markup=None):
     news_item = orm_get_news_item(news_id)
     if news_item is None:
         return False
@@ -172,7 +181,8 @@ def send_news_as_audio_file(context,
         telegram_user.user_id,
         fname,
         None,
-        caption=UI_message_this_is_audio_version_of_news_item.format(news_id)
+        caption=UI_message_this_is_audio_version_of_news_item.format(news_id),
+        reply_markup=reply_markup,
     )
 
 
@@ -194,6 +204,18 @@ def send_news_to_telegram_user(
 
     logger.info(
         f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
+
+    # keyboard with 'like' and 'dislike' buttons
+    reply_markup = InlineKeyboardMarkup([[
+        InlineKeyboardButton(  # like button
+            text=u'\u2713 ' + UI_message_news_item_is_useful,
+            callback_data=f'feedback + {news_item.id}  {news_item.ask_comment_to_user}'
+        ),
+        InlineKeyboardButton(  # dislike button
+            text=u'\u2717 ' + UI_message_news_item_is_not_useful,
+            callback_data=f'feedback - {news_item.id}  {news_item.ask_comment_to_user}'
+        ),
+    ]]) if request_feedback else None
 
     telegram_user_id = telegram_user.user_id
 
@@ -289,12 +311,14 @@ def send_news_to_telegram_user(
                 telegram_user.user_id,
                 fname,
                 None,
-                caption=html_news_content
+                caption=html_news_content,
+                reply_markup=reply_markup
             )
         else:
             context.bot.send_message(
                 chat_id=telegram_user.user_id,
                 text=html_news_content,
+                reply_markup=reply_markup,
                 parse_mode='HTML'
             )
 
@@ -369,18 +393,20 @@ def send_news_to_telegram_user(
                 context.bot.send_message(
                     chat_id=telegram_user_id,
                     text=html_news_content,
+                    reply_markup=reply_markup,
                     parse_mode='HTML'
                 )
             else:
 
                 _send_file_using_mime_type(context, telegram_user_id, file_path, file_mime_type,
-                                           caption=html_news_content)
+                                           caption=html_news_content, reply_markup=reply_markup,)
 
         else:  # file1 is present but it is not an image
             # first, send content of news item
             context.bot.send_message(
                 chat_id=telegram_user_id,
                 text=html_news_content,
+                reply_markup=reply_markup,
                 parse_mode='HTML'
             )
 
@@ -391,6 +417,7 @@ def send_news_to_telegram_user(
         context.bot.send_message(
             chat_id=telegram_user.user_id,
             text=html_news_content,
+            reply_markup=reply_markup,
             parse_mode='HTML'
         )
 
@@ -406,28 +433,17 @@ def send_news_to_telegram_user(
 
         _send_file_using_mime_type(context, telegram_user_id, file_path, _file_mime_type=None)
 
-    if request_feedback:
-        # keyboard with 'like' and 'dislike' buttons
-        like_dislike_keyboard = [[
-            InlineKeyboardButton(  # like button
-                text=u'\u2713',
-                callback_data=f'feedback + {news_item.id}  {news_item.ask_comment_to_user}'
-            ),
-            InlineKeyboardButton(  # dislike button
-                text=u'\u2717',
-                callback_data=f'feedback - {news_item.id}  {news_item.ask_comment_to_user}'
-            ),
-        ]]
-
-        time.sleep(0.1)  # sleep for 100 ms, to be sure that previous message has been sent
-
-        logger.info(f"send_news_to_telegram_user - context.bot.send_message chat_id={telegram_user.user_id}")
-        context.bot.send_message(
-            chat_id=telegram_user.user_id,
-            text=UI_message_request_for_news_item_feedback,
-            reply_markup=InlineKeyboardMarkup(like_dislike_keyboard),
-            disable_notification=True
-        )
+    # if request_feedback:
+    #
+    #     time.sleep(0.1)  # sleep for 100 ms, to be sure that previous message has been sent
+    #
+    #     logger.info(f"send_news_to_telegram_user - context.bot.send_message chat_id={telegram_user.user_id}")
+    #     context.bot.send_message(
+    #         chat_id=telegram_user.user_id,
+    #         text=UI_message_request_for_news_item_feedback,
+    #         reply_markup=reply_markup,
+    #         disable_notification=True
+    #     )
 
     # we record this activity only once (if the news item has already been shown to user, do not log this activity)
     if not news_item_already_shown_to_user:

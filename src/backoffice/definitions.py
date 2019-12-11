@@ -225,6 +225,10 @@ UI_message_news_item_category = "categoria della notizia"
 
 UI_message_request_for_news_item_feedback = "Ti è utile questa notizia?"
 
+UI_message_news_item_is_useful = "Utile!"
+
+UI_message_news_item_is_not_useful = "Non utile!"
+
 UI_message_published_on = "pubblicata il"
 
 UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizia {0}"
