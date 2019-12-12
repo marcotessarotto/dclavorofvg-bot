@@ -228,7 +228,6 @@ def vacancy_issues(update, context, message_text, current_context: CurrentUserCo
             answer += get_email_info()
 
         else:  # no vacancy found
-            vacancy_code = None
             email_contact = None
             contact_type = None
             reference = None
