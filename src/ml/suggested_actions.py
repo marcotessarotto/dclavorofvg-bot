@@ -200,9 +200,10 @@ def vacancy_issues(update, context, message_text, current_context: CurrentUserCo
             reference = doc.get("riferimento")
 
         def get_email_info():
-            if email_contact:
+            # email_contact is a list
+            if bool(email_contact):
                 return f"<b>Per chiedere informazioni o aiuto su questa offerta di lavoro, " \
-                          f"ti consiglio di scrivere a {email_contact} oppure a comunicazione.lavoro@regione.fvg.it</b>\n"
+                          f"ti consiglio di scrivere a {email_contact[0]} oppure a comunicazione.lavoro@regione.fvg.it</b>\n"
             else:
                 return f"<b>Per chiedere informazioni o aiuto su questa offerta di lavoro, " \
                           f"ti consiglio di scrivere a comunicazione.lavoro@regione.fvg.it</b>\n"
@@ -211,11 +212,12 @@ def vacancy_issues(update, context, message_text, current_context: CurrentUserCo
 
             answer = f"mi risulta che l'offerta di lavoro {vacancy_code} sia pubblicata e valida.\n"
 
-            if reference:
-                answer += f"il riferimento risulta essere '{reference}'.\n"
+            # reference is a list; so the following line is equivalent to: 'if reference and len(reference) > 0:'
+            if bool(reference):
+                answer += f"il riferimento risulta essere '{reference[0]}'.\n"
 
-            if contact_type:
-                answer += f"la modalità di contatto è '{contact_type}'.\n"
+            if bool(contact_type):
+                answer += f"la modalità di contatto è '{contact_type[0]}'.\n"
 
             # 3 - check if email field exists
             answer += get_email_info()
