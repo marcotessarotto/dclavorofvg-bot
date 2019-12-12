@@ -19,7 +19,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, Key
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
 from src.telegram_bot.ormlayer import *
-from src.telegram_bot.solr.solr_client import solr_get_professional_categories
+from src.telegram_bot.solr.solr_client import solr_get_professional_categories, solr_get_professional_categories_today
 
 from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
     standard_user_checks
@@ -664,12 +664,17 @@ def audio_off_command_handler(update, context, telegram_user_id, telegram_user):
 @standard_user_checks
 def show_professional_categories_command_handler(update, context, telegram_user_id, telegram_user):
 
-    dict = solr_get_professional_categories()
+    dict_historic = solr_get_professional_categories()
+
+    dict_today = solr_get_professional_categories_today()
 
     text = UI_message_professional_categories_stats
 
-    for k, v in dict.items():
-        text += f"{k} {UI_arrow} {v}\n"
+    for k, v in dict_historic.items():
+
+        v_today = dict_today.get(k)
+
+        text += f"{k} {UI_arrow} {v_today}\n"
 
     context.bot.send_message(
         chat_id=telegram_user.user_id,

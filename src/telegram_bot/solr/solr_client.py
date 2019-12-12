@@ -1,6 +1,7 @@
 import time
 
 from SolrClient import SolrClient
+from django.utils.timezone import now
 
 from src.telegram_bot.ormlayer import orm_get_obj_from_cache, orm_set_obj_in_cache
 
@@ -16,19 +17,50 @@ def solr_get_professional_categories():
     res = solr.query('bot_core', {
         'q': 'categoriaProfessionale:*',
         'facet': True,
-        'facet.field': 'categoriaProfessionale',
+        'facet.field': 'categoriaProfessionale_str',
     })
 
     dict = res.get_facets()
 
-    od = dict['categoriaProfessionale']
+    od = dict['categoriaProfessionale_str']
 
-    words_to_be_removed = ('ed', 'e', 'alla', 'varie')
+    # words_to_be_removed = ('ed', 'e', 'alla', 'varie')
+    #
+    # for w in words_to_be_removed:
+    #     od.pop(w)
 
-    for w in words_to_be_removed:
-        od.pop(w)
+    od = {i: od[i] for i in sorted(od.keys(), reverse=False)}  # sort dict by key
 
     orm_set_obj_in_cache("solr_get_professional_categories", od, timeout=60*60*12)
+
+    return od
+
+
+def solr_get_professional_categories_today():
+    result = orm_get_obj_from_cache("solr_get_professional_categories_today")
+
+    if result:
+        return result
+
+    d = now()
+    today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
+
+    res = solr.query('bot_core', {
+        'q': f'categoriaProfessionale:* AND insertDate:{today_iso_date}',
+        'facet': True,
+        'facet.field': 'categoriaProfessionale_str',
+    })
+
+    dict = res.get_facets()
+
+    od = dict['categoriaProfessionale_str']
+
+    # words_to_be_removed = ('ed', 'e', 'alla', 'varie')
+    #
+    # for w in words_to_be_removed:
+    #     od.pop(w)
+
+    orm_set_obj_in_cache("solr_get_professional_categories_today", od, timeout=60*60*1)
 
     return od
 

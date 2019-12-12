@@ -271,37 +271,6 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
     return result, confidence, sorted_dict, tr2, tree_tagger_best_match
 
 
- # reference_sentence = "Come posso fare per avere più informazioni?"
-
-# reference_sentences = [
-#     ("come posso fare per avere più informazioni?", "MORE_INFO"),
-#     ("a chi posso chiedere informazioni?", "MORE_INFO_WHO"),
-#     ("dove posso chiedere informazioni?", "MORE_INFO_WHERE"),
-#     ("come mi iscrivo?", "HOW_TO_ENROLL"),
-#     ("quando si tiene l'evento?", "WHEN_IS_EVENT"),
-#     ("quando ci sarà l'evento?", "WHEN_IS_EVENT"),
-#     ("quando si tiene il corso?", "WHEN_IS_COURSE"),
-#     ("quando ci sarà il corso?", "WHEN_IS_COURSE"),
-#     ("chi tiene il corso?","WHO_IS_COURSE_ORGANIZER"),
-#     ("chi organizza il corso?","WHO_IS_COURSE_ORGANIZER"),
-#     ("mi sono perso","HELP"),
-#     ("non capisco","HELP"),
-#     ("maggiori informazioni","MORE_INFO_GENERAL"),
-#     ("chi posso contattare","MORE_INFO_CONTACT"),
-#     ("ho bisogno di una mano","HELP"),
-#     ("non capisco","HELP"),
-#     ("esiste un tutorial","HELP_TUTORIAL"),
-#     ("aiuto con i comandi del bot","HELP_BOT_COMMANDS"),
-#     ("come scelgo le categorie?","HELP_CHOOSE_NEWS_CATEGORIES"),
-#     ("voglio più informazioni sui comandi","HELP_BOT_COMMANDS"),
-#     ("dove sono le offerte di lavoro?","HELP_JOB_OFFERS"),
-#     ("in che linguaggio è scritto il bot","HELP_BOT_DEV"),
-#     ("info comandi bot","HELP_BOT_COMMANDS"),
-#     ("", ""),
-#     ("", ""),
-# ]
-
-
 def test_nss():
     find_most_similar_sentence("dove mi trovo?")
 
