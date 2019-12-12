@@ -144,6 +144,8 @@ def how_to_enroll(update, context, message_text, current_context: CurrentUserCon
 
     # TODO: recover informations from context
 
+    # VACANCY? rispondere con app mobile, sito web
+
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
         f"ok, devo imparare a scoprire come si fa ad iscriversi in questo contesto ({current_context}) .... sto imparando a farlo :(",

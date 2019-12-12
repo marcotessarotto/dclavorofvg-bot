@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from django.utils import timezone
 from more_itertools import take
@@ -880,7 +881,9 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
 
     message_text = update.message.text
 
-    logger.info(f"comment_handler: reply_to_message.text message={update.message.reply_to_message.text}")
+    replay_to_message_text = update.message.reply_to_message.text
+
+    logger.info(f"comment_handler: reply_to_message.text message={replay_to_message_text[:40]}....")
     logger.info(f"comment_handler: message.text message={update.message.text}")
 
     # if we a receive a reply from BOT_LOGS_CHAT_ID, this is considered a message from one administrator to a user
@@ -905,16 +908,20 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
         f"source='comment_handler', user={telegram_user_id}, text='{message_text}'",
         disable_notification=True)
 
-    if not update.message.reply_to_message.text.startswith(UI_message_comment_to_news_item):
+    if not replay_to_message_text.startswith(UI_message_comment_to_news_item):
         logger.info("comment_handler - not a comment for a news item")
 
-        # [notizia #56 pubblicata il 05-12-2019] blah
+        m = re.search("\[\w+\s#\d+\s.+]", replay_to_message_text) # match for news reply, i.e. '[notizia #56 pubblicata il 05-12-2019]'
 
-        # >>> a="[notizia #56 pubblicata il .... ]"
-        # >>> a.split()
-        # ['[notizia', '#56', 'pubblicata', 'il', '....', ']']
+        logger.info(f"comment_handler - found news item header {m}")
 
-        # TODO: extract news id (if it is a news item)
+        if m:
+            m = re.search("#\d+", replay_to_message_text)
+            news_id = m.string[m.start(0):m.end(0)][1:]
+
+            logger.info(f"comment_handler - reference to news id {news_id}")
+
+            orm_set_current_user_context(telegram_user_id, orm_find_ai_action("NEWS"), news_id)
 
         respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
 
@@ -982,6 +989,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
                     current_user_context.item if current_user_context is not None and current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
                     message_text,
                     suggested_action,
+                    current_user_context,
                     confidence,
                     first_value[0],
                     ai_answer)
@@ -992,7 +1000,13 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 @run_async
 def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
-    message_text = update.message.text
+    try:
+        message_text = update.message.text
+    except AttributeError:
+        try:
+            message_text = update.edited_message.text
+        except AttributeError:
+            print(update)
 
     logger.info(f"generic_message_handler - message_text = {message_text}")
 

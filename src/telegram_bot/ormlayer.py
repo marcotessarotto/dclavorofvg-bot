@@ -657,24 +657,6 @@ def orm_get_nss_reference_sentences():
     return result
 
 
-def orm_save_ai_log(telegram_user, news_item, message_text, suggested_action, confidence, most_similar_sentence, ai_answer):
-    ai_log = AiQAActivityLog()
-    ai_log.telegram_user = telegram_user
-    ai_log.news_item = news_item
-    ai_log.user_question = message_text  # original text provided by user
-
-    ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action)  # as suggested by naive s.s.
-    ai_log.naive_sentence_similarity_confidence = confidence  # as suggested by naive s.s.
-    ai_log.naive_most_similar_sentence = most_similar_sentence  # as suggested by naive s.s.
-
-    ai_log.ai_answer = ai_answer
-
-    ai_log.save()
-
-
-_current_context_users = {}
-
-
 class CurrentUserContext(object):
     def __init__(self):
         self.current_ai_context = None  # AiContext
@@ -689,6 +671,26 @@ class CurrentUserContext(object):
 
         return f"CurrentUserContext: context='{self.current_ai_context}' item id={item_str} timestamp={self.timestamp}"
     pass
+
+
+def orm_save_ai_log(telegram_user, news_item, message_text, suggested_action, current_user_context: CurrentUserContext, confidence, most_similar_sentence, ai_answer):
+    ai_log = AiQAActivityLog()
+    ai_log.telegram_user = telegram_user
+    ai_log.news_item = news_item
+    ai_log.user_question = message_text  # original text provided by user
+
+    ai_log.naive_sentence_similarity_action = orm_find_ai_action(suggested_action)  # as suggested by naive s.s.
+    ai_log.naive_sentence_similarity_confidence = confidence  # as suggested by naive s.s.
+    ai_log.naive_most_similar_sentence = most_similar_sentence  # as suggested by naive s.s.
+
+    ai_log.context = current_user_context.current_ai_context if current_user_context else None
+
+    ai_log.ai_answer = ai_answer
+
+    ai_log.save()
+
+
+_current_context_users = {}
 
 
 def orm_set_current_user_context(telegram_user_id: int, current_ai_context: AiContext, item):
