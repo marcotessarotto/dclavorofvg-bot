@@ -1,49 +1,13 @@
 from src.backoffice.definitions import SHOW_SUPPORTED_AI_QUESTIONS
 from src.backoffice.models import AiAction, UI_bot_help_message
+from src.ml.matching_utils import search_vacancies, get_valid_vacancy_document_from_str, get_valid_vacancy_code_from_str
 from src.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences, orm_get_system_parameter
 
 from src.telegram_bot.log_utils import main_logger as logger
+from src.telegram_bot.solr.solr_client import solr_get_vacancy
 
-"""
-id	action	description
-21	ASK_OR_VISIT_CPI	servizi erogati dai CPI/recarsi al CPI
-9	BOT_CHOOSE_NEWS_CATEGORIES	come scelgo le categorie delle notizie col bot
-8	BOT_HELP	
-7	BOT_TUTORIAL	
-29	BOT_WRONG_ANSWER	bot ha sbagliato risposta
-18	CANNOT_SUBMIT_TO_VACANCY	non riesco a  candidarmi alla vacancy
-19	CPI_OPENING_TIMES	orari apertura CPI
-22	CPI_PHONE_NUMBER	quale è il numero del CPI ... ?
-24	DOWNLOAD_MOBILE_APP	da dove scarico la app mobile?
-16	ENABLE_ALL_NEWS_CATEGORIES	abilita tutte le categorie di notizie
-6	GENERIC_MORE_INFO	generico, richiesta informazioni
-12	GENERIC_WHERE_ASK_INFORMATION	dove posso chiedere info (generico)
-5	GENERIC_WHO_CAN_I_CONTACT	generico
-33	HELLO_BOT	
-14	HOW_LONG_IS_COURSE	quanto dura il corso?
-34	HOW_TO_CHANGE_AGE	vorrei cambiare la mia età
-35	HOW_TO_CHANGE_STUDY_TITLE	vorrei cambiare il mio titolo di studio
-4	HOW_TO_ENROLL	rispondi a "come si fa ad iscriversi?" / come mi candido
-20	HOW_TO_SUBMIT_TO_VACANCY	come faccio a candidarmi ad una offerta di lavoro?
-27	HOW_TO_SUBSCRIBE_TO_NEWSLETTER	come faccio ad iscrivermi alla newsletter?
-23	MORE_INFO_ON_COURSES	più informazioni sui corsi di formazione
-36	PUZZLING	incomprensibile :(
-26	SEARCH_FOR_RECRUITING_DAY	ci sono recruiting in programma?
-25	SEARCH_FOR_VACANCY	im interessa un lavoro da... ; a chi posso rivolgermi?
-15	SHOW_LAST_NEWS	mostrami le (ultime) notizie
-32	SHOW_LATEST_COURSES	Ci sono nuovi corsi ?
-31	SHOW_LATEST_VACANCIES	Mandami le nuove offerte di lavoro
-17	SHOW_PARTICULAR_NEWS_ITEM	mostrami una certa notizia
-10	SHOW_VACANCIES	mostra/come visualizzare le offerte di lavoro
-13	USER_DOES_NOT_UNDERSTAND	chiamare operatore umano?....
-1	WHEN_IS_COURSE	rispondi a "quando si tiene il corso?"
-28	WHEN_IS_EVENT	quando si tiene l'evento?
-30	WHERE_IS_COMPETITION_NOTICE	Dove trovo il bando di concorso?
-2	WHERE_IS_COURSE	rispondi a "dove si tiene il corso?"
-3	WHO_ORGANIZES_COURSE	rispondi a "chi organizza il corso?"
-11	WHO_TEACHES_COURSE	chi insegna al corso?
+from django.utils.timezone import now
 
-"""
 
 _suggested_actions_dict = {}
 
@@ -117,7 +81,7 @@ def help_on_supported_ai_questions(show_random_questions=False, max_number_of_qu
     return result
 
 
-def tell_when_is_event(update, context, current_context: CurrentUserContext, row, *args, **kwargs):
+def tell_when_is_event(update, context, message_text, current_context: CurrentUserContext, row, *args, **kwargs):
     if current_context is None:
         logger.warning("current_context is None")
         return
@@ -133,7 +97,7 @@ def tell_when_is_event(update, context, current_context: CurrentUserContext, row
     pass
 
 
-def show_mobile_app_url(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+def show_mobile_app_url(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}" con sicurezza pari al {int(confidence_perc)}%, ecco la mia risposta:\n\n'
@@ -144,7 +108,7 @@ def show_mobile_app_url(update, context, current_context: CurrentUserContext, ro
     )
 
 
-def show_last_news(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+def show_last_news(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     # TODO: check if user has selected at least one category
 
@@ -158,7 +122,7 @@ def show_last_news(update, context, current_context: CurrentUserContext, row, co
     )
 
 
-def show_offices_opening_times(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+def show_offices_opening_times(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     update.message.reply_text(
         f'ho interpretato la tua domanda come "{row[0]}", ecco la mia risposta:\n\n'
@@ -168,7 +132,7 @@ def show_offices_opening_times(update, context, current_context: CurrentUserCont
     )
 
 
-def how_to_enroll(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+def how_to_enroll(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     if current_context is None:
         update.message.reply_text(
@@ -187,7 +151,7 @@ def how_to_enroll(update, context, current_context: CurrentUserContext, row, con
     )
 
 
-def send_bot_help(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+def send_bot_help(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     show_supported_ai_questions = orm_get_system_parameter(SHOW_SUPPORTED_AI_QUESTIONS) == "True"
 
@@ -204,7 +168,7 @@ def send_bot_help(update, context, current_context: CurrentUserContext, row, con
     )
 
 
-def puzzling(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+def puzzling(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     update.message.reply_text(
         f'mi dispiace, non riesco a capire che cosa mi stai dicendo :((( \n\n'
@@ -214,21 +178,73 @@ def puzzling(update, context, current_context: CurrentUserContext, row, confiden
     )
 
 
-def vacancy_issues(update, context, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
-
+def vacancy_issues(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
     # 1 - identify vacancy code: i.e. C957-28472
     # regexp_ \w\d\d\d-\d{5,6}
 
-    # 2 - check if vacancy exists
+    vacancy_code = get_valid_vacancy_code_from_str(message_text)
 
-    # 3 - check if email field exists
+    if not vacancy_code:
+        answer = "se vuoi, prova a dirmi il codice completo dell'offerta di lavoro su cui hai problemi, ad esempio:\n" \
+                 "'ho problemi con l'offerta di lavoro L424-12345'"
+    else:
+        # user has written a valid vacancy code
+        # let's check if vacancy exists and is still valid
+
+        doc, code = get_valid_vacancy_document_from_str(vacancy_code)
+
+        if doc:  # in case code == 0 or code == 1
+            email_contact = doc.get("email")
+            contact_type = doc.get("tipoContatto")
+            reference = doc.get("riferimento")
+
+        def get_email_info():
+            if email_contact:
+                return f"<b>Per chiedere informazioni o aiuto su questa offerta di lavoro, " \
+                          f"ti consiglio di scrivere a {email_contact} oppure a comunicazione.lavoro@regione.fvg.it</b>\n"
+            else:
+                return f"<b>Per chiedere informazioni o aiuto su questa offerta di lavoro, " \
+                          f"ti consiglio di scrivere a comunicazione.lavoro@regione.fvg.it</b>\n"
+
+        if doc and code == 0:  # valid vacancy found
+
+            answer = f"mi risulta che l'offerta di lavoro {vacancy_code} sia pubblicata e valida.\n"
+
+            if reference:
+                answer += f"il riferimento risulta essere '{reference}'.\n"
+
+            if contact_type:
+                answer += f"la modalità di contatto è '{contact_type}'.\n"
+
+            # 3 - check if email field exists
+            answer += get_email_info()
+
+            answer += "In caso di problemi tecnici quando provi a candidarti online, contatta il numero verde di Insiel 800098788\n"
+
+        elif code == 1:  # old vacancy found
+            answer = "purtroppo l'offerta di lavoro che mi hai indicato ({vacancy_code}) è scaduta o è stata rimossa :(\n"
+
+            answer += get_email_info()
+
+        else:  # no vacancy found
+            vacancy_code = None
+            email_contact = None
+            contact_type = None
+            reference = None
+
+            answer = f"hai specificato l'offerta di lavoro {vacancy_code} ma non ho trovato nessuna offerta, neanche tra quelle scadute.\n" \
+                     f"Controlla se hai scritto il codice offerta giusto :|\n"
+
+    update.message.reply_text(
+        f'ho interpretato la tua domanda come "{row[0]}", ecco qua la mia risposta:\n\n' +
+        answer,
+        disable_web_page_preview=True,
+        parse_mode='HTML'
+    )
 
 
-
-    pass
-
-"in caso di problemi tecnici, contatta il numero verde di Insiel 800xxxxxxx " \
-"oppure scrivi a comunicazione.lavoro@regione.fvg.it"
+# "in caso di problemi tecnici, contatta il numero verde di Insiel 800xxxxxxx " \
+# "oppure scrivi a comunicazione.lavoro@regione.fvg.it"
 
 
 _suggested_actions_dict["ANS_WHEN_IS_COURSE"] = tell_when_is_event
@@ -238,11 +254,12 @@ _suggested_actions_dict["CPI_OPENING_TIMES"] = show_offices_opening_times
 _suggested_actions_dict["HOW_TO_ENROLL"] = how_to_enroll
 _suggested_actions_dict["BOT_HELP"] = send_bot_help
 _suggested_actions_dict["PUZZLING"] = puzzling
+_suggested_actions_dict["VACANCY_ISSUE"] = vacancy_issues
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
 
-def perform_suggested_action(update, context, telegram_user, current_context: CurrentUserContext, nss_result) -> str:
+def perform_suggested_action(update, context, telegram_user, current_context: CurrentUserContext, message_text, nss_result) -> str:
 
     suggested_action = nss_result["similarity_ws"][0]
     confidence = nss_result["similarity_ws"][1]
@@ -278,7 +295,7 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
         logger.warning("perform_suggested_action: I don't know what to do!!!")
         return "-"
 
-    item(update, context, current_context, first_row_values, confidence_perc)
+    item(update, context, message_text, current_context, first_row_values, confidence_perc)
 
     return f"answer by method {item.__name__}"
 

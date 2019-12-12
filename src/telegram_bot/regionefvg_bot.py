@@ -957,7 +957,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
             parse_mode='HTML'
         )
 
-    ai_answer = perform_suggested_action(update, context, telegram_user, current_user_context, nss_result)
+    ai_answer = perform_suggested_action(update, context, telegram_user, current_user_context, message_text, nss_result)
 
     orm_save_ai_log(telegram_user,
                     current_user_context.item if current_user_context is not None and current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
@@ -988,10 +988,6 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
         help_command_handler(update, context)
 
-        # update.message.reply_text(
-        #     orm_get_system_parameter(UI_bot_help_message),
-        #     parse_mode='HTML'
-        # )
     else:
         global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
 
