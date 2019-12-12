@@ -738,6 +738,19 @@ def debug4_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
+def debug_msgs_command_handler(update, context, telegram_user_id, telegram_user):
+    if not telegram_user.is_admin:
+        return
+
+    cmd = update.message.text[1:]
+
+    telegram_user.debug_msgs = True if cmd == UI_DEBUG_MSGS_ON else False
+
+    orm_update_telegram_user(telegram_user)
+
+
+@log_user_input
+@standard_user_checks
 @run_async
 def ping_command_handler(update, context, telegram_user_id, telegram_user):
     """get status of system services - admin command"""
@@ -951,7 +964,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 
     content += f'current context: {current_user_context}'
 
-    if telegram_user.is_admin:
+    if telegram_user.is_admin and telegram_user.debug_msgs:
         update.message.reply_text(
             f'AI says: {content}',
             parse_mode='HTML'
@@ -1197,6 +1210,9 @@ def main():
     dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
     dp.add_handler(CommandHandler(UI_DEBUG4_COMMAND, debug4_command_handler))
+
+    dp.add_handler(CommandHandler(UI_DEBUG_MSGS_ON, debug_msgs_command_handler))
+    dp.add_handler(CommandHandler(UI_DEBUG_MSGS_OFF, debug_msgs_command_handler))
 
     dp.add_handler(CommandHandler(UI_PING_COMMAND, ping_command_handler))
     dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, admin_send_command_handler))

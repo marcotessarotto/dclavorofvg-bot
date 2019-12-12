@@ -185,7 +185,8 @@ def vacancy_issues(update, context, message_text, current_context: CurrentUserCo
     vacancy_code = get_valid_vacancy_code_from_str(message_text)
 
     if not vacancy_code:
-        answer = "se vuoi, prova a dirmi il codice completo dell'offerta di lavoro su cui hai problemi, ad esempio:\n" \
+        answer = "se vuoi, prova a dirmi il codice completo dell'offerta di lavoro su cui hai problemi " \
+                 "o vuoi avere maggiori informazioni, ad esempio:\n" \
                  "'ho problemi con l'offerta di lavoro L424-12345'"
     else:
         # user has written a valid vacancy code

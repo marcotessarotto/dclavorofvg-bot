@@ -269,6 +269,8 @@ class TelegramUser(models.Model):
     has_user_blocked_bot = models.BooleanField(default=False, verbose_name="l'utente ha bloccato il bot?")
     when_user_blocked_bot_timestamp = models.DateTimeField(blank=True, null=True, verbose_name="quando l'utente ha bloccato il bot")
 
+    debug_msgs = models.BooleanField(default=False, verbose_name="riceve messaggi di debug?")  # only for admins
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

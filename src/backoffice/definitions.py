@@ -120,6 +120,9 @@ UI_CATEGORIES_HELP = "categorie"
 UI_SET_FILTER = "filtro"
 UI_STATS_COMMAND = "statistiche_notizie"
 
+UI_DEBUG_MSGS_ON = "debug_on"
+UI_DEBUG_MSGS_OFF = "debug_off"
+
 UI_AUDIO_ON_COMMAND = "audio_on"
 UI_AUDIO_OFF_COMMAND = "audio_off"
 
