@@ -257,6 +257,7 @@ _suggested_actions_dict["HOW_TO_ENROLL"] = how_to_enroll
 _suggested_actions_dict["BOT_HELP"] = send_bot_help
 _suggested_actions_dict["PUZZLING"] = puzzling
 _suggested_actions_dict["VACANCY_ISSUE"] = vacancy_issues
+_suggested_actions_dict["HOW_TO_SUBMIT_TO_VACANCY"] = vacancy_issues
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
@@ -273,6 +274,23 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
 
     od = nss_result["similarity_ws"][2]  # complete ordered dictionary of similarity results:
     #  {'0.5': ['<reference question>', '<ACTION>'], '0.16666666666666666': ['non capisco', 'USER_DOES_NOT_UNDERSTAND'],  ....
+
+    # if context is defined, lookup the best nss_result with matching context
+    if current_context and current_context.current_ai_context:
+        context = current_context.current_ai_context.context
+
+        for k, v in od.items():
+            if v[2] != context:
+                # print("skip!")
+                continue
+
+            first_row_key = k
+            first_row_values = v
+            confidence = float(k)
+
+            break
+
+        logger.info(f"perform_suggested_action: new first_row_key={first_row_key}, first_row_values={first_row_values}")
 
     if confidence <= 0.20:
         logger.warning("low confidence")

@@ -7,7 +7,14 @@ from src.telegram_bot.ormlayer import orm_get_telegram_user, orm_add_telegram_us
 
 
 def basic_user_checks(update, context):
-    telegram_user_id = update.message.chat.id
+
+    try:
+        telegram_user_id = update.message.chat.id
+    except AttributeError:
+        try:
+            telegram_user_id = update.edited_message.chat.id
+        except AttributeError:
+            print(update)
 
     if telegram_user_id == BOT_LOGS_CHAT_ID:
         telegram_user = orm_add_telegram_log_group(telegram_user_id)

@@ -82,8 +82,10 @@ def log_user_input(func):  # https://github.com/python-telegram-bot/python-teleg
         user_id = update.effective_user.id
 
         # print(f"log_user_input: user_id={user_id}")
-
-        text = update.message.text
+        try:
+            text = update.message.text
+        except AttributeError:
+            text = "?"
 
         from src.backoffice.models import LogUserInteraction
         cfu = LogUserInteraction()
