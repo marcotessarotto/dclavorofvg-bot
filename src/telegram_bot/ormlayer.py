@@ -682,7 +682,12 @@ class CurrentUserContext(object):
         self.timestamp = datetime.now()
 
     def __str__(self):
-        return f"CurrentUserContext: context='{self.current_ai_context}' item id={self.item.id if self.item is not None else None} timestamp={self.timestamp}"
+        try:
+            item_str = self.item.id if self.item is not None else None
+        except AttributeError:
+            item_str = self.item
+
+        return f"CurrentUserContext: context='{self.current_ai_context}' item id={item_str} timestamp={self.timestamp}"
     pass
 
 
@@ -694,6 +699,8 @@ def orm_set_current_user_context(telegram_user_id: int, current_ai_context: AiCo
     obj.item = item
 
     _current_context_users[telegram_user_id] = obj
+
+    return obj
 
 
 def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:
