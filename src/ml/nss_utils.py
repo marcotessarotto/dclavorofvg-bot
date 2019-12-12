@@ -211,6 +211,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
         try:
             ref_sentence = item.reference_sentence
             ref_target = item.action.action if item.action is not None else ""
+            ref_context = item.context.context if item.context is not None else ""
         except AttributeError:
             print(f"***error! {item}")
             ref_sentence = item[0]
@@ -226,7 +227,7 @@ def find_most_similar_sentence(sentence, method_for_reference_sentences=orm_get_
 
         val = (r1[0] + r2[0]) / 2.
 
-        rdict[val] = (ref_sentence, ref_target)
+        rdict[val] = (ref_sentence, ref_target, ref_context)
 
         if val > confidence:
             confidence = val
