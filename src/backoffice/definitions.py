@@ -128,6 +128,8 @@ UI_AUDIO_OFF_COMMAND = "audio_off"
 
 UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND = "categorie_professionali"
 
+UI_SHOW_PROFESSIONAL_PROFILES_COMMAND = "profili_professionali"
+
 UI_message_category = "categoria "
 
 UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori del bot."
@@ -239,6 +241,8 @@ UI_message_this_is_audio_version_of_news_item = "lettura del titolo della notizi
 UI_message_categories_selection = "inserisci uno dei seguenti comandi per ricevere informazioni riguardo la categoria di notizie:\n"
 
 UI_message_professional_categories_stats = 'offerte di lavoro attive oggi, occorrenze delle categorie professionali:\n\n'
+
+UI_message_professional_profiles_stats = 'offerte di lavoro attive oggi, occorrenze dei profili professionali:\n\n'
 
 UI_news = "notizia"
 UI_news_plural = "notizie"

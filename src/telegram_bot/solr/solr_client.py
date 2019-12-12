@@ -24,11 +24,6 @@ def solr_get_professional_categories():
 
     od = dict['categoriaProfessionale_str']
 
-    # words_to_be_removed = ('ed', 'e', 'alla', 'varie')
-    #
-    # for w in words_to_be_removed:
-    #     od.pop(w)
-
     od = {i: od[i] for i in sorted(od.keys(), reverse=False)}  # sort dict by key
 
     orm_set_obj_in_cache("solr_get_professional_categories", od, timeout=60*60*12)
@@ -55,12 +50,54 @@ def solr_get_professional_categories_today():
 
     od = dict['categoriaProfessionale_str']
 
-    # words_to_be_removed = ('ed', 'e', 'alla', 'varie')
-    #
-    # for w in words_to_be_removed:
-    #     od.pop(w)
-
     orm_set_obj_in_cache("solr_get_professional_categories_today", od, timeout=60*60*1)
+
+    return od
+
+
+def solr_get_professional_profile():
+    result = orm_get_obj_from_cache("solr_get_professional_profile")
+
+    if result:
+        return result
+
+    res = solr.query('bot_core', {
+        'q': 'profiloProfessionale:*',
+        'facet': True,
+        'facet.field': 'profiloProfessionale_str',
+    })
+
+    dict = res.get_facets()
+
+    od = dict['profiloProfessionale_str']
+
+    od = {i: od[i] for i in sorted(od.keys(), reverse=False)}  # sort dict by key
+
+    orm_set_obj_in_cache("solr_get_professional_profile", od, timeout=60*60*12)
+
+    return od
+
+
+def solr_get_professional_profile_today():
+    result = orm_get_obj_from_cache("solr_get_professional_profile_today")
+
+    if result:
+        return result
+
+    d = now()
+    today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
+
+    res = solr.query('bot_core', {
+        'q': f'profiloProfessionale:* AND insertDate:{today_iso_date}',
+        'facet': True,
+        'facet.field': 'profiloProfessionale_str',
+    })
+
+    dict = res.get_facets()
+
+    od = dict['profiloProfessionale_str']
+
+    orm_set_obj_in_cache("solr_get_professional_profile_today", od, timeout=60*60*1)
 
     return od
 
