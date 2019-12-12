@@ -963,12 +963,12 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 
     current_user_context = orm_get_current_user_context(telegram_user.user_id)
 
-    content += f'current context: {current_user_context}'
-
     vacancy_code = get_valid_vacancy_code_from_str(message_text)
     if vacancy_code:
         logger.info(f"respond_to_user: user has specified a valid vacancy code: {vacancy_code}. modify current_user_context")
         current_user_context = orm_set_current_user_context(telegram_user.user_id, orm_find_ai_context('VACANCY'), vacancy_code)
+
+    content += f'\ncurrent context: {current_user_context}'
 
     if telegram_user.is_admin and telegram_user.debug_msgs:
         update.message.reply_text(

@@ -130,15 +130,28 @@ def calc_dict_average(d):
 similarity_cache = {}
 
 
-def compare_sentences(d1, d2, lch_similarity=False, print_log=False):
+def compare_sentences(d1, d2, lch_similarity=False, print_log=False, use_keys_for_matching=True):
 
     dict = {}
 
-    for k1,v1 in d1.items():  # v1 is a list
+    # first, compare by key values
+    if use_keys_for_matching:
+        for k1 in d1:
+            for k2 in d2:
+                if k1 == k2:
+                    # print(f"MATCH on KEY! {k1} ")
+                    dict[k1] = 1
+                    break
+
+    # secondly, compare by values
+    for k1, v1 in d1.items():  # v1 is a list
 
         max_similarity = 0
         # best_match = None
-        maxpos = 0
+        max_pos = 0
+
+        if k1 in dict:
+            continue
 
         for synset1 in v1:
 
@@ -176,13 +189,13 @@ def compare_sentences(d1, d2, lch_similarity=False, print_log=False):
                     if similarity and similarity > max_similarity:
                         max_similarity = similarity
                         # best_match = synset2
-                        maxpos = pos
+                        max_pos = pos
 
                     pos = pos + 1
 
         calc_max_similarity = max_similarity
-        if maxpos > 0:
-            calc_max_similarity = calc_max_similarity / maxpos
+        if max_pos > 0:
+            calc_max_similarity = calc_max_similarity / max_pos
 
         # print(f"max similarity between '{k1}' and sentence: max={maxval}, calc_maxval={calc_maxval}, best_match={best_match}, maxpos={maxpos}")
 
