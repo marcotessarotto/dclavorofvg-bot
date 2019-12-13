@@ -24,7 +24,17 @@ from treetaggerwrapper import TreeTagger
 
 from src.telegram_bot.ormlayer import orm_get_nss_reference_sentences, orm_get_obj_from_cache, orm_set_obj_in_cache
 
+# useful materials:
+# https://nlpforhackers.io/wordnet-sentence-similarity/
+# https://www.aaai.org/Papers/AAAI/2006/AAAI06-123.pdf
+# https://github.com/sujitpal/nltk-examples/blob/master/src/semantic/short_sentence_similarity.py
+# https://nlpforhackers.io/wordnet-sentence-similarity/
+# https://stackoverflow.com/questions/16877517/compare-similarity-of-terms-expressions-using-nltk
+# https://sites.temple.edu/tudsc/2017/03/30/measuring-similarity-between-texts-in-python/
+# https://stackoverflow.com/questions/46732843/compare-two-sentences-on-basis-of-grammar-using-nlp
 
+
+# treetagger configuration
 tagbuildopt = {"TAGDIR": '/opt/bot/treetagger', "TAGLANG": "it"}
 tagger = TreeTagger(**tagbuildopt)
 
