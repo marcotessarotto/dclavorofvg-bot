@@ -107,6 +107,8 @@ def solr_get_vacancy(vacancy_id: str):
     if not str:
         return None
 
+    str = str.upper()
+
     solr = SolrClient('http://10.4.100.2:8983/solr')
     res = solr.query('bot_core', {
         'q': f'id:{vacancy_id}',
