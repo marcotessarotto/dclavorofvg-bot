@@ -104,10 +104,10 @@ def solr_get_professional_profile_today():
 
 def solr_get_vacancy(vacancy_id: str):
 
-    if not str:
+    if not vacancy_id:
         return None
 
-    str = str.upper()
+    vacancy_id = vacancy_id.upper()
 
     solr = SolrClient('http://10.4.100.2:8983/solr')
     res = solr.query('bot_core', {
