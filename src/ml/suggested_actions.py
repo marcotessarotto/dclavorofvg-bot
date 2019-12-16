@@ -277,8 +277,8 @@ def perform_suggested_action(update, context, telegram_user, current_context: Cu
     od = nss_result["similarity_ws"][2]  # complete ordered dictionary of similarity results:
     #  {'0.5': ['<reference question>', '<ACTION>'], '0.16666666666666666': ['non capisco', 'USER_DOES_NOT_UNDERSTAND'],  ....
 
-    # if context is defined, lookup the best nss_result with matching context
-    if current_context and current_context.current_ai_context:
+    # if confidence < 50% and context is defined, lookup the best nss_result with matching context
+    if confidence < 0.5 and current_context and current_context.current_ai_context:
         context = current_context.current_ai_context.context
 
         for k, v in od.items():
