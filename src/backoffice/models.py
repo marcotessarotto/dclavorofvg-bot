@@ -342,14 +342,12 @@ class NewsFile(models.Model):
 
 
 class NewsItem(models.Model):
-    """ Classe NEWSITEM: rappresenta le informazioni legati agli item di una news """
-
-    title = models.CharField(max_length=1024, blank=True, null=True, verbose_name='titolo della news')
+    title = models.CharField(max_length=1024, blank=True, null=True, verbose_name='titolo della notizia')
     title_link = models.CharField(max_length=1024, blank=True, null=True,
                                   verbose_name='link (opzionale) a cui punta il titolo')
 
     text = models.TextField(max_length=2048, blank=True, null=True,
-                            verbose_name="testo della news (max 2048 caratteri)")
+                            verbose_name="testo della notizia (max 2048 caratteri)")
 
     # TODO: add disable_web_page_preview field (default: None)
 
@@ -366,7 +364,7 @@ class NewsItem(models.Model):
     context = models.ForeignKey(AiContext, default=None, on_delete=models.PROTECT, blank=True, null=True, verbose_name="[AI] contesto")
     # end of AI fields section
 
-    show_all_text = models.BooleanField(default=True, verbose_name="mostra tutto il testo della news all'utente?")
+    show_all_text = models.BooleanField(default=True, verbose_name="mostra tutto il testo della notizia all'utente?")
     show_first_n_words = models.IntegerField(default=30, verbose_name="mostra le prime n parole")
 
     categories = models.ManyToManyField(Category, blank=True, verbose_name="categorie")
@@ -395,7 +393,7 @@ class NewsItem(models.Model):
     # end_publication = models.DateTimeField(blank=True, null=True, verbose_name="fine periodo di pubblicazione")
 
     recurrent_for_new_users = models.BooleanField(default=False,
-                                                  verbose_name="invia questa news ad ogni nuovo utente del bot?", editable=False)
+                                                  verbose_name="invia questa notizia ad ogni nuovo utente del bot?", editable=False)
 
     # if processed is true, this news item has already been sent to all users
     processed = models.BooleanField(default=False, editable=True,
