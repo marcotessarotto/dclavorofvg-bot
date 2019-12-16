@@ -690,25 +690,34 @@ def orm_save_ai_log(telegram_user, news_item, message_text, suggested_action, cu
     ai_log.save()
 
 
-_current_context_users = {}
+# _current_context_users = {}
 
 
 def orm_set_current_user_context(telegram_user_id: int, current_ai_context: AiContext, item):
-    global _current_context_users
+    # global _current_context_users
 
     obj = CurrentUserContext()
     obj.current_ai_context = current_ai_context
     obj.item = item
 
-    _current_context_users[telegram_user_id] = obj
+    # _current_context_users[telegram_user_id] = obj
+    orm_set_obj_in_cache(f"_current_context_users_{telegram_user_id}", obj, 60*15)
 
     return obj
 
 
 def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:
-    global _current_context_users
+    # global _current_context_users
 
-    obj = _current_context_users.get(telegram_user_id)
+    obj = orm_get_obj_from_cache(f"_current_context_users_{telegram_user_id}")
+
+    if obj:
+        d = datetime.now() - timedelta(minutes=15)  # user context lasts 15 minutes
+
+        if obj.timestamp < d:
+            return None
+        else:
+            return obj
 
     return obj
 
