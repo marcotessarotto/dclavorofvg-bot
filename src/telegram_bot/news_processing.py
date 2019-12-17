@@ -208,11 +208,11 @@ def send_news_to_telegram_user(
     # keyboard with 'like' and 'dislike' buttons
     reply_markup = InlineKeyboardMarkup([[
         InlineKeyboardButton(  # like button
-            text=u'\u2713 ' + UI_message_news_item_is_useful,
+            text='👍 ' + UI_message_news_item_is_useful,
             callback_data=f'feedback + {news_item.id}  {news_item.ask_comment_to_user}'
         ),
         InlineKeyboardButton(  # dislike button
-            text=u'\u2717 ' + UI_message_news_item_is_not_useful,
+            text='👎 ' + UI_message_news_item_is_not_useful,
             callback_data=f'feedback - {news_item.id}  {news_item.ask_comment_to_user}'
         ),
     ]]) if request_feedback else None

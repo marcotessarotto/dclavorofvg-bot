@@ -661,6 +661,11 @@ def audio_off_command_handler(update, context, telegram_user_id, telegram_user):
     )
 
 
+def prof_cat_to_cmd(text: str):
+
+    return text.replace(" ","_").replace("/","_").replace("à","a")
+
+
 @log_user_input
 @standard_user_checks
 def show_professional_categories_command_handler(update, context, telegram_user_id, telegram_user):
@@ -676,6 +681,8 @@ def show_professional_categories_command_handler(update, context, telegram_user_
         v_today = dict_today.get(k)
 
         text += f"{k} {UI_arrow} {v_today}\n"
+
+        # text += f"/_{prof_cat_to_cmd(k)} {UI_arrow} {v_today}\n"
 
     context.bot.send_message(
         chat_id=telegram_user.user_id,
