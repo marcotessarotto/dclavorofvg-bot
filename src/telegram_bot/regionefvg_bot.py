@@ -1128,8 +1128,8 @@ class MQBot(Bot):
             e = error
 
         if e:
-            now = datetime.datetime.now()
-            send_message_to_log_group(f"bot exception\n{now}\n{error}")
+            d = datetime.datetime.now()
+            send_message_to_log_group(f"bot exception\n{d}\n{error}")
 
             raise e
 
