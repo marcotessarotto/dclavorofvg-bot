@@ -9,7 +9,10 @@ from django.http import HttpResponse
 
 from .models import *
 
-admin.site.site_header = 'backoffice LavoroFVG'
+from src.gfvgbo.secrets import BOT_NAME
+
+
+admin.site.site_header = f'backoffice {BOT_NAME}'
 
 
 # https://books.agiliq.com/projects/django-admin-cookbook/en/latest/export.html
