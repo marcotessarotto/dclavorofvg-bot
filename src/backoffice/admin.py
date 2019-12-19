@@ -9,7 +9,10 @@ from django.http import HttpResponse
 
 from .models import *
 
-from src.gfvgbo.secrets import BOT_NAME
+try:
+    from src.gfvgbo.secrets import BOT_NAME
+except:
+    from gfvgbo.secrets import BOT_NAME
 
 
 admin.site.site_header = f'backoffice {BOT_NAME}'
