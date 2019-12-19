@@ -1129,7 +1129,7 @@ class MQBot(Bot):
 
         if e:
             d = now()
-            send_message_to_log_group(f"bot exception\n{d}\n{error}")
+            send_message_to_log_group(f"bot exception\n{d}\n")
 
             raise e
 
