@@ -1169,7 +1169,7 @@ def error_callback(update, error):
 
     d = now()
 
-    send_message_to_log_group(f"{d}\n{update}\n{error}")
+    send_message_to_log_group(f"{d}\n{update}\n")
 
 
 def main():
