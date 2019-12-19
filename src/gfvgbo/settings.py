@@ -25,6 +25,9 @@ DB_HOSTNAME="....."
 
 SECRET_KEY = "................................"
 
+BOT_NAME = "..."
+MEDIA_ROOT = '/...."
+
 SMTP_SERVER = ""
 SMTP_USER = ""
 SMTP_PASSWORD = ""
