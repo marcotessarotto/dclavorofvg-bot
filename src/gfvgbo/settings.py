@@ -28,6 +28,9 @@ SECRET_KEY = "................................"
 BOT_NAME = "..."
 MEDIA_ROOT = '/...."
 
+NSS_HOST = '<ip address of nss server>'
+NSS_PORT = nss_server_port_number
+
 SMTP_SERVER = ""
 SMTP_USER = ""
 SMTP_PASSWORD = ""

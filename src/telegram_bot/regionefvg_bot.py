@@ -979,7 +979,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
     # generic user utterance
     orm_store_free_text(message_text, telegram_user)
 
-    res = naive_sentence_similarity_web_client(message_text, '10.4.100.2')
+    res = naive_sentence_similarity_web_client(message_text)
 
     import json
     nss_result = json.loads(res)

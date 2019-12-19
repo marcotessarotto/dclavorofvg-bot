@@ -1,10 +1,12 @@
 import json
 import requests
 
+from src.gfvgbo.secrets import NSS_HOST, NSS_PORT
 
-def naive_sentence_similarity_web_client(sentence, host='localhost'):
 
-    url = f'http://{host}:8101/similarity_ws'
+def naive_sentence_similarity_web_client(sentence, host=NSS_HOST, port=NSS_PORT):
+
+    url = f'http://{host}:{port}/similarity_ws'
 
     my_dict = {'text': sentence}
 
