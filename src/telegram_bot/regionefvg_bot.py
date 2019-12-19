@@ -1128,7 +1128,7 @@ class MQBot(Bot):
             e = error
 
         if e:
-            d = datetime.datetime.now()
+            d = now()
             send_message_to_log_group(f"bot exception\n{d}\n{error}")
 
             raise e
@@ -1167,7 +1167,7 @@ def error_callback(update, error):
         # print(error)
         logger.error("TelegramError")
 
-    d = datetime.datetime.now()
+    d = now()
 
     send_message_to_log_group(f"{d}\n{update}\n{error}")
 
