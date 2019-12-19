@@ -1127,11 +1127,11 @@ class MQBot(Bot):
             logger.error("TelegramError")
             e = error
 
-        if e:
-            d = now()
-            send_message_to_log_group(f"bot exception\n{d}\n")
-
-            raise e
+        # if e:
+        #     d = now()
+        #     send_message_to_log_group(f"bot exception\n{d}\n")
+        #
+        #     raise e
 
 
 # issue: error_callback is not called
