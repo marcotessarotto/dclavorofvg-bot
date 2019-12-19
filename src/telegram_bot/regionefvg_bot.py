@@ -1167,9 +1167,9 @@ def error_callback(update, error):
         # print(error)
         logger.error("TelegramError")
 
-    now = datetime.datetime.now()
+    d = datetime.datetime.now()
 
-    send_message_to_log_group(f"{now}\n{update}\n{error}")
+    send_message_to_log_group(f"{d}\n{update}\n{error}")
 
 
 def main():
