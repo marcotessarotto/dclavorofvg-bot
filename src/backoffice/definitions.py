@@ -119,6 +119,7 @@ UI_ME_COMMAND = 'me'
 UI_CATEGORIES_HELP = "categorie"
 UI_SET_FILTER = "filtro"
 UI_STATS_COMMAND = "statistiche_notizie"
+UI_SEARCH_COMMAND = "cerca"
 
 UI_DEBUG_MSGS_ON = "debug_on"
 UI_DEBUG_MSGS_OFF = "debug_off"

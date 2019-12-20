@@ -43,6 +43,8 @@ global_bot_instance: Bot = None
 
 CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
 
+CALLBACK_SEARCH_PARAMS = range(1)
+
 
 def send_message_to_log_group(text, disable_notification=False):
     """send bot log message to dedicated chat"""
@@ -88,6 +90,34 @@ def start_command_handler(update, context):
     if not telegram_user.has_accepted_privacy_rules:
         # privacy not yet approved by user
         return privacy_command_handler(update, context)
+
+    return ConversationHandler.END
+
+
+@log_user_input
+@standard_user_checks
+def search_command_handler(update, context, telegram_user_id, telegram_user):
+    update.message.reply_text(
+        text="scrivi la parola da cercare nelle notizie",
+        parse_mode='HTML'
+    )
+
+    return CALLBACK_SEARCH_PARAMS
+
+
+@log_user_input
+@standard_user_checks
+@run_async
+@benchmark_decorator
+def callback_search_params(update, context, telegram_user_id, telegram_user):
+
+    search_params = update.message.text
+
+    results = orm_news_fts(search_params)
+
+    update.message.reply_text(
+        f'ok , risultati della ricerca : {results}'
+    )
 
     return ConversationHandler.END
 
@@ -163,8 +193,12 @@ def ask_age(update, context):
     return
 
 
-def callback_age(update, context):
-    telegram_user = orm_get_telegram_user(update.message.from_user.id)
+@log_user_input
+@standard_user_checks
+@run_async
+@benchmark_decorator
+def callback_age(update, context, telegram_user_id, telegram_user):
+    # telegram_user = orm_get_telegram_user(update.message.from_user.id)
     age = update.message.text
 
     age = orm_parse_user_age(telegram_user, age)
@@ -1046,13 +1080,6 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 
     logger.info(f"generic_message_handler - message_text = {message_text}")
 
-    expected_input = orm_get_user_expected_input(telegram_user)
-
-    # TODO: check: is expected_input still used?
-    if expected_input == 'a':  # expecting age from user
-        callback_age(update, context, telegram_user, message_text)
-        return
-
     if message_text.lower() in help_keyword_list or len(message_text) <= 2:
 
         help_command_handler(update, context)
@@ -1237,6 +1264,19 @@ def main():
     )
     dp.add_handler(conv_handler)
 
+    search_conversation_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler(UI_SEARCH_COMMAND, search_command_handler),
+
+        ],
+        states={
+            CALLBACK_SEARCH_PARAMS: [MessageHandler(Filters.text, callback_search_params)],
+        },
+        fallbacks=[
+            MessageHandler(Filters.all, fallback_conversation_handler)
+        ]
+    )
+    dp.add_handler(search_conversation_handler)
 
     # Handler to serve categories, feedbacks and comments inline keboards
     dp.add_handler(CallbackQueryHandler(callback_handler))
@@ -1282,8 +1322,6 @@ def main():
 
     dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND, show_professional_categories_command_handler))
     dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_PROFILES_COMMAND, show_professional_profiles_command_handler))
-
-
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

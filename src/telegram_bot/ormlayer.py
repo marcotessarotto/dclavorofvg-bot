@@ -236,27 +236,27 @@ def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
     return result
 
 
-def orm_get_user_expected_input(obj) -> str:
-    """returns user's next expected input and resets it to 'no input expected'"""
-    if obj is None:
-        return None
-
-    if hasattr(obj, '__dict__'):
-        telegram_user = obj
-    else:
-        telegram_user = orm_get_telegram_user(obj)
-
-    if telegram_user is not None:
-        res = telegram_user.chat_state
-        telegram_user.chat_state = '-'
-        telegram_user.save()
-        _update_user_in_cache(telegram_user)
-    else:
-        res = None
-
-    logger.info(f"orm_get_user_expected_input({obj}): {res}")
-
-    return res
+# def orm_get_user_expected_input(obj) -> str:
+#     """returns user's next expected input and resets it to 'no input expected'"""
+#     if obj is None:
+#         return None
+#
+#     if hasattr(obj, '__dict__'):
+#         telegram_user = obj
+#     else:
+#         telegram_user = orm_get_telegram_user(obj)
+#
+#     if telegram_user is not None:
+#         res = telegram_user.chat_state
+#         telegram_user.chat_state = '-'
+#         telegram_user.save()
+#         _update_user_in_cache(telegram_user)
+#     else:
+#         res = None
+#
+#     logger.info(f"orm_get_user_expected_input({obj}): {res}")
+#
+#     return res
 
 
 def orm_has_user_seen_news_item(telegram_user: TelegramUser, news_item: NewsItem) -> bool:
@@ -266,21 +266,21 @@ def orm_has_user_seen_news_item(telegram_user: TelegramUser, news_item: NewsItem
     return True if len(queryset) > 0 else False
 
 
-def orm_set_telegram_user_expected_input(obj, expected_input):
-    if obj is None:
-        return None
-
-    if hasattr(obj, '__dict__'):
-        telegram_user = obj
-    else:
-        telegram_user = orm_get_telegram_user(obj)
-
-    if telegram_user is not None:
-        logger.info(
-            f"orm_set_user_expected_input: user {telegram_user.user_id}, setting chat_state to {expected_input}")
-        telegram_user.chat_state = expected_input
-        telegram_user.save()
-        _update_user_in_cache(telegram_user)
+# def orm_set_telegram_user_expected_input(obj, expected_input):
+#     if obj is None:
+#         return None
+#
+#     if hasattr(obj, '__dict__'):
+#         telegram_user = obj
+#     else:
+#         telegram_user = orm_get_telegram_user(obj)
+#
+#     if telegram_user is not None:
+#         logger.info(
+#             f"orm_set_user_expected_input: user {telegram_user.user_id}, setting chat_state to {expected_input}")
+#         telegram_user.chat_state = expected_input
+#         telegram_user.save()
+#         _update_user_in_cache(telegram_user)
 
 
 def orm_set_telegram_user_educational_level(telegram_user: TelegramUser, choice: str):
@@ -499,15 +499,16 @@ def orm_news_text_fts(search: str):
     return news_query
 
 
-_news_search_vector = SearchVector('title', 'text')
+_news_search_vector = SearchVector('title', 'text', config="italian")
 
 
 def orm_news_fts(search: str):
     """full text search on title and text fields of news items"""
+    # https://www.paulox.net/2017/12/22/full-text-search-in-django-with-postgresql/#search-configuration
     news_query = NewsItem.objects.annotate(
       search=_news_search_vector
     ).filter(
-      search=SearchQuery(search)
+      search=SearchQuery(search, config="italian")
     )
     return news_query
 

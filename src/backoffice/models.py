@@ -221,7 +221,7 @@ class TelegramUser(models.Model):
     educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-',
                                          verbose_name="titolo di studio più elevato")
 
-    chat_state = models.CharField(max_length=1, default='-', blank=True, editable=False)
+    # chat_state = models.CharField(max_length=1, default='-', blank=True, editable=False)
 
     regionefvg_id = models.BigIntegerField(default=-1, verbose_name="internal use", editable=False)  # for internal use
 
