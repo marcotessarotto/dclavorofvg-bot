@@ -3,6 +3,7 @@ import json
 
 from src.ml.nss_utils import find_most_similar_sentence
 from src.telegram_bot.ormlayer import orm_get_system_parameter
+from src.gfvgbo.secrets import NSS_HOST, NSS_PORT
 
 
 class NaiveSentenceSimilarityWebservice(object):
@@ -36,7 +37,7 @@ conf = {
 
 
 def web_service_process():
-    cherrypy.config.update({'server.socket_port': 8101})
+    cherrypy.config.update({'server.socket_port': NSS_PORT})
     cherrypy.config.update({'server.socket_host': '0.0.0.0'})
     cherrypy.quickstart(NaiveSentenceSimilarityWebservice(), '/', conf)
 

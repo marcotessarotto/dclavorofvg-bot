@@ -30,6 +30,14 @@ DB_USERNAME="database username"
 
 DB_PWD="database password"
 
+BOT_NAME = "Bot name"
+
+MEDIA_ROOT = 'path on fs for storing media files'
+
+NSS_HOST = 'hostname of nss server'
+
+NSS_PORT = port number of nss server  
+
 SECRET_KEY = "django secret"
 
 SMTP_SERVER = ""
