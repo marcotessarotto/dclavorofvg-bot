@@ -341,6 +341,15 @@ class NewsFile(models.Model):
             "%d/%m/%y")
 
 
+LANGUAGES = (
+    ('it', 'Italiano'),
+    ('en', 'English'),
+    ('slo', 'Slovenski jezik'),
+    ('de', 'Deutsche sprache'),
+    ('hrv', 'Hrvatski jezik'),
+)
+
+
 class NewsItem(models.Model):
     title = models.CharField(max_length=1024, blank=True, null=True, verbose_name='titolo della notizia')
     title_link = models.CharField(max_length=1024, blank=True, null=True,
@@ -405,6 +414,11 @@ class NewsItem(models.Model):
 
     ask_like_dislike_to_user = models.BooleanField(default=True, verbose_name='chiedi +1/-1 agli utenti')
     ask_comment_to_user = models.BooleanField(default=False, verbose_name='chiedi un commento testuale agli utenti')
+
+    knowledge_base_article = models.BooleanField(default=False, verbose_name='knowledge base?')
+
+    lang = models.CharField(max_length=3, choices=LANGUAGES, default='it',
+                            verbose_name="lingua")
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
     updated_at = models.DateTimeField(auto_now=True)

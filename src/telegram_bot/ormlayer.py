@@ -465,6 +465,12 @@ def orm_get_news_item(news_id: int) -> NewsItem:
     return news_query[0] if len(news_query) > 0 else None
 
 
+def orm_get_knowledge_base_items():
+    news_query = NewsItem.objects.filter(knowledge_base_article=True)
+
+    return news_query
+
+
 def orm_get_fresh_news_to_send():
     news_query = NewsItem.objects.filter(processed=False)
 
