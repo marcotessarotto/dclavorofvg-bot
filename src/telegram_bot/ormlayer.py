@@ -1,5 +1,7 @@
 import threading
 from datetime import datetime, timedelta
+
+from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.utils.timezone import now
 from django.core.cache import cache
 
@@ -468,6 +470,45 @@ def orm_get_news_item(news_id: int) -> NewsItem:
 def orm_get_knowledge_base_items():
     news_query = NewsItem.objects.filter(knowledge_base_article=True)
 
+    return news_query
+
+
+_news_title_search_vector = SearchVector('title')
+
+
+def orm_news_title_fts(search: str):
+    """full text search on title field of news items"""
+    news_query = NewsItem.objects.annotate(
+      search=_news_title_search_vector
+    ).filter(
+      search=SearchQuery(search)
+    )
+    return news_query
+
+
+_news_text_search_vector = SearchVector('text')
+
+
+def orm_news_text_fts(search: str):
+    """full text search on text field of news items"""
+    news_query = NewsItem.objects.annotate(
+      search=_news_text_search_vector
+    ).filter(
+      search=SearchQuery(search)
+    )
+    return news_query
+
+
+_news_search_vector = SearchVector('title', 'text')
+
+
+def orm_news_fts(search: str):
+    """full text search on title and text fields of news items"""
+    news_query = NewsItem.objects.annotate(
+      search=_news_search_vector
+    ).filter(
+      search=SearchQuery(search)
+    )
     return news_query
 
 

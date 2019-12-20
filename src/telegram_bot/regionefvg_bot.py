@@ -1237,6 +1237,7 @@ def main():
     )
     dp.add_handler(conv_handler)
 
+
     # Handler to serve categories, feedbacks and comments inline keboards
     dp.add_handler(CallbackQueryHandler(callback_handler))
 
@@ -1281,6 +1282,8 @@ def main():
 
     dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND, show_professional_categories_command_handler))
     dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_PROFILES_COMMAND, show_professional_profiles_command_handler))
+
+
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))
