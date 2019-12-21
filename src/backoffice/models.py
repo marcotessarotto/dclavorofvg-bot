@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.db.models import Max
-from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.search import SearchVectorField, SearchVector
 
 from .definitions import *
 
@@ -421,7 +421,7 @@ class NewsItem(models.Model):
     lang = models.CharField(max_length=3, choices=LANGUAGES, default='it',
                             verbose_name="lingua")
 
-    search_vector = SearchVectorField(null=True)
+    search_vector = SearchVectorField(null=True, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
     updated_at = models.DateTimeField(auto_now=True)
@@ -433,8 +433,14 @@ class NewsItem(models.Model):
 
     def __str__(self):
         return 'news #' + str(self.id) + ' (' + \
-               str(self.title) + ')'
+               str(self.title) + ') ' + str(self.search_vector)
         return f"news #{self.id} "
+
+
+# https://www.thebookofjoel.com/full-text-search-django-postgres
+@receiver(post_save, sender=NewsItem)
+def update_search_vector(sender, instance, **kwargs):
+    NewsItem.objects.filter(pk=instance.pk).update(search_vector=SearchVector('title', 'text'))
 
 
 @receiver(pre_save, sender=NewsItem)
