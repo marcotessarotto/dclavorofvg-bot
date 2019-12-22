@@ -433,7 +433,7 @@ class NewsItem(models.Model):
 
     def __str__(self):
         return 'news #' + str(self.id) + ' (' + \
-               str(self.title) + ') ' + str(self.search_vector)
+               str(self.title) + ')'
         return f"news #{self.id} "
 
 
