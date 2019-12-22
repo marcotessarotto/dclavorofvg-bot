@@ -502,11 +502,13 @@ def orm_news_text_fts(search: str):
 _news_search_vector = SearchVector('title', 'text', config="italian")
 
 
-def orm_news_fts(search: str):
+def orm_news_fts(search: str, processed=True):
     """full text search on title and text fields of news items"""
     # https://www.paulox.net/2017/12/22/full-text-search-in-django-with-postgresql/#search-configuration
     news_query = NewsItem.objects.annotate(
       search=_news_search_vector
+    ).filter(
+        processed=processed
     ).filter(
       search=SearchQuery(search, config="italian")
     )

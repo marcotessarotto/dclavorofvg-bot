@@ -115,8 +115,17 @@ def callback_search_params(update, context, telegram_user_id, telegram_user):
 
     results = orm_news_fts(search_params)
 
+    # TODO: remove old news items
+
+    if len(results) == 0:
+        message = f"non ho trovato nulla cercando '{search_params}'"
+    else:
+        message = f"risultati della ricerca;\n"
+        for news_item in results:
+            message += f"{news_item}\n"
+
     update.message.reply_text(
-        f'ok , risultati della ricerca : {results}'
+        message
     )
 
     return ConversationHandler.END

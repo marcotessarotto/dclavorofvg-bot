@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime, tzinfo
 
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
@@ -430,6 +431,9 @@ class NewsItem(models.Model):
         verbose_name = UI_news
         verbose_name_plural = UI_news_plural
         app_label = APP_LABEL
+        indexes = [
+            GinIndex(fields=['search_vector']),  # Generalized Inverted Index
+        ]
 
     def __str__(self):
         return 'news #' + str(self.id) + ' (' + \
