@@ -291,7 +291,7 @@ UI_messages_to_user = "messaggi agli utenti"
 
 UI_specify_text_to_search = "scrivi la parola (o le parole) da cercare nelle notizie"
 UI_search_result_text_not_found = "non ho trovato notizie che contengano il testo '{0}'"
-UI_search_results = "il testo '{0}' si trova in queste notizie:\n\n"
+UI_search_results = "il testo '{0}' si trova in queste notizie degli ultimi dieci giorni:\n\n"
 
 UI_OK = 'OK'
 UI_NO = 'No'
