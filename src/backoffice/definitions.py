@@ -59,6 +59,8 @@ COMANDI del bot:
 
 <b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni
 
+<b>/cerca</b> nelle notizie degli ultimi 10 giorni
+
 <b>/statistiche_notizie</b> sulle notizie inviate negli ultimi 10 giorni
 
 <b>/audio_on</b> per abilitare la lettura dei titoli delle notizie. <b>/audio_off</b> per disabilitare la lettura.
@@ -75,6 +77,8 @@ Per mostrare nuovamente questo messaggio digita /help o /aiuto
 def get_bot_default_help_msg():
     return bot_default_help_msg
 
+
+POSTGRES_FTS_LANGUAGE = "italian"  # full text search language configuration
 
 # DO NOT USE SPACES in string values (required by memcache)
 UI_bot_help_message = "UI_bot_help_message"
@@ -284,6 +288,10 @@ UI_external_link = 'collegamento esterno'
 
 UI_message_to_user = "messaggio all'utente"
 UI_messages_to_user = "messaggi agli utenti"
+
+UI_specify_text_to_search = "scrivi la parola (o le parole) da cercare nelle notizie"
+UI_search_result_text_not_found = "non ho trovato notizie che contengano il testo '{0}'"
+UI_search_results = "il testo '{0}' si trova in queste notizie:\n\n"
 
 UI_OK = 'OK'
 UI_NO = 'No'

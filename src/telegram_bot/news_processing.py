@@ -194,7 +194,8 @@ def send_news_to_telegram_user(
         intersection_result=None,
         request_feedback=True,
         title_only=False,
-        news_item_already_shown_to_user=False
+        news_item_already_shown_to_user=False,
+        produce_content_only=False  # if True, produce and return html content and do not send messages (works only for title_only=True)
 ):
     if not telegram_user.has_accepted_privacy_rules:
         return
@@ -301,6 +302,9 @@ def send_news_to_telegram_user(
                 html_news_content += "\n" + UI_message_read_news_item.format(news_item.id)
 
             logger.warning("html_news_content too long, has been truncated")
+
+        if produce_content_only:
+            return html_news_content
 
         if telegram_user.is_text_to_speech_enabled:
 

@@ -499,18 +499,24 @@ def orm_news_text_fts(search: str):
     return news_query
 
 
-_news_search_vector = SearchVector('title', 'text', config="italian")
+_news_search_vector = SearchVector('title', 'text', config=POSTGRES_FTS_LANGUAGE)
 
 
-def orm_news_fts(search: str, processed=True):
+def orm_news_fts(search: str, processed=True, last_days=10):
     """full text search on title and text fields of news items"""
+
+    today = datetime.now()
+    d = today - timedelta(days=last_days)
+
     # https://www.paulox.net/2017/12/22/full-text-search-in-django-with-postgresql/#search-configuration
     news_query = NewsItem.objects.annotate(
       search=_news_search_vector
     ).filter(
         processed=processed
     ).filter(
-      search=SearchQuery(search, config="italian")
+        processed_timestamp__gte=d
+    ).filter(
+      search=SearchQuery(search, config=POSTGRES_FTS_LANGUAGE)
     )
     return news_query
 
@@ -631,9 +637,9 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
 
 
 def orm_build_news_stats(last_days=10):
-    now = datetime.now()
+    today = datetime.now()
 
-    d = now - timedelta(days=last_days)
+    d = today - timedelta(days=last_days)
 
     categories = orm_get_categories()
 

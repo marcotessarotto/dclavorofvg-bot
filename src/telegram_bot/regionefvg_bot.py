@@ -98,7 +98,7 @@ def start_command_handler(update, context):
 @standard_user_checks
 def search_command_handler(update, context, telegram_user_id, telegram_user):
     update.message.reply_text(
-        text="scrivi la parola da cercare nelle notizie",
+        text=UI_specify_text_to_search,
         parse_mode='HTML'
     )
 
@@ -115,17 +115,20 @@ def callback_search_params(update, context, telegram_user_id, telegram_user):
 
     results = orm_news_fts(search_params)
 
-    # TODO: remove old news items
-
     if len(results) == 0:
-        message = f"non ho trovato nulla cercando '{search_params}'"
+        message = UI_search_result_text_not_found.format(search_params)
     else:
-        message = f"risultati della ricerca;\n"
+        message = UI_search_results.format(search_params)
         for news_item in results:
-            message += f"{news_item}\n"
+            html_content = send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=None,
+                                       request_feedback=False, title_only=True,
+                                       news_item_already_shown_to_user=True, produce_content_only=True)
+
+            message += f"{html_content}\n\n"
 
     update.message.reply_text(
-        message
+        message,
+        parse_mode='HTML'
     )
 
     return ConversationHandler.END
