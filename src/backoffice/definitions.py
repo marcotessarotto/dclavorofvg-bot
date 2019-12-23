@@ -314,6 +314,7 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 aiuto - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
 rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
+cerca - cerca un testo nelle notizie degli ultimi 10 giorni
 statistiche_notizie - quante notizie inviate negli ultimi 10 giorni, per categoria
 categorie_professionali - ti mostro le categorie professionali delle offerte di lavoro
 '''
