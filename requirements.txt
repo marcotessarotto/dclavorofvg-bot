@@ -9,3 +9,4 @@ psycopg2-binary
 gTTS
 SolrClient
 treetaggerwrapper
+sentry-sdk==0.13.5

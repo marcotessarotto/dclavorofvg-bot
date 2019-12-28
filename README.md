@@ -48,6 +48,8 @@ SMTP_PASSWORD = ""
 
 EMAIL_SENDER = "email address of sender"
 
+SENTRY_SDK_CODE = "..."  # https://sentry.io SDK code, leave empty if not using it
+
 
 - instruct Django to migrate applications and create superuser 
 - get a token for you Telegram bot and save it in file token.txt positioned in the root of the project (src directory)

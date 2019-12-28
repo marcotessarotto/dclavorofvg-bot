@@ -39,6 +39,15 @@ import time
 # set in main method
 from src.webservice.naive_sentence_similarity_client import naive_sentence_similarity_web_client
 
+try:
+    from src.gfvgbo.secrets import SENTRY_SDK_CODE
+
+    if SENTRY_SDK_CODE:  # SENTRY_SDK_CODE is defined in secrets.py
+        import sentry_sdk
+        sentry_sdk.init(SENTRY_SDK_CODE)
+except NameError:
+    pass
+
 global_bot_instance: Bot = None
 
 CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
