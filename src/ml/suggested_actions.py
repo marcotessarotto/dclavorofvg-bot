@@ -180,6 +180,15 @@ def puzzling(update, context, message_text, current_context: CurrentUserContext,
     )
 
 
+def search_engine(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+
+    update.message.reply_text(
+        f'per cercare un testo nelle notizie, puoi usare il comando /cerca',
+        disable_web_page_preview=True,
+        parse_mode='HTML'
+    )
+
+
 def vacancy_issues(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
     # 1 - identify vacancy code: i.e. C957-28472
     # regexp_ \w\d\d\d-\d{5,6}
@@ -260,6 +269,7 @@ _suggested_actions_dict["BOT_HELP"] = send_bot_help
 _suggested_actions_dict["PUZZLING"] = puzzling
 _suggested_actions_dict["VACANCY_ISSUE"] = vacancy_issues
 _suggested_actions_dict["HOW_TO_SUBMIT_TO_VACANCY"] = vacancy_issues
+_suggested_actions_dict["SEARCH_ENGINE"] = search_engine
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
