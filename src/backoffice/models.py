@@ -180,8 +180,6 @@ class NewsItemSentToUser(models.Model):
         app_label = APP_LABEL
 
 
-# ****************************************************************************************
-
 EDUCATIONAL_LEVELS = (
     ('-', 'non dichiarato'),
     ('0', 'nessun titolo di studio'),
@@ -191,6 +189,7 @@ EDUCATIONAL_LEVELS = (
     ('d', 'corsi pre-universitari/brevi corsi professionali'),
     ('e', 'laurea/laurea magistrale'),
     ('f', 'dottorato di ricerca'),
+    ('m', 'master di II livello'),
     ('g', 'altro')
 )
 
@@ -212,7 +211,6 @@ class MessageToUser(models.Model): # message to specific user from admins
 
 
 class TelegramUser(models.Model):
-    """ Classe TELEGRAMUSER: rappresenta le informazioni legate agli utenti Telegram """
 
     user_id = models.BigIntegerField(
         verbose_name="telegram user id")  # Telegram used id (information provided by Telegram)
@@ -221,6 +219,9 @@ class TelegramUser(models.Model):
 
     educational_level = models.CharField(max_length=1, choices=EDUCATIONAL_LEVELS, default='-',
                                          verbose_name="titolo di studio più elevato")
+
+    custom_educational_level = models.CharField(max_length=64, blank=True, null=True,
+                                                verbose_name="titolo di studio 'custom'")
 
     # chat_state = models.CharField(max_length=1, default='-', blank=True, editable=False)
 

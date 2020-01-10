@@ -44,6 +44,7 @@ try:
 
     if SENTRY_SDK_CODE:  # SENTRY_SDK_CODE is defined in secrets.py
         import sentry_sdk
+
         sentry_sdk.init(SENTRY_SDK_CODE)
 except NameError:
     pass
@@ -53,6 +54,8 @@ global_bot_instance: Bot = None
 CALLBACK_PRIVACY, CALLBACK_AGE, CALLBACK_EDUCATIONAL_LEVEL, CALLBACK_CUSTOM_EDUCATIONAL_LEVEL = range(4)
 
 CALLBACK_SEARCH_PARAMS = range(1)
+
+CALLBACK_SET_AGE = range(1)
 
 
 def send_message_to_log_group(text, disable_notification=False):
@@ -119,7 +122,6 @@ def search_command_handler(update, context, telegram_user_id, telegram_user):
 @run_async
 @benchmark_decorator
 def callback_search_params(update, context, telegram_user_id, telegram_user):
-
     search_params = update.message.text
 
     results = orm_news_fts(search_params)
@@ -130,8 +132,8 @@ def callback_search_params(update, context, telegram_user_id, telegram_user):
         message = UI_search_results.format(search_params)
         for news_item in results:
             html_content = send_news_to_telegram_user(context, news_item, telegram_user, intersection_result=None,
-                                       request_feedback=False, title_only=True,
-                                       news_item_already_shown_to_user=True, produce_content_only=True)
+                                                      request_feedback=False, title_only=True,
+                                                      news_item_already_shown_to_user=True, produce_content_only=True)
 
             message += f"{html_content}\n\n"
 
@@ -144,7 +146,7 @@ def callback_search_params(update, context, telegram_user_id, telegram_user):
 
 
 def privacy_command_handler(update, context):
-    """ Ask user to accept privacy rules, if they were not yet accepted """
+    """ Ask user to accept privacy rules, if not yet accepted """
 
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
     privacy_state = telegram_user.has_accepted_privacy_rules
@@ -164,11 +166,20 @@ def privacy_command_handler(update, context):
 
         return CALLBACK_PRIVACY
 
+    # show: declared age and education level
+    declared_age = UI_message_user_declared_age.format(
+        telegram_user.age) if telegram_user.age else UI_message_user_no_declared_age
+    declared_educational_level = UI_message_user_declared_educational_level.format(
+        telegram_user.educational_level_verbose()) if telegram_user.educational_level else UI_message_user_declared_no_educational_level
+
     # https://stackoverflow.com/a/17311079/974287
     update.message.reply_text(
         text=UI_message_you_have_accepted_privacy_rules_on_this_day +
              telegram_user.privacy_acceptance_timestamp.strftime(DATE_FORMAT_STR) + '\n' +
-             orm_get_system_parameter(UI_PRIVACY),
+             UI_message_link_to_privacy_rules +
+             orm_get_system_parameter(UI_PRIVACY) + '\n\n' +
+             declared_age + '\n' +
+             declared_educational_level,
         parse_mode='HTML'
     )
 
@@ -207,6 +218,17 @@ def callback_privacy(update, context):
         return ConversationHandler.END
 
 
+@log_user_input
+@standard_user_checks
+def set_age_command_handler(update, context, telegram_user_id, telegram_user):
+    update.message.reply_text(
+        text=UI_message_what_is_your_age,
+        parse_mode='HTML'
+    )
+
+    return CALLBACK_SET_AGE
+
+
 def ask_age(update, context):
     """ Ask user to enter the age """
 
@@ -216,10 +238,8 @@ def ask_age(update, context):
 
 @log_user_input
 @standard_user_checks
-@run_async
 @benchmark_decorator
-def callback_age(update, context, telegram_user_id, telegram_user):
-    # telegram_user = orm_get_telegram_user(update.message.from_user.id)
+def callback_age(update, context, telegram_user_id, telegram_user, return_value=CALLBACK_EDUCATIONAL_LEVEL):
     age = update.message.text
 
     age = orm_parse_user_age(telegram_user, age)
@@ -230,12 +250,19 @@ def callback_age(update, context, telegram_user_id, telegram_user):
 
     update.message.reply_text(reply_text)
 
-    # now ask educational level
-    ask_educational_level(update, context)
-    return CALLBACK_EDUCATIONAL_LEVEL
+    if return_value == CALLBACK_EDUCATIONAL_LEVEL:
+        ask_educational_level(update, context)
+
+    return return_value
 
 
-def ask_educational_level(update, context):
+@log_user_input
+@standard_user_checks
+def callback_age_simple(update, context, telegram_user_id, telegram_user):
+    return callback_age(update, context, return_value=ConversationHandler.END)
+
+
+def ask_educational_level(update, context, return_value=CALLBACK_EDUCATIONAL_LEVEL):
     """ Ask user to select the educational level """
 
     keyboard = []
@@ -262,8 +289,21 @@ def ask_educational_level(update, context):
         )
     )
 
+    return return_value
 
-def callback_education_level(update, context):
+
+@log_user_input
+@standard_user_checks
+def set_education_level_command_handler(update, context, telegram_user_id, telegram_user):
+    update.message.reply_text(
+        text=UI_message_what_is_your_educational_level,
+        parse_mode='HTML'
+    )
+
+    return CALLBACK_SET_AGE
+
+
+def callback_education_level_simple(update, context):
     choice = update.message.text
 
     if choice == EDUCATIONAL_LEVELS[-1][1]:
@@ -283,9 +323,17 @@ def callback_education_level(update, context):
         text=UI_message_you_have_provided_your_education_level.format(choice),
         parse_mode='HTML'
     )
-    update.message.reply_text(UI_message_now_you_can_choose_news_categories)
 
     orm_set_telegram_user_educational_level(telegram_user, el)
+
+    return ConversationHandler.END
+
+
+def callback_education_level(update, context):
+    callback_education_level_simple(update, context)
+
+    update.message.reply_text(UI_message_now_you_can_choose_news_categories)
+
     return ConversationHandler.END
 
 
@@ -296,15 +344,15 @@ def callback_custom_education_level(update, context):
     el = EDUCATIONAL_LEVELS[-1][1]
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
 
-    # Change the models.py and the admin.py modules to register a custom educational level
     custom_education_level = update.message.text
 
-    logger.info(f"callback_education_level:  {choice}")
+    logger.info(f"callback_custom_education_level:  {custom_education_level}")
 
     update.message.reply_text(UI_message_you_have_provided_your_education_level.format(custom_education_level))
     update.message.reply_text(UI_message_now_you_can_choose_news_categories)
 
-    orm_set_telegram_user_educational_level(telegram_user, choice)
+    orm_set_telegram_user_custom_educational_level(telegram_user, custom_education_level)
+
     return ConversationHandler.END
 
 
@@ -717,14 +765,12 @@ def audio_off_command_handler(update, context, telegram_user_id, telegram_user):
 
 
 def prof_cat_to_cmd(text: str):
-
-    return text.replace(" ","_").replace("/","_").replace("à","a")
+    return text.replace(" ", "_").replace("/", "_").replace("à", "a")
 
 
 @log_user_input
 @standard_user_checks
 def show_professional_categories_command_handler(update, context, telegram_user_id, telegram_user):
-
     dict_historic = solr_get_professional_categories()
 
     dict_today = solr_get_professional_categories_today()
@@ -732,7 +778,6 @@ def show_professional_categories_command_handler(update, context, telegram_user_
     text = UI_message_professional_categories_stats
 
     for k, v in dict_historic.items():
-
         v_today = dict_today.get(k)
 
         text += f"{k} {UI_arrow} {v_today}\n"
@@ -749,7 +794,6 @@ def show_professional_categories_command_handler(update, context, telegram_user_
 @log_user_input
 @standard_user_checks
 def show_professional_profiles_command_handler(update, context, telegram_user_id, telegram_user):
-
     dict_historic = solr_get_professional_profile()
 
     dict_today = solr_get_professional_profile_today()
@@ -757,7 +801,6 @@ def show_professional_profiles_command_handler(update, context, telegram_user_id
     text = UI_message_professional_profiles_stats
 
     for k, v in dict_historic.items():
-
         v_today = dict_today.get(k)
 
         text += f"{k} {UI_arrow} {v_today}\n"
@@ -938,10 +981,13 @@ def callback_feedback(update, data):
     # user has provided feedback (+1 or -1) on news item,
     # now we want to remove the two buttons but we have to keep the body of news item:
     if comment_enabled:
-        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(text=UI_message_write_a_comment_button, callback_data=f'comment {news_id}') ]])
+        reply_markup = InlineKeyboardMarkup(
+            [[InlineKeyboardButton(text=UI_message_write_a_comment_button, callback_data=f'comment {news_id}')]])
 
         # replace previous reply_markup
-        global_bot_instance.edit_message_reply_markup(message_id=update.callback_query.message.message_id, chat_id=update.callback_query.message.chat.id, reply_markup=reply_markup)
+        global_bot_instance.edit_message_reply_markup(message_id=update.callback_query.message.message_id,
+                                                      chat_id=update.callback_query.message.chat.id,
+                                                      reply_markup=reply_markup)
     else:
         # remove previous reply_markup
         global_bot_instance.edit_message_reply_markup(message_id=update.callback_query.message.message_id,
@@ -1002,7 +1048,8 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
     if not replay_to_message_text.startswith(UI_message_comment_to_news_item):
         logger.info("comment_handler - not a comment for a news item")
 
-        m = re.search("\[\w+\s#\d+\s.+]", replay_to_message_text) # match for news reply, i.e. '[notizia #56 pubblicata il 05-12-2019]'
+        m = re.search("\[\w+\s#\d+\s.+]",
+                      replay_to_message_text)  # match for news reply, i.e. '[notizia #56 pubblicata il 05-12-2019]'
 
         logger.info(f"comment_handler - found news item header {m}")
 
@@ -1063,8 +1110,10 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 
     vacancy_code = get_valid_vacancy_code_from_str(message_text)
     if vacancy_code:
-        logger.info(f"respond_to_user: user has specified a valid vacancy code: {vacancy_code}. modify current_user_context")
-        current_user_context = orm_set_current_user_context(telegram_user.user_id, orm_find_ai_context('VACANCY'), vacancy_code)
+        logger.info(
+            f"respond_to_user: user has specified a valid vacancy code: {vacancy_code}. modify current_user_context")
+        current_user_context = orm_set_current_user_context(telegram_user.user_id, orm_find_ai_context('VACANCY'),
+                                                            vacancy_code)
 
     content += f'\ncurrent context: {current_user_context}'
 
@@ -1077,7 +1126,8 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
     ai_answer = perform_suggested_action(update, context, telegram_user, current_user_context, message_text, nss_result)
 
     orm_save_ai_log(telegram_user,
-                    current_user_context.item if current_user_context is not None and current_user_context.item is not None and type(current_user_context.item) == NewsItem else None,
+                    current_user_context.item if current_user_context is not None and current_user_context.item is not None and type(
+                        current_user_context.item) == NewsItem else None,
                     message_text,
                     suggested_action,
                     current_user_context,
@@ -1090,7 +1140,6 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 @standard_user_checks
 @run_async
 def generic_message_handler(update, context, telegram_user_id, telegram_user):
-
     try:
         message_text = update.message.text
     except AttributeError:
@@ -1255,16 +1304,17 @@ def main():
     if now_tz_aware.minute == 0:
         minutes = 0
     elif now_tz_aware.minute <= 30:
-        minutes = 30-now_tz_aware.minute
+        minutes = 30 - now_tz_aware.minute
     else:
-        minutes = 60-now_tz_aware.minute
+        minutes = 60 - now_tz_aware.minute
 
     td = timedelta(minutes=minutes)
 
     logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
     job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=td)  # callback_minute
 
-    send_message_to_log_group(f"bot started! {now_tz_aware}\nnext news check in {td} minutes", disable_notification=True)
+    send_message_to_log_group(f"bot started! {now_tz_aware}\nnext news check in {td} minutes",
+                              disable_notification=True)
 
     # Handler to start user iteration
     conv_handler = ConversationHandler(
@@ -1288,7 +1338,6 @@ def main():
     search_conversation_handler = ConversationHandler(
         entry_points=[
             CommandHandler(UI_SEARCH_COMMAND, search_command_handler),
-
         ],
         states={
             CALLBACK_SEARCH_PARAMS: [MessageHandler(Filters.text, callback_search_params)],
@@ -1298,6 +1347,32 @@ def main():
         ]
     )
     dp.add_handler(search_conversation_handler)
+
+    set_age_conversation_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler(UI_SET_AGE_COMMAND, set_age_command_handler)
+            ],
+        states={
+            CALLBACK_SET_AGE: [MessageHandler(Filters.text, callback_age_simple)]
+        },
+        fallbacks=[
+            MessageHandler(Filters.all, fallback_conversation_handler)
+        ]
+    )
+    dp.add_handler(set_age_conversation_handler)
+
+    set_education_level_conversation_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler(UI_SET_EDUCATION_LEVEL_COMMAND, ask_educational_level)
+            ],
+        states={
+            CALLBACK_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_education_level_simple)],
+        },
+        fallbacks=[
+            MessageHandler(Filters.all, fallback_conversation_handler)
+        ]
+    )
+    dp.add_handler(set_education_level_conversation_handler)
 
     # Handler to serve categories, feedbacks and comments inline keboards
     dp.add_handler(CallbackQueryHandler(callback_handler))
@@ -1341,7 +1416,8 @@ def main():
     dp.add_handler(CommandHandler(UI_AUDIO_ON_COMMAND, audio_on_command_handler))
     dp.add_handler(CommandHandler(UI_AUDIO_OFF_COMMAND, audio_off_command_handler))
 
-    dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND, show_professional_categories_command_handler))
+    dp.add_handler(
+        CommandHandler(UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND, show_professional_categories_command_handler))
     dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_PROFILES_COMMAND, show_professional_profiles_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)

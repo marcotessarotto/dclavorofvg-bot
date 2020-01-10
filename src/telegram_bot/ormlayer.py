@@ -197,7 +197,7 @@ def orm_get_comment(user_id):
 
 @benchmark_decorator
 def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
-    """ Restituisce l'oggetto user associato a un determinato utente; istanza di tipo TelegramUser 
+    """ get TelegramUser istance for user identified by telegram user id
     :rtype: TelegramUser
     """
 
@@ -236,56 +236,21 @@ def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
     return result
 
 
-# def orm_get_user_expected_input(obj) -> str:
-#     """returns user's next expected input and resets it to 'no input expected'"""
-#     if obj is None:
-#         return None
-#
-#     if hasattr(obj, '__dict__'):
-#         telegram_user = obj
-#     else:
-#         telegram_user = orm_get_telegram_user(obj)
-#
-#     if telegram_user is not None:
-#         res = telegram_user.chat_state
-#         telegram_user.chat_state = '-'
-#         telegram_user.save()
-#         _update_user_in_cache(telegram_user)
-#     else:
-#         res = None
-#
-#     logger.info(f"orm_get_user_expected_input({obj}): {res}")
-#
-#     return res
-
-
 def orm_has_user_seen_news_item(telegram_user: TelegramUser, news_item: NewsItem) -> bool:
-
     queryset = NewsItemSentToUser.objects.filter(telegram_user=telegram_user).filter(news_item=news_item)
 
     return True if len(queryset) > 0 else False
 
 
-# def orm_set_telegram_user_expected_input(obj, expected_input):
-#     if obj is None:
-#         return None
-#
-#     if hasattr(obj, '__dict__'):
-#         telegram_user = obj
-#     else:
-#         telegram_user = orm_get_telegram_user(obj)
-#
-#     if telegram_user is not None:
-#         logger.info(
-#             f"orm_set_user_expected_input: user {telegram_user.user_id}, setting chat_state to {expected_input}")
-#         telegram_user.chat_state = expected_input
-#         telegram_user.save()
-#         _update_user_in_cache(telegram_user)
-
-
 def orm_set_telegram_user_educational_level(telegram_user: TelegramUser, choice: str):
-
     telegram_user.educational_level = choice
+    telegram_user.save()
+    _update_user_in_cache(telegram_user)
+
+
+def orm_set_telegram_user_custom_educational_level(telegram_user: TelegramUser, custom_education_level: str):
+    telegram_user.custom_educational_level = custom_education_level
+    telegram_user.educational_level = 'g'
     telegram_user.save()
     _update_user_in_cache(telegram_user)
 

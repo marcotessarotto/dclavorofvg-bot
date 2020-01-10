@@ -124,6 +124,8 @@ UI_CATEGORIES_HELP = "categorie"
 UI_SET_FILTER = "filtro"
 UI_STATS_COMMAND = "statistiche_notizie"
 UI_SEARCH_COMMAND = "cerca"
+UI_SET_AGE_COMMAND = "eta"
+UI_SET_EDUCATION_LEVEL_COMMAND = "titolo_di_studio"
 
 UI_DEBUG_MSGS_ON = "debug_on"
 UI_DEBUG_MSGS_OFF = "debug_off"
@@ -152,6 +154,8 @@ UI_message_your_privacy_acceptance_has_been_deleted = 'ok, ho cancellato la tua 
 UI_message_thank_you_for_accepting_privacy_rules = "Grazie per avere accettato il regolamento della privacy di questo bot.\n"
 
 UI_message_you_have_not_accepted_privacy_rules_cannot_continue = "Non hai accettato il regolamento della privacy di questo bot. Non posso proseguire."
+
+UI_message_link_to_privacy_rules = "questo è il link al regolamento della privacy:\n"
 
 UI_message_you_have_choosen_no_categories = 'Non hai scelto alcuna categoria! Sei proprio sicuro? Non riceverai notizie!\n'
 
@@ -223,9 +227,9 @@ UI_message_what_is_your_age = 'Per fornirti un servizio migliore, ho bisogno di 
 UI_message_cheers = "Wow! Complimenti per l'età! :)"
 UI_message_you_have_provided_your_age = 'Grazie per l\'informazione!'
 
-UI_message_what_is_your_educational_level = 'Ancora una cosa: qual è il tuo titolo di studio più elevato?'
-UI_message_enter_custom_educational_level = 'Ok, inserisci il tuo livello di studio'
-UI_message_you_have_provided_your_education_level = 'Grazie, hai scelto <i>{0}</i> come livello studio.\n\n'
+UI_message_what_is_your_educational_level = 'Qual è il tuo titolo di studio più elevato?'
+UI_message_enter_custom_educational_level = 'Ok, per favore scrivi il tuo livello di studio'
+UI_message_you_have_provided_your_education_level = "Grazie, hai comunicato '{0}' come livello studio.\n\n"
 
 UI_message_show_complete_news_item = "<b>Per vedere questa notizia completa, fai click qui: /mostra_{0}</b> "
 
@@ -248,6 +252,14 @@ UI_message_categories_selection = "inserisci uno dei seguenti comandi per riceve
 UI_message_professional_categories_stats = 'offerte di lavoro attive oggi, occorrenze delle categorie professionali:\n\n'
 
 UI_message_professional_profiles_stats = 'offerte di lavoro attive oggi, occorrenze dei profili professionali:\n\n'
+
+UI_message_user_declared_age = 'età comunicata: {0}, per cambiarla usa il comando /eta\n'
+
+UI_message_user_declared_educational_level = 'titolo di studio comunicato: {0}, se hai bisogno di cambiarlo usa il comando /titolo_di_studio\n'
+
+UI_message_user_no_declared_age = 'età non comunicata, puoi usare il comando /eta per impostarla\n'
+
+UI_message_user_declared_no_educational_level = 'titolo di studio non comunicato, puoi usare il comando /titolo_di_studio per impostarlo\n'
 
 UI_news = "notizia"
 UI_news_plural = "notizie"
