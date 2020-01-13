@@ -27,6 +27,11 @@ def get_supported_actions():
 
 def help_on_supported_ai_questions(show_random_questions=False, max_number_of_questions_to_show=6):
 
+    show_supported_ai_questions = orm_get_system_parameter(SHOW_SUPPORTED_AI_QUESTIONS) == "True"
+
+    if not show_supported_ai_questions:
+        return ""
+
     library = get_supported_actions()
     result = 'Ad oggi, alcune delle domande a cui so rispondere :) sono:\n\n'
 
@@ -189,6 +194,15 @@ def search_engine(update, context, message_text, current_context: CurrentUserCon
     )
 
 
+def show_latest_vacancies(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+
+    update.message.reply_text(
+        f"per consultare le offerte di lavoro pubblicate dai Centri per l'Impiego visita https://offertelavoro.regione.fvg.it ",
+        disable_web_page_preview=True,
+        parse_mode='HTML'
+    )
+
+
 def vacancy_issues(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
     # 1 - identify vacancy code: i.e. C957-28472
     # regexp_ \w\d\d\d-\d{5,6}
@@ -270,6 +284,7 @@ _suggested_actions_dict["PUZZLING"] = puzzling
 _suggested_actions_dict["VACANCY_ISSUE"] = vacancy_issues
 _suggested_actions_dict["HOW_TO_SUBMIT_TO_VACANCY"] = vacancy_issues
 _suggested_actions_dict["SEARCH_ENGINE"] = search_engine
+_suggested_actions_dict["SHOW_LATEST_VACANCIES"] = show_latest_vacancies
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
