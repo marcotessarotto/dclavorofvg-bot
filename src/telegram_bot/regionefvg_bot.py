@@ -59,7 +59,7 @@ CALLBACK_SET_AGE = range(1)
 
 
 def send_message_to_log_group(text, disable_notification=False):
-    """send bot log message to dedicated chat"""
+    """send bot log message to developers chat"""
     if not text or not global_bot_instance:
         return
 
@@ -1135,6 +1135,8 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
                     first_value[0],
                     ai_answer)
 
+    return ai_answer
+
 
 @log_user_input
 @standard_user_checks
@@ -1157,11 +1159,11 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
     else:
         global_bot_instance.send_chat_action(chat_id=telegram_user_id, action=ChatAction.TYPING)
 
-        send_message_to_log_group(
-            f"source='generic_message_handler', user={telegram_user_id}, text='{message_text}'",
-            disable_notification=True)
+        ai_answer = respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
 
-        respond_to_user(update, context, telegram_user_id, telegram_user, message_text)
+        send_message_to_log_group(
+            f"source='generic_message_handler', user={telegram_user_id}, text='{message_text}', \nai_answer='{ai_answer}'",
+            disable_notification=True)
 
 
 # def callback_minute(context: telegram.ext.CallbackContext):
