@@ -474,13 +474,22 @@ def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
     # print(type(latest_timestamp))
     # print(type(now_aware))
 
-    t = latest_timestamp + timedelta(hours=3)
+    queryset = SystemParameter.objects.filter(name=SYS_PAR_NEWS_TIMEDELTA)
 
-    while t.hour < 8 or t.hour > 18 or t.weekday() == 6: # skip sundays
-        t = t + timedelta(hours=3)
+    try:
+        news_timedelta = int(queryset[0].value) if len(queryset) > 0 else 3
+        if news_timedelta <= 0:
+            news_timedelta = 1
+    except ValueError:
+        news_timedelta = 3
+
+    t = latest_timestamp + timedelta(hours=news_timedelta)
+
+    while t.hour < 8 or t.hour > 18 or t.weekday() == 6:  # skip sundays
+        t = t + timedelta(hours=news_timedelta)
 
     # print(t.weekday())
-    print(f"set start_publication to {t}")
+    # print(f"set start_publication to {t}")
 
     instance.start_publication = t
 

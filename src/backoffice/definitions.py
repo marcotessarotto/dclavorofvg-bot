@@ -341,3 +341,4 @@ From: {2}
 
 {3}"""
 
+SYS_PAR_NEWS_TIMEDELTA = "NEWS_TD"  # timedelta (hours) for inserting a news item
