@@ -484,11 +484,18 @@ def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
         news_timedelta = 3
 
     t = latest_timestamp + timedelta(hours=news_timedelta)
+    t = t.replace(minute=0)
+
+    if t.weekday() != latest_timestamp.weekday():
+        t = t.replace(hour=8)
 
     while t.hour < 8 or t.hour > 18 or t.weekday() == 6:  # skip sundays
+        old_t = t
         t = t + timedelta(hours=news_timedelta)
 
-    # print(t.weekday())
+        if t.weekday() != old_t.weekday():
+            t = t.replace(hour=8)
+
     # print(f"set start_publication to {t}")
 
     instance.start_publication = t
