@@ -14,7 +14,7 @@ from src.ml.suggested_actions import perform_suggested_action, help_on_supported
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
-    ChatAction
+    ChatAction, ReplyKeyboardRemove
 
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
@@ -248,7 +248,9 @@ def callback_age(update, context, telegram_user_id, telegram_user, return_value=
     else:
         reply_text = UI_message_you_have_provided_your_age
 
-    update.message.reply_text(reply_text)
+    update.message.reply_text(
+        text=reply_text,
+        reply_markup=ReplyKeyboardRemove())
 
     if return_value == CALLBACK_EDUCATIONAL_LEVEL:
         ask_educational_level(update, context)
@@ -321,7 +323,8 @@ def callback_education_level_simple(update, context):
 
     update.message.reply_text(
         text=UI_message_you_have_provided_your_education_level.format(choice),
-        parse_mode='HTML'
+        parse_mode='HTML',
+        reply_markup=ReplyKeyboardRemove()
     )
 
     orm_set_telegram_user_educational_level(telegram_user, el)
@@ -332,7 +335,9 @@ def callback_education_level_simple(update, context):
 def callback_education_level(update, context):
     callback_education_level_simple(update, context)
 
-    update.message.reply_text(UI_message_now_you_can_choose_news_categories)
+    update.message.reply_text(
+        text=UI_message_now_you_can_choose_news_categories,
+        reply_markup=ReplyKeyboardRemove())
 
     return ConversationHandler.END
 
@@ -382,7 +387,8 @@ def help_command_handler(update, context):
         "\n\n" +
         help_on_supported_ai_questions(show_random_questions=True),
         disable_web_page_preview=True,
-        parse_mode='HTML'
+        parse_mode='HTML',
+        reply_markup=ReplyKeyboardRemove()
     )
 
 
