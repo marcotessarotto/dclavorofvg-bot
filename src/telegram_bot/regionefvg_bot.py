@@ -111,7 +111,8 @@ def start_command_handler(update, context):
 def search_command_handler(update, context, telegram_user_id, telegram_user):
     update.message.reply_text(
         text=UI_specify_text_to_search,
-        parse_mode='HTML'
+        parse_mode='HTML',
+        reply_markup=ReplyKeyboardRemove()
     )
 
     return CALLBACK_SEARCH_PARAMS
@@ -180,7 +181,8 @@ def privacy_command_handler(update, context):
              orm_get_system_parameter(UI_PRIVACY) + '\n\n' +
              declared_age + '\n' +
              declared_educational_level,
-        parse_mode='HTML'
+        parse_mode='HTML',
+        reply_markup=ReplyKeyboardRemove()
     )
 
     return ConversationHandler.END
@@ -793,7 +795,8 @@ def show_professional_categories_command_handler(update, context, telegram_user_
     context.bot.send_message(
         chat_id=telegram_user.user_id,
         text=text,
-        parse_mode='HTML'
+        parse_mode='HTML',
+        reply_markup=ReplyKeyboardRemove()
     )
 
 
