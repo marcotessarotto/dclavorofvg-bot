@@ -356,7 +356,9 @@ def callback_custom_education_level(update, context):
     logger.info(f"callback_custom_education_level:  {custom_education_level}")
 
     update.message.reply_text(UI_message_you_have_provided_your_education_level.format(custom_education_level))
-    update.message.reply_text(UI_message_now_you_can_choose_news_categories)
+    update.message.reply_text(
+        UI_message_now_you_can_choose_news_categories,
+        reply_markup=ReplyKeyboardRemove())
 
     orm_set_telegram_user_custom_educational_level(telegram_user, custom_education_level)
 
