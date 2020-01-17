@@ -59,9 +59,19 @@ class ExportAllTelegramUserData:
 
         writer.writerow(field_names_complete)
 
+        try:
+            education_level_pos = [i for i, x in enumerate(field_names) if x == "educational_level"][0]
+        except IndexError:
+            education_level_pos = None
+
+        print(education_level_pos)
+
         for obj in queryset:
 
             row_values = [getattr(obj, field) for field in field_names]
+
+            if education_level_pos:
+                row_values[education_level_pos] = EDUCATIONAL_LEVELS[education_level_pos][1]
 
             for cat in categories:
                 row_values.append("1" if cat in obj.categories.all() else "0")
