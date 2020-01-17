@@ -310,14 +310,21 @@ def set_education_level_command_handler(update, context, telegram_user_id, teleg
 def callback_education_level_simple(update, context):
     choice = update.message.text
 
+    logger.info(f"callback_education_level_simple choice={choice}")
+
     if choice == EDUCATIONAL_LEVELS[-1][1]:
         update.message.reply_text(UI_message_enter_custom_educational_level)
         return CALLBACK_CUSTOM_EDUCATIONAL_LEVEL
+
+    el = None
 
     for line in EDUCATIONAL_LEVELS:
         if line[1] == choice:
             el = line[0]
             break
+
+    if el is None:
+        el = EDUCATIONAL_LEVELS[-1][0]
 
     telegram_user = orm_get_telegram_user(update.message.from_user.id)
 
@@ -335,7 +342,10 @@ def callback_education_level_simple(update, context):
 
 
 def callback_education_level(update, context):
-    callback_education_level_simple(update, context)
+    return_val = callback_education_level_simple(update, context)
+
+    if return_val == CALLBACK_CUSTOM_EDUCATIONAL_LEVEL:
+        return return_val
 
     update.message.reply_text(
         text=UI_message_now_you_can_choose_news_categories,
@@ -1380,6 +1390,7 @@ def main():
             ],
         states={
             CALLBACK_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_education_level_simple)],
+            CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_custom_education_level)]
         },
         fallbacks=[
             MessageHandler(Filters.all, fallback_conversation_handler)
