@@ -71,7 +71,7 @@ class ExportAllTelegramUserData:
             row_values = [getattr(obj, field) for field in field_names]
 
             if education_level_pos:
-                row_values[education_level_pos] = EDUCATIONAL_LEVELS[education_level_pos][1]
+                row_values[education_level_pos] = [r[1] for r in EDUCATIONAL_LEVELS if r[0] == row_values[education_level_pos]][0]
 
             for cat in categories:
                 row_values.append("1" if cat in obj.categories.all() else "0")
