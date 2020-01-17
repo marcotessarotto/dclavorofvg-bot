@@ -38,6 +38,41 @@ class ExportCsvMixin:
     export_as_csv.short_description = "Export Selected"
 
 
+class ExportAllTelegramUserData:
+    def export_all_as_csv(self, request, queryset):
+
+        # queryset = TelegramUser.objects.all()
+
+        meta = self.model._meta
+        field_names = [field.name for field in meta.fields]
+
+        categories = Category.objects.all().order_by('key')
+
+        field_names_complete = field_names.copy()
+
+        for cat in categories:
+            field_names_complete.append(f"{cat.key} ({cat.name})")
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names_complete)
+
+        for obj in queryset:
+
+            row_values = [getattr(obj, field) for field in field_names]
+
+            for cat in categories:
+                row_values.append("1" if cat in obj.categories.all() else "0")
+
+            row = writer.writerow(row_values)
+
+        return response
+
+    export_all_as_csv.short_description = "Export user data with categories"
+
+
 @admin.register(AiQAActivityLog)
 class AiQAActivityLogAdmin(admin.ModelAdmin):
     list_display = ('id', 'telegram_user', 'user_question', 'naive_sentence_similarity_action', 'naive_sentence_similarity_confidence', 'context')
@@ -86,12 +121,12 @@ class AiActionAdmin(admin.ModelAdmin, ExportCsvMixin):
 
 
 @admin.register(TelegramUser)
-class TelegramUserAdmin(admin.ModelAdmin, ExportCsvMixin):
+class TelegramUserAdmin(admin.ModelAdmin, ExportAllTelegramUserData):
     list_display = ('username', 'first_name', 'last_name', 'user_id', 'is_admin', 'has_accepted_privacy_rules')
     ordering = ('id',)
     list_filter = ('has_accepted_privacy_rules', )
     search_fields = ('username', 'first_name', 'last_name', 'user_id')
-    actions = ["export_as_csv"]
+    actions = ["export_all_as_csv"]
 
     formfield_overrides = {
         models.ManyToManyField: {'widget': CheckboxSelectMultiple},
@@ -104,7 +139,7 @@ class TelegramUserAdmin(admin.ModelAdmin, ExportCsvMixin):
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('key', 'name', 'emoji')
     ordering = ('key',)
 
@@ -124,6 +159,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
     change_list_template = "categories/categories_changelist.html"
 
+    actions = ["export_as_csv"]
+
     # https://books.agiliq.com/projects/django-admin-cookbook/en/latest/action_buttons.html
     def get_urls(self):
         urls = super().get_urls()
@@ -140,11 +177,12 @@ class TextToSpeechWordSubstitutionAdmin(admin.ModelAdmin):
 
 
 @admin.register(NewsItem)
-class NewsItemAdmin(admin.ModelAdmin):
+class NewsItemAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('id', 'title', 'list_of_categories', 'start_publication',  'processed', 'processed_timestamp', 'like', 'dislike', 'knowledge_base_article')
     exclude = ('like', 'dislike')
     search_fields = ('id', 'title')
     list_filter = ('categories',)
+    actions = ["export_as_csv"]
 
     formfield_overrides = {
         models.ManyToManyField: {'widget': CheckboxSelectMultiple},
@@ -162,7 +200,7 @@ class NewsItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
+class CommentAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('text', 'news_id', 'user', 'created_at')
     # list_filter = ('news__id',)
     search_fields = ('news__id', 'user__user_id',)
@@ -172,7 +210,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 @admin.register(FeedbackToNewsItem)
-class FeedbackToNewsItemAdmin(admin.ModelAdmin):
+class FeedbackToNewsItemAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('val', 'news_id', 'user', 'created_at')
     search_fields = ('news__id', 'user__user_id',)
 
@@ -190,9 +228,10 @@ class CommandsFromUserAdmin(admin.ModelAdmin):
 
 
 @admin.register(NewsItemSentToUser)
-class NewsItemSentToUserAdmin(admin.ModelAdmin):
+class NewsItemSentToUserAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('telegram_user', 'news_item', 'created_at',)
     search_fields = ('news_item__id', 'telegram_user__user_id',)
+    actions = ["export_as_csv"]
 
 
 @admin.register(UserFreeText)
