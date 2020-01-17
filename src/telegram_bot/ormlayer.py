@@ -37,13 +37,20 @@ def orm_set_obj_in_cache(obj_name: str, obj_instance, timeout=60*60*12):
     cache.set(cache_key, obj_instance, timeout=timeout)
 
 
-def orm_add_telegram_log_group(telegram_user_id):
-    new_telegram_user = TelegramUser()
-    new_telegram_user.user_id = telegram_user_id
-    new_telegram_user.username = "BOT LOGS - private group"
-    new_telegram_user.has_accepted_privacy_rules = True
-    new_telegram_user.save()
-    return new_telegram_user
+def orm_get_telegram_log_group(telegram_user_id):
+    """get instance of telegram group; create it if it does not exist yet"""
+
+    telegram_group = orm_get_telegram_user(telegram_user_id)
+
+    if telegram_group is None:
+        new_telegram_group = TelegramUser()
+        new_telegram_group.user_id = telegram_user_id
+        new_telegram_group.username = "BOT LOGS - private group"
+        new_telegram_group.has_accepted_privacy_rules = True
+        new_telegram_group.save()
+        return new_telegram_group
+    else:
+        return telegram_group
 
 
 def orm_add_telegram_user(user):

@@ -3,7 +3,7 @@ from functools import wraps
 from src.backoffice.definitions import UI_message_accept_privacy_rules_to_continue, UI_message_disabled_account, \
     BOT_LOGS_CHAT_ID
 from src.backoffice.models import TelegramUser
-from src.telegram_bot.ormlayer import orm_get_telegram_user, orm_add_telegram_user, orm_add_telegram_log_group
+from src.telegram_bot.ormlayer import orm_get_telegram_user, orm_add_telegram_user, orm_get_telegram_log_group
 
 
 def basic_user_checks(update, context):
@@ -17,7 +17,7 @@ def basic_user_checks(update, context):
             print(update)
 
     if telegram_user_id == BOT_LOGS_CHAT_ID:
-        telegram_user = orm_add_telegram_log_group(telegram_user_id)
+        telegram_user = orm_get_telegram_log_group(telegram_user_id)
     else:
         telegram_user = orm_get_telegram_user(telegram_user_id)
 
