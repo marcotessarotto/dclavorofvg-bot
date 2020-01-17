@@ -928,6 +928,8 @@ def ping_command_handler(update, context, telegram_user_id, telegram_user):
     # how many users
     text += f"users: {len(TelegramUser.objects.all())}\n"
 
+    text += f"active users:{len(TelegramUser.objects.filter(has_user_blocked_bot=False))}\n"
+
     context.bot.send_message(
         chat_id=telegram_user.user_id,
         text=text,
