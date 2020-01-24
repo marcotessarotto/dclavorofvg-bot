@@ -484,7 +484,7 @@ def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
         news_timedelta = 3
 
     t = latest_timestamp + timedelta(hours=news_timedelta)
-    t = t.replace(minute=0)
+    t = t.replace(minute=0, second=0, microsecond=0)
 
     if t.weekday() != latest_timestamp.weekday():
         t = t.replace(hour=8)
