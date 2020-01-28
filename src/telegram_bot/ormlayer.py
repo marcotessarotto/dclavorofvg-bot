@@ -508,7 +508,7 @@ def orm_get_fresh_news_to_send():
         if news.title is None:
             continue
 
-        if news.categories is None:
+        if news.categories is None and news.broadcast_message is not True:
             continue
 
         if news.start_publication is not None:

@@ -54,7 +54,7 @@ def news_dispatcher(context: CallbackContext):
 
     for news_item in list_of_news:
 
-        if len(news_item.categories.all()) == 0:  # do not process news item with no categories specified
+        if len(news_item.categories.all()) == 0 and news_item.broadcast_message is not True:  # do not process news item with no categories specified
             continue
 
         logger.debug(f"news_dispatcher - elaboration of news item id={news_item.id}")
