@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 import re
@@ -1199,6 +1200,26 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 #                                  text='One message every 10 minutes')
 
 
+def check_for_user_block(method):
+    @functools.wraps(method)
+    def wrapped(self, *args, **kwargs):
+        try:
+            return method(self, *args, **kwargs)
+        except Unauthorized as error:
+            chat_id = kwargs.get('chat_id', None)
+            # remove chat_id from conversation list
+            if chat_id:
+                orm_user_blocks_bot(chat_id)
+                logger.info(f"user {chat_id} has blocked bot")
+            return None
+        except Exception as error:
+            logger.error(f"send_photo {error}")
+
+            return None
+
+    return wrapped
+
+
 class MQBot(Bot):
     """A subclass of Bot which delegates send method handling to MQ"""
 
@@ -1217,46 +1238,44 @@ class MQBot(Bot):
             pass
 
     @mq.queuedmessage
+    @check_for_user_block
+    def send_animation(self, chat_id, *args, **kwargs):
+        return super(MQBot, self).send_animation(chat_id, *args, **kwargs)
+
+    @mq.queuedmessage
+    @check_for_user_block
+    def send_audio(self, chat_id, *args, **kwargs):
+        return super(MQBot, self).send_audio(chat_id, *args, **kwargs)
+
+    @mq.queuedmessage
+    @check_for_user_block
+    def send_document(self, chat_id, *args, **kwargs):
+        return super(MQBot, self).send_document(chat_id, *args, **kwargs)
+
+    @mq.queuedmessage
+    @check_for_user_block
+    def send_photo(self, chat_id, *args, **kwargs):
+        return super(MQBot, self).send_photo(chat_id, *args, **kwargs)
+
+    @mq.queuedmessage
+    @check_for_user_block
+    def send_video(self, chat_id, *args, **kwargs):
+        return super(MQBot, self).send_video(chat_id, *args, **kwargs)
+
+    @mq.queuedmessage
+    @check_for_user_block
+    def send_voice(self, chat_id, *args, **kwargs):
+        return super(MQBot, self).send_voice(chat_id, *args, **kwargs)
+
+    @mq.queuedmessage
+    @check_for_user_block
     def send_message(self, chat_id, *args, **kwargs):
         """Wrapped method would accept new `queued` and `isgroup`
         OPTIONAL arguments"""
-
-        e = None
-        try:
-            return super(MQBot, self).send_message(chat_id, *args, **kwargs)
-        except Unauthorized as error:
-            # remove chat_id from conversation list
-            orm_user_blocks_bot(chat_id)
-            e = error
-        except BadRequest as error:
-            # handle malformed requests - read more below!
-            logger.error("BadRequest")
-            e = error
-        except TimedOut as error:
-            # handle slow connection problems
-            logger.error("TimedOut")
-            e = error
-        except NetworkError as error:
-            # handle other connection problems
-            logger.error("NetworkError")
-            e = error
-        except ChatMigrated as error:
-            # the chat_id of a group has changed, use e.new_chat_id instead
-            logger.error("ChatMigrated")
-            e = error
-        except TelegramError as error:
-            # handle all other telegram related errors
-            logger.error("TelegramError")
-            e = error
-
-        # if e:
-        #     d = now()
-        #     send_message_to_log_group(f"bot exception\n{d}\n")
-        #
-        #     raise e
+        return super(MQBot, self).send_message(chat_id, *args, **kwargs)
 
 
-# issue: error_callback is not called
+# catch exceptions caused by MQBot methods without check_for_user_block decorator
 def error_callback(update, error):
     logger.error("***error_callback***")
     logger.error(update)
