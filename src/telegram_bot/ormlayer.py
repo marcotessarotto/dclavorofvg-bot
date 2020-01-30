@@ -714,8 +714,14 @@ def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:
     return obj
 
 
-def orm_get_vacancies_published_today() -> str:
+@benchmark_decorator
+def orm_get_vacancies_published_today(refresh=False) -> str:
 
+    if not refresh:
+        text = orm_get_obj_from_cache("vacancies_published_today")
+
+        if text:
+            return text
 
     vacancies = solr_vacancies_published_today()
 
@@ -733,5 +739,7 @@ def orm_get_vacancies_published_today() -> str:
         text += f'<a href="{url}">{counter}: {d["profiloProfessionale"][0]} ({d["comuneSedeLavoro"][0]})</a>\n\n'
 
         counter += 1
+
+    orm_set_obj_in_cache("vacancies_published_today", text, timeout=60*30)  # store object in cache for 30 minutes
 
     return text
