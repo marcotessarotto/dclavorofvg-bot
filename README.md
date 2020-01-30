@@ -38,6 +38,10 @@ NSS_HOST = 'hostname of nss server'
 
 NSS_PORT = port number of nss server  
 
+SOLR_HOST = 'hostname of apache solr instance'
+
+SOLR_PORT = 8983
+
 SECRET_KEY = "django secret"
 
 SMTP_SERVER = ""

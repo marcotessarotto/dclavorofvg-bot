@@ -28,8 +28,11 @@ SECRET_KEY = "................................"
 BOT_NAME = "..."
 MEDIA_ROOT = '/...."
 
-NSS_HOST = '<ip address of nss server>'
+NSS_HOST = 'ip address of nss server'  # leave empty string if no NSS server
 NSS_PORT = nss_server_port_number
+
+SOLR_HOST = 'hostname of apache solr instance' # leave empty string if no Apache Solr instance 
+SOLR_PORT = 8983
 
 SMTP_SERVER = ""
 SMTP_USER = ""

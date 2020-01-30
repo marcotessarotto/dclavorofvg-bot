@@ -5,7 +5,13 @@ from django.utils.timezone import now
 
 from src.telegram_bot.ormlayer import orm_get_obj_from_cache, orm_set_obj_in_cache
 
-solr = SolrClient('http://10.4.100.2:8983/solr')
+from src.gfvgbo.secrets import SOLR_HOST, SOLR_PORT
+
+# solr = SolrClient(f"http://{SOLR_HOST}:{SOLR_PORT}/solr")
+
+
+def _get_solr_client():
+    return SolrClient(f"http://{SOLR_HOST}:{SOLR_PORT}/solr")
 
 
 def solr_get_professional_categories():
@@ -13,6 +19,8 @@ def solr_get_professional_categories():
 
     if result:
         return result
+
+    solr = _get_solr_client()
 
     res = solr.query('bot_core', {
         'q': 'categoriaProfessionale:*',
@@ -40,6 +48,8 @@ def solr_get_professional_categories_today():
     d = now()
     today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
 
+    solr = _get_solr_client()
+
     res = solr.query('bot_core', {
         'q': f'categoriaProfessionale:* AND insertDate:{today_iso_date}',
         'facet': True,
@@ -60,6 +70,8 @@ def solr_get_professional_profile():
 
     if result:
         return result
+
+    solr = _get_solr_client()
 
     res = solr.query('bot_core', {
         'q': 'profiloProfessionale:*',
@@ -87,6 +99,8 @@ def solr_get_professional_profile_today():
     d = now()
     today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
 
+    solr = _get_solr_client()
+
     res = solr.query('bot_core', {
         'q': f'profiloProfessionale:* AND insertDate:{today_iso_date}',
         'facet': True,
@@ -109,7 +123,8 @@ def solr_get_vacancy(vacancy_id: str):
 
     vacancy_id = vacancy_id.upper()
 
-    solr = SolrClient('http://10.4.100.2:8983/solr')
+    solr = _get_solr_client()
+
     res = solr.query('bot_core', {
         'q': f'id:{vacancy_id}',
     })
@@ -120,3 +135,25 @@ def solr_get_vacancy(vacancy_id: str):
         return None
     else:
         return documents[0]
+
+
+def solr_search_vacancies(search_str: str):  # WIP
+
+    d = now()
+    today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
+
+    solr = _get_solr_client()
+
+    res = solr.query('bot_core', {
+        'q': f'profiloProfessionale:{search_str} AND insertDate:{today_iso_date}',
+    })
+
+    documents = res.data['response']['docs']
+
+    if len(documents) == 0:
+        return None
+    else:
+        return documents
+
+
+

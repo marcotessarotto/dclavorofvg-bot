@@ -124,6 +124,7 @@ UI_CATEGORIES_HELP = "categorie"
 UI_SET_FILTER = "filtro"
 UI_STATS_COMMAND = "statistiche_notizie"
 UI_SEARCH_COMMAND = "cerca"
+UI_SEARCH_VACANCIES_COMMAND = "cerca_offerte_lavoro"
 UI_SET_AGE_COMMAND = "eta"
 UI_SET_EDUCATION_LEVEL_COMMAND = "titolo_di_studio"
 
@@ -304,6 +305,11 @@ UI_messages_to_user = "messaggi agli utenti"
 UI_specify_text_to_search = "scrivi la parola (o le parole) da cercare nelle notizie"
 UI_search_result_text_not_found = "non ho trovato notizie che contengano il testo '{0}'"
 UI_search_results = "il testo '{0}' si trova in queste notizie degli ultimi dieci giorni:\n\n"
+
+UI_specify_text_to_search_vacancies = "scrivi la parola (o le parole) da cercare nelle offerte di lavoro"
+UI_search_vacancies_result_text_not_found = "non ho trovato offerte di lavoro che contengano il testo '{0}'"
+UI_search_vacancies_results = "il testo '{0}' si trova in queste offerte di lavoro:\n\n"
+
 
 UI_OK = 'OK'
 UI_NO = 'No'

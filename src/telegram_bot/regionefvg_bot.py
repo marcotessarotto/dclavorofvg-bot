@@ -21,7 +21,7 @@ from src.telegram_bot.news_processing import news_dispatcher, send_news_to_teleg
     _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
 from src.telegram_bot.ormlayer import *
 from src.telegram_bot.solr.solr_client import solr_get_professional_categories, solr_get_professional_categories_today, \
-    solr_get_professional_profile, solr_get_professional_profile_today
+    solr_get_professional_profile, solr_get_professional_profile_today, solr_search_vacancies
 
 from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
     standard_user_checks
@@ -103,6 +103,43 @@ def start_command_handler(update, context):
     if not telegram_user.has_accepted_privacy_rules:
         # privacy not yet approved by user
         return privacy_command_handler(update, context)
+
+    return ConversationHandler.END
+
+
+@log_user_input
+@standard_user_checks
+def search_vacancies_command_handler(update, context, telegram_user_id, telegram_user):
+    update.message.reply_text(
+        text=UI_specify_text_to_search_vacancies,
+        parse_mode='HTML',
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+    return CALLBACK_SEARCH_PARAMS
+
+
+@log_user_input
+@standard_user_checks
+@run_async
+@benchmark_decorator
+def callback_search_vacancies_params(update, context, telegram_user_id, telegram_user):
+    search_params = update.message.text
+
+    results = solr_search_vacancies(search_params)
+
+    if results is None:
+        message = UI_search_vacancies_result_text_not_found.format(search_params)
+    else:
+        message = UI_search_vacancies_results.format(search_params)
+
+        for d in results:
+            message += f"{d['id']}"  # WIP
+
+    update.message.reply_text(
+        message,
+        parse_mode='HTML'
+    )
 
     return ConversationHandler.END
 
@@ -1391,6 +1428,19 @@ def main():
         ]
     )
     dp.add_handler(search_conversation_handler)
+
+    search_vacancies_conversation_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler(UI_SEARCH_VACANCIES_COMMAND, search_vacancies_command_handler),
+        ],
+        states={
+            CALLBACK_SEARCH_PARAMS: [MessageHandler(Filters.text, callback_search_vacancies_params)],
+        },
+        fallbacks=[
+            MessageHandler(Filters.all, fallback_conversation_handler)
+        ]
+    )
+    dp.add_handler(search_vacancies_conversation_handler)
 
     set_age_conversation_handler = ConversationHandler(
         entry_points=[
