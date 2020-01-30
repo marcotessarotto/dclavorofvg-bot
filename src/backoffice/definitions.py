@@ -61,6 +61,8 @@ COMANDI del bot:
 
 <b>/cerca</b> nelle notizie degli ultimi 10 giorni
 
+<b>/nuove_offerte_lavoro</b> mostra le offerte di lavoro pubblicate oggi
+
 <b>/statistiche_notizie</b> sulle notizie inviate negli ultimi 10 giorni
 
 <b>/audio_on</b> per abilitare la lettura dei titoli delle notizie. <b>/audio_off</b> per disabilitare la lettura.
@@ -337,6 +339,7 @@ aiuto - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
 rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
 cerca - cerca un testo nelle notizie degli ultimi 10 giorni
+nuove_offerte_lavoro - le nuove offerte di lavoro pubblicate oggi 
 statistiche_notizie - quante notizie inviate negli ultimi 10 giorni, per categoria
 categorie_professionali - ti mostro le categorie professionali delle offerte di lavoro
 '''
