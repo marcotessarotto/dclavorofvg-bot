@@ -199,7 +199,7 @@ class NewsItemAdminForm(forms.ModelForm):
 
 @admin.register(NewsItem)
 class NewsItemAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = ('id', 'title', 'list_of_categories', 'start_publication',  'processed', 'processed_timestamp', 'like', 'dislike', 'knowledge_base_article')
+    list_display = ('id', 'title', 'list_of_categories', 'start_publication',  'processed', 'processed_timestamp', 'like', 'dislike', )
     exclude = ('like', 'dislike')
     search_fields = ('id', 'title')
     list_filter = ('categories',)
