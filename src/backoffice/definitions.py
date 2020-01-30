@@ -138,6 +138,8 @@ UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND = "categorie_professionali"
 
 UI_SHOW_PROFESSIONAL_PROFILES_COMMAND = "profili_professionali"
 
+UI_VACANCIES_PUBLISHED_TODAY = "nuove_offerte_lavoro"
+
 UI_message_category = "categoria "
 
 UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori del bot."
@@ -310,6 +312,8 @@ UI_specify_text_to_search_vacancies = "scrivi la parola (o le parole) da cercare
 UI_search_vacancies_result_text_not_found = "non ho trovato offerte di lavoro che contengano il testo '{0}'"
 UI_search_vacancies_results = "il testo '{0}' si trova in queste offerte di lavoro:\n\n"
 
+UI_message_no_vacancies_published_today = "oggi non sono state pubblicate nuove offerte di lavoro"
+UI_message_vacancies_published_today = "ecco le nuove offerte di lavoro ({0}) pubblicate oggi sul sito offertelavoro.regione.fvg.it. Clicca sui collegamenti per vedere le schede complete.\n\n"
 
 UI_OK = 'OK'
 UI_NO = 'No'

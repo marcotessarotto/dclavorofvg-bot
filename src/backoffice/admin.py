@@ -4,6 +4,10 @@ from django.forms import (
     TextInput
 )
 
+from django import forms
+from django.contrib import admin
+from ckeditor.widgets import CKEditorWidget
+
 import csv
 from django.http import HttpResponse
 
@@ -186,6 +190,13 @@ class TextToSpeechWordSubstitutionAdmin(admin.ModelAdmin):
     list_display = ('id', 'original', 'substitution', 'lang')
 
 
+class NewsItemAdminForm(forms.ModelForm):
+    text = forms.CharField(widget=CKEditorWidget())
+    class Meta:
+        model = NewsItem
+        fields = '__all__'
+
+
 @admin.register(NewsItem)
 class NewsItemAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = ('id', 'title', 'list_of_categories', 'start_publication',  'processed', 'processed_timestamp', 'like', 'dislike', 'knowledge_base_article')
@@ -193,6 +204,8 @@ class NewsItemAdmin(admin.ModelAdmin, ExportCsvMixin):
     search_fields = ('id', 'title')
     list_filter = ('categories',)
     actions = ["export_as_csv"]
+
+    # form = NewsItemAdminForm  # WIP
 
     formfield_overrides = {
         models.ManyToManyField: {'widget': CheckboxSelectMultiple},

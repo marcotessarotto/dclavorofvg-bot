@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +155,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = '/media/'
 
 AUDIO_ROOT = os.path.join(MEDIA_ROOT, 'audio/')
+
+# CKEDITOR_UPLOAD_PATH = 'uploads/'
+
+# CKEDITOR_CONFIGS = {
+#     'default': {
+#         'toolbar': 'full',
+#         'format_tags' : 'b;strong;i;em;u;ins;s;strike;del;a[!href];code;pre'
+#     },
+# }
+

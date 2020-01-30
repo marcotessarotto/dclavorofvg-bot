@@ -2,40 +2,20 @@ import threading
 from datetime import datetime, timedelta
 
 from django.contrib.postgres.search import SearchVector, SearchQuery
-from django.utils.timezone import now
 from django.core.cache import cache
+from django.utils.timezone import now
+
 
 from src.rss.scraping_utils import get_content_from_regionefvg_news
+from src.telegram_bot.cache_utils import _update_user_in_cache, is_cache_enabled, _orm_get_news_item_cache, \
+    _orm_get_news_item, orm_set_obj_in_cache, orm_get_obj_from_cache
 from src.telegram_bot.log_utils import orm_logger as logger, benchmark_decorator
 
 from src.backoffice.models import *
 
+from src.telegram_bot.solr.solr_client import solr_vacancies_published_today
+
 # https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
-use_cache = True
-
-
-def _update_user_in_cache(telegram_user):
-    if use_cache:
-        key_name = "user" + str(telegram_user.user_id)
-        cache.set(key_name, telegram_user, timeout=60)
-
-
-def orm_get_obj_from_cache(obj_name: str):
-    """get generic object from django cache"""
-
-    cache_key = "cacheobj" + obj_name
-
-    result = cache.get(cache_key)
-
-    return result
-
-
-def orm_set_obj_in_cache(obj_name: str, obj_instance, timeout=60*60*12):
-    """store object in django cache, default duration is 12 hours"""
-    cache_key = "cacheobj" + obj_name
-
-    cache.set(cache_key, obj_instance, timeout=timeout)
-
 
 def orm_get_telegram_log_group(telegram_user_id):
     """get instance of telegram group; create it if it does not exist yet"""
@@ -138,22 +118,6 @@ def orm_add_news_item(content: str, telegram_user: TelegramUser):
         news.save()
 
 
-def _orm_get_news_item(news_id):
-    queryset_news = NewsItem.objects.filter(id=news_id)
-    news_item = queryset_news[0]
-    return news_item
-
-
-def _orm_get_news_item_cache(news_id):
-    cache_key = "news" + news_id
-
-    result = cache.get(cache_key)
-
-    if result is None:
-        result = _orm_get_news_item(news_id)
-        cache.set(cache_key, result, timeout=60)
-
-    return result
 
 
 def orm_add_feedback(feed, news_id, telegram_user_id):
@@ -161,7 +125,7 @@ def orm_add_feedback(feed, news_id, telegram_user_id):
 
     # queryset_news = NewsItem.objects.filter(id=news_id)
     # news = queryset_news[0]
-    if use_cache:
+    if is_cache_enabled():
         news = _orm_get_news_item_cache(news_id)
     else:
         news = _orm_get_news_item(news_id)
@@ -231,7 +195,7 @@ def orm_get_telegram_user(telegram_user_id) -> TelegramUser:
 
         return res
 
-    if use_cache:
+    if is_cache_enabled():
         result = _orm_get_telegram_user_cache()
     else:
         result = _orm_get_telegram_user()
@@ -548,7 +512,7 @@ def orm_get_system_parameter(param_name) -> str:
 
         return result
 
-    if use_cache:
+    if is_cache_enabled():
         result = _orm_get_system_parameter_cache(param_name)
     else:
         result = _orm_get_system_parameter(param_name)
@@ -749,3 +713,25 @@ def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:
 
     return obj
 
+
+def orm_get_vacancies_published_today() -> str:
+
+
+    vacancies = solr_vacancies_published_today()
+
+    if len(vacancies) == 0:
+        text = UI_message_no_vacancies_published_today
+    else:
+        text = UI_message_vacancies_published_today.format(str(len(vacancies) ))
+
+    counter = 1
+
+    for d in vacancies:
+
+        url = f"https://offertelavoro.regione.fvg.it/lavoroFVG/dettaglio/{d['id']}"
+
+        text += f'<a href="{url}">{counter}: {d["profiloProfessionale"][0]} ({d["comuneSedeLavoro"][0]})</a>\n\n'
+
+        counter += 1
+
+    return text

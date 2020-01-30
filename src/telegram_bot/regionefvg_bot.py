@@ -1,5 +1,4 @@
 import functools
-import json
 import os
 import re
 
@@ -7,10 +6,8 @@ from django.utils import timezone
 from more_itertools import take
 
 # note: when execution starts from this file, the next import implies that src.telegram_bot.__init__.py is executed (after the import)
-from src.ml.matching_utils import get_valid_vacancy_code_from_str
-from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
-from src.ml.suggested_actions import perform_suggested_action, help_on_supported_ai_questions
+from src.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 
@@ -22,6 +19,9 @@ from src.telegram_bot.news_processing import news_dispatcher, send_news_to_teleg
 from src.telegram_bot.ormlayer import *
 from src.telegram_bot.solr.solr_client import solr_get_professional_categories, solr_get_professional_categories_today, \
     solr_get_professional_profile, solr_get_professional_profile_today, solr_search_vacancies
+
+from src.ml.suggested_actions import perform_suggested_action, help_on_supported_ai_questions
+from src.ml.matching_utils import get_valid_vacancy_code_from_str
 
 from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
     standard_user_checks
@@ -873,6 +873,20 @@ def show_professional_profiles_command_handler(update, context, telegram_user_id
 
 @log_user_input
 @standard_user_checks
+def show_vacancies_published_today_command_handler(update, context, telegram_user_id, telegram_user):
+
+    text = orm_get_vacancies_published_today()
+
+    context.bot.send_message(
+        chat_id=telegram_user.user_id,
+        text=text,
+        disable_web_page_preview=True,
+        parse_mode='HTML'
+    )
+
+
+@log_user_input
+@standard_user_checks
 def debug2_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
@@ -1514,6 +1528,8 @@ def main():
     dp.add_handler(
         CommandHandler(UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND, show_professional_categories_command_handler))
     dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_PROFILES_COMMAND, show_professional_profiles_command_handler))
+
+    dp.add_handler(CommandHandler(UI_VACANCIES_PUBLISHED_TODAY, show_vacancies_published_today_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
     dp.add_handler(MessageHandler(Filters.command, custom_command_handler))

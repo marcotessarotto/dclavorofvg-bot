@@ -156,4 +156,19 @@ def solr_search_vacancies(search_str: str):  # WIP
         return documents
 
 
+def solr_vacancies_published_today():
+
+    d = now()
+    today_date = f"{d.day:02d}/{d.month:02d}/{d.year:04d}"
+
+    solr = _get_solr_client()
+
+    res = solr.query('bot_core', {
+        'q': f'dataInizioValidita:"{today_date}"',
+    })
+
+    documents = res.data['response']['docs']
+
+    return documents
+
 
