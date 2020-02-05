@@ -1411,6 +1411,15 @@ def main():
     send_message_to_log_group(f"bot started! {now_tz_aware}\nnext news check in {td} minutes",
                               disable_notification=True)
 
+    daily_jobs_start_time = datetime(year=now_tz_aware.year, month=now_tz_aware.month, day=now_tz_aware.day,
+                          hour=13, minute=25, second=0, microsecond=0, tzinfo=now_tz_aware.tzinfo)
+
+    if now_tz_aware.hour > 13:
+        daily_jobs_start_time = daily_jobs_start_time + timedelta(days=1)
+
+    print(now_tz_aware)
+    print(daily_jobs_start_time)
+
     # Handler to start user iteration
     conv_handler = ConversationHandler(
         entry_points=[
