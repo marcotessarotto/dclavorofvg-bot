@@ -33,10 +33,10 @@ def _orm_get_system_parameter(param_name):
 
 
 def get_feed_entries_from_url(url):
-    from datetime import datetime
+    import datetime
 
-    now = datetime.now()
-    ten_days_ago = now - timedelta(days=10)
+    dt_now = datetime.datetime.now()
+    ten_days_ago = dt_now - timedelta(days=10)
 
     feed = feedparser.parse(url)
     # print (feed)

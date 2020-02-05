@@ -1,4 +1,5 @@
-from datetime import timedelta, datetime, tzinfo
+# from datetime import timedelta, datetime, tzinfo
+import datetime
 
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models
@@ -483,7 +484,7 @@ def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
     except ValueError:
         news_timedelta = 3
 
-    t = latest_timestamp + timedelta(hours=news_timedelta)
+    t = latest_timestamp + datetime.timedelta(hours=news_timedelta)
     t = t.replace(minute=0, second=0, microsecond=0)
 
     if t.weekday() != latest_timestamp.weekday():
@@ -491,7 +492,7 @@ def news_item_signal(sender, instance: NewsItem, *args, **kwargs):
 
     while t.hour < 8 or t.hour > 18 or t.weekday() == 6:  # skip sundays
         old_t = t
-        t = t + timedelta(hours=news_timedelta)
+        t = t + datetime.timedelta(hours=news_timedelta)
 
         if t.weekday() != old_t.weekday():
             t = t.replace(hour=8)

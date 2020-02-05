@@ -316,6 +316,8 @@ UI_search_vacancies_results = "il testo '{0}' si trova in queste offerte di lavo
 
 UI_message_no_vacancies_published_today = "oggi non sono state pubblicate nuove offerte di lavoro"
 UI_message_vacancies_published_today = "ecco le nuove offerte di lavoro ({0}) pubblicate oggi sul sito offertelavoro.regione.fvg.it. Clicca sui collegamenti per vedere le schede complete.\n\n"
+UI_message_new_vacancies_published_today = "NUOVE OFFERTE DI LAVORO PUBBLICATE OGGI"
+
 
 UI_OK = 'OK'
 UI_NO = 'No'

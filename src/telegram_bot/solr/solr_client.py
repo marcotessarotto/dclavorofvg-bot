@@ -1,7 +1,7 @@
-import time
 
 from SolrClient import SolrClient
-from django.utils.timezone import now
+# from django.utils.timezone import now
+from django.utils import timezone as django_timezone
 
 from src.telegram_bot.ormlayer import orm_get_obj_from_cache, orm_set_obj_in_cache
 
@@ -45,7 +45,7 @@ def solr_get_professional_categories_today():
     if result:
         return result
 
-    d = now()
+    d = django_timezone.now()
     today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
 
     solr = _get_solr_client()
@@ -96,7 +96,7 @@ def solr_get_professional_profile_today():
     if result:
         return result
 
-    d = now()
+    d = django_timezone.now()
     today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
 
     solr = _get_solr_client()
@@ -139,7 +139,7 @@ def solr_get_vacancy(vacancy_id: str):
 
 def solr_search_vacancies(search_str: str):  # WIP
 
-    d = now()
+    d = django_timezone.now()
     today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
 
     solr = _get_solr_client()
@@ -158,7 +158,7 @@ def solr_search_vacancies(search_str: str):  # WIP
 
 def solr_vacancies_published_today():
 
-    d = now()
+    d = django_timezone.now()
     today_date = f"{d.day:02d}/{d.month:02d}/{d.year:04d}"
 
     solr = _get_solr_client()

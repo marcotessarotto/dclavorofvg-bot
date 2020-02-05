@@ -2,8 +2,9 @@ import re
 
 from src.telegram_bot.solr.solr_client import solr_get_vacancy
 
-from django.utils.timezone import now
-
+# from django.utils.timezone import now
+from django.utils import timezone as django_timezone
+# import django.utils.timezone
 
 def search_vacancies(text: str) -> re.Match:
     """search for valid vacancy code(s) inside string parameter"""
@@ -42,7 +43,7 @@ def get_valid_vacancy_document_from_str(text: str):
     doc = get_vacancy_document_from_str(text)
 
     if doc:
-        d = now()
+        d = django_timezone.now()
         today_iso_date = f"{d.year:04d}{d.month:02d}{d.day:02d}"
         insert_date = str(doc['insertDate'][0])
 

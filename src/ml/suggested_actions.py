@@ -6,7 +6,7 @@ from src.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences,
 from src.telegram_bot.log_utils import main_logger as logger
 from src.telegram_bot.solr.solr_client import solr_get_vacancy
 
-from django.utils.timezone import now
+# from django.utils.timezone import now
 
 
 _suggested_actions_dict = {}

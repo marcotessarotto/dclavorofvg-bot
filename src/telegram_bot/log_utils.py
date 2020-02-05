@@ -1,7 +1,7 @@
 import logging
-from datetime import datetime
 import time
-from pytz import timezone, utc
+import datetime
+from pytz import timezone as pytz_timezone, utc as pytz_utc
 
 # https://www.electricmonk.nl/log/2017/08/06/understanding-pythons-logging-module/
 from functools import wraps
@@ -18,8 +18,8 @@ print(__file__)
 
 
 def custom_time_converter(*args):  # https://stackoverflow.com/a/45805464/974287
-    utc_dt = utc.localize(datetime.utcnow())
-    my_tz = timezone("Europe/Rome")
+    utc_dt = pytz_utc.localize(datetime.datetime.utcnow())
+    my_tz = pytz_timezone("Europe/Rome")
     converted = utc_dt.astimezone(my_tz)
     return converted.timetuple()
 

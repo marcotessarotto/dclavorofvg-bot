@@ -2,7 +2,7 @@ import functools
 import os
 import re
 
-from django.utils import timezone
+from django.utils import timezone as django_timezone
 from more_itertools import take
 
 # note: when execution starts from this file, the next import implies that src.telegram_bot.__init__.py is executed (after the import)
@@ -16,7 +16,9 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, Key
 
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
+
 from src.telegram_bot.ormlayer import *
+
 from src.telegram_bot.solr.solr_client import solr_get_professional_categories, solr_get_professional_categories_today, \
     solr_get_professional_profile, solr_get_professional_profile_today, solr_search_vacancies
 
@@ -30,11 +32,12 @@ from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
 from telegram.ext import messagequeue as mq, Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, \
-    CallbackQueryHandler, run_async
+    CallbackQueryHandler, run_async, CallbackContext
 
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 
+import datetime
 import time
 
 # set in main method
@@ -696,12 +699,12 @@ def me_command_handler(update, context):
 def resend_last_processed_news_command_handler(update, context, telegram_user_id, telegram_user):
     logger.info("resend_last_processed_news")
 
-    now = datetime.now()
+    now = django_timezone.now()
 
     lrn = context.user_data.get('last_resend_news_timestamp')
 
-    # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - timedelta(minutes=1):
-    if lrn is not None and lrn > now - timedelta(minutes=1):
+    # if telegram_user.resend_news_timestamp is not None and telegram_user.resend_news_timestamp > now - datetime.timedelta(minutes=1):
+    if lrn is not None and lrn > now - datetime.timedelta(minutes=1):
         logger.warning("resend_last_processed_news_command_handler: too frequent! skipping")
         context.bot.send_message(
             chat_id=telegram_user.user_id,
@@ -1241,14 +1244,12 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
             disable_notification=True)
 
 
-# def callback_minute(context: telegram.ext.CallbackContext):
-#     all_telegram_users = orm_get_all_telegram_users()
-#
-#     for telegram_user in all_telegram_users:
-#         print("*** " + str(telegram_user.user_id))
-#
-#         context.bot.send_message(chat_id=telegram_user.user_id,
-#                                  text='One message every 10 minutes')
+@benchmark_decorator
+def daily_jobs(context: CallbackContext):
+
+
+
+    pass
 
 
 def check_for_user_block(method):
@@ -1359,7 +1360,7 @@ def error_callback(update, error):
         # print(error)
         logger.error("TelegramError")
 
-    d = now()
+    d = django_timezone.now()
 
     send_message_to_log_group(f"{d}\n{update}\n")
 
@@ -1390,12 +1391,12 @@ def main():
     dp = updater.dispatcher
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
-    # ISSUE: error_callback is not called byt dispatcher
+    # error_callback catches exceptions caused by MQBot methods without check_for_user_block decorator
     dp.add_error_handler(error_callback)
 
     job_queue = updater.job_queue
 
-    now_tz_aware = timezone.now()
+    now_tz_aware = django_timezone.now()
     if now_tz_aware.minute == 0:
         minutes = 0
     elif now_tz_aware.minute <= 30:
@@ -1403,7 +1404,7 @@ def main():
     else:
         minutes = 60 - now_tz_aware.minute
 
-    td = timedelta(minutes=minutes)
+    td = datetime.timedelta(minutes=minutes)
 
     logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
     job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=td)  # callback_minute
@@ -1411,14 +1412,8 @@ def main():
     send_message_to_log_group(f"bot started! {now_tz_aware}\nnext news check in {td} minutes",
                               disable_notification=True)
 
-    daily_jobs_start_time = datetime(year=now_tz_aware.year, month=now_tz_aware.month, day=now_tz_aware.day,
-                          hour=13, minute=25, second=0, microsecond=0, tzinfo=now_tz_aware.tzinfo)
-
-    if now_tz_aware.hour > 13:
-        daily_jobs_start_time = daily_jobs_start_time + timedelta(days=1)
-
-    logger.info(now_tz_aware)
-    logger.info(daily_jobs_start_time)
+    t = datetime.time(hour=13, minute=20, second=0, microsecond=0)
+    job_queue.run_daily(daily_jobs, time=t)
 
     # Handler to start user iteration
     conv_handler = ConversationHandler(

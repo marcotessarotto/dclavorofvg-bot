@@ -1,21 +1,21 @@
 import threading
-from datetime import datetime, timedelta
+from django.utils import timezone as django_timezone
+import datetime
+import time
 
 from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.core.cache import cache
-from django.utils.timezone import now
-
 
 from src.rss.scraping_utils import get_content_from_regionefvg_news
 from src.telegram_bot.cache_utils import _update_user_in_cache, is_cache_enabled, _orm_get_news_item_cache, \
     _orm_get_news_item, orm_set_obj_in_cache, orm_get_obj_from_cache
-from src.telegram_bot.log_utils import orm_logger as logger, benchmark_decorator
-
+from src.telegram_bot.log_utils import orm_logger, benchmark_decorator
 from src.backoffice.models import *
 
 from src.telegram_bot.solr.solr_client import solr_vacancies_published_today
 
 # https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
+
 
 def orm_get_telegram_log_group(telegram_user_id):
     """get instance of telegram group; create it if it does not exist yet"""
@@ -56,11 +56,11 @@ def orm_add_telegram_user(user):
         new_telegram_user.save()
 
         _update_user_in_cache(new_telegram_user)
-        logger.info(f"orm_add_telegram_user: new user {new_telegram_user.user_id}")
+        orm_logger.info(f"orm_add_telegram_user: new user {new_telegram_user.user_id}")
 
         return new_telegram_user
     else:
-        logger.info(f"orm_add_telegram_user: existing user {telegram_user.user_id}")
+        orm_logger.info(f"orm_add_telegram_user: existing user {telegram_user.user_id}")
 
         telegram_user.has_user_blocked_bot = False
 
@@ -73,16 +73,16 @@ def orm_add_telegram_user(user):
 
 def orm_user_blocks_bot(chat_id):
 
-    logger.info(f"orm_user_blocks_bot: user {chat_id}")
+    orm_logger.info(f"orm_user_blocks_bot: user {chat_id}")
 
     telegram_user = orm_get_telegram_user(chat_id)
 
     if not telegram_user:
-        logger.info(f"orm_user_blocks_bot: telegram_user not found!")
+        orm_logger.info(f"orm_user_blocks_bot: telegram_user not found!")
         return
 
     telegram_user.has_user_blocked_bot = True
-    telegram_user.when_user_blocked_bot_timestamp = now()
+    telegram_user.when_user_blocked_bot_timestamp = django_timezone.now()
     orm_update_telegram_user(telegram_user)
 
 
@@ -144,7 +144,7 @@ def orm_add_feedback(feed, news_id, telegram_user_id):
     feedback.val = val
     feedback.save()
 
-    logger.debug(f"orm_add_feedback news_id={news_id} telegram_user_id={telegram_user_id} {feed}")
+    orm_logger.debug(f"orm_add_feedback news_id={news_id} telegram_user_id={telegram_user_id} {feed}")
 
 
 def orm_add_comment(text, news_id, telegram_user_id):
@@ -153,7 +153,7 @@ def orm_add_comment(text, news_id, telegram_user_id):
     queryset_user = TelegramUser.objects.filter(user_id=int(telegram_user_id))
     user = queryset_user[0]
 
-    logger.info(f"orm_add_comment id={news_id} user_id={user.id}")
+    orm_logger.info(f"orm_add_comment id={news_id} user_id={user.id}")
 
     # https://stackoverflow.com/a/12682379/974287
     Comment.objects.create(user_id=user.id, news_id=news_id, text=text)
@@ -234,7 +234,7 @@ def orm_store_free_text(message_text, telegram_user):
 
 
 def orm_update_telegram_user(telegram_user: TelegramUser):
-    logger.debug(f"orm_update_telegram_user {telegram_user.user_id}")
+    orm_logger.debug(f"orm_update_telegram_user {telegram_user.user_id}")
     if telegram_user is not None:
         telegram_user.save()
         _update_user_in_cache(telegram_user)
@@ -248,13 +248,13 @@ def orm_parse_user_age(telegram_user: TelegramUser, message_text: str):
         if age < 0:
             age = -1
     except ValueError:
-        logger.error(f"wrong format for age! {message_text}")
+        orm_logger.error(f"wrong format for age! {message_text}")
         age = -1
 
     telegram_user.age = age
     telegram_user.save()
     _update_user_in_cache(telegram_user)
-    logger.info(f"parse_user_age: age set for user {telegram_user.user_id} to {age}")
+    orm_logger.info(f"parse_user_age: age set for user {telegram_user.user_id} to {age}")
 
     return age
 
@@ -266,7 +266,7 @@ def orm_change_user_privacy_setting(telegram_user_id, privacy_setting):
     telegram_user.privacy_acceptance_mechanism = 'U'
 
     if privacy_setting:
-        telegram_user.privacy_acceptance_timestamp = now()
+        telegram_user.privacy_acceptance_timestamp = django_timezone.now()
     else:
         telegram_user.privacy_acceptance_timestamp = None
 
@@ -300,7 +300,7 @@ def orm_update_user_category_settings(telegram_user, category_key):
 
     str_user_id = str(telegram_user.user_id)
 
-    logger.info(f"orm_update_user_category_settings category_key={category_key} user_id={str_user_id}")
+    orm_logger.info(f"orm_update_user_category_settings category_key={category_key} user_id={str_user_id}")
 
     queryset_cat = telegram_user.categories.filter(key=category_key)
 
@@ -309,7 +309,7 @@ def orm_update_user_category_settings(telegram_user, category_key):
         telegram_user.categories.remove(cat)
         telegram_user.save()
 
-        logger.info(f'orm_update_user_category_settings: remove category={cat.key} user_id={str_user_id}')
+        orm_logger.info(f'orm_update_user_category_settings: remove category={cat.key} user_id={str_user_id}')
 
     else:  # category is not present in user settings, we have to add it
         cat = Category.objects.filter(key=category_key)[0]
@@ -317,7 +317,7 @@ def orm_update_user_category_settings(telegram_user, category_key):
         telegram_user.categories.add(cat)
         telegram_user.save()
 
-        logger.info(f'orm_update_user_category_settings: add category={cat.key} user_id={str_user_id}')
+        orm_logger.info(f'orm_update_user_category_settings: add category={cat.key} user_id={str_user_id}')
 
 
 def orm_get_all_telegram_users():
@@ -389,9 +389,9 @@ def orm_set_telegram_user_categories(telegram_user_id: int, categories: object) 
 
 @benchmark_decorator
 def orm_get_last_processed_news(last_days=10):
-    now = datetime.now()
+    now = django_timezone.now()
 
-    d = now - timedelta(days=last_days)
+    d = now - datetime.timedelta(days=last_days)
 
     news_query = NewsItem.objects.filter(processed=True).filter(processed_timestamp__gte=d).order_by('-processed_timestamp')
 
@@ -441,8 +441,8 @@ _news_search_vector = SearchVector('title', 'text', config=POSTGRES_FTS_LANGUAGE
 def orm_news_fts(search: str, processed=True, last_days=10):
     """full text search on title and text fields of news items"""
 
-    today = datetime.now()
-    d = today - timedelta(days=last_days)
+    today = django_timezone.now()
+    d = today - datetime.timedelta(days=last_days)
 
     # https://www.paulox.net/2017/12/22/full-text-search-in-django-with-postgresql/#search-configuration
     news_query = NewsItem.objects.annotate(
@@ -465,7 +465,7 @@ def orm_get_fresh_news_to_send():
     if len(news_query) == 0:
         return result
 
-    now = datetime.now()
+    now = django_timezone.now()
 
     for news in news_query:
 
@@ -524,7 +524,7 @@ def orm_create_rss_feed_item(rss_id, rss_title, rss_link, updated_parsed):
     queryset = RssFeedItem.objects.filter(rss_id=rss_id)
 
     if len(queryset) > 0:
-        logger.info(f"orm_create_news_from_rss_feed_item: item already processed, rss_id={rss_id}")
+        orm_logger.info(f"orm_create_news_from_rss_feed_item: item already processed, rss_id={rss_id}")
         return None
 
     rss_feed_item = RssFeedItem()
@@ -573,9 +573,9 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
 
 
 def orm_build_news_stats(last_days=10):
-    today = datetime.now()
+    today = django_timezone.now()
 
-    d = today - timedelta(days=last_days)
+    d = today - datetime.timedelta(days=last_days)
 
     categories = orm_get_categories()
 
@@ -653,7 +653,7 @@ class CurrentUserContext(object):
     def __init__(self):
         self.current_ai_context = None  # AiContext
         self.item = None  # NewsItem or other types
-        self.timestamp = datetime.now()
+        self.timestamp = django_timezone.now()
 
     def __str__(self):
         try:
@@ -704,7 +704,7 @@ def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:
     obj = orm_get_obj_from_cache(f"_current_context_users_{telegram_user_id}")
 
     if obj:
-        d = datetime.now() - timedelta(minutes=15)  # user context lasts 15 minutes
+        d = django_timezone.now() - datetime.timedelta(minutes=15)  # user context lasts 15 minutes
 
         if obj.timestamp < d:
             return None
@@ -715,7 +715,7 @@ def orm_get_current_user_context(telegram_user_id: int) -> CurrentUserContext:
 
 
 @benchmark_decorator
-def orm_get_vacancies_published_today(refresh=False) -> str:
+def orm_get_vacancies_published_today(refresh=False, create_news_item=False) -> str:
 
     if not refresh:
         text = orm_get_obj_from_cache("vacancies_published_today")
@@ -727,8 +727,12 @@ def orm_get_vacancies_published_today(refresh=False) -> str:
 
     if len(vacancies) == 0:
         text = UI_message_no_vacancies_published_today
+
+        if create_news_item:
+            orm_logger.info("orm_get_vacancies_published_today(): now new vacancies published today")
+            return
     else:
-        text = UI_message_vacancies_published_today.format(str(len(vacancies) ))
+        text = UI_message_vacancies_published_today.format(str(len(vacancies)))
 
     counter = 1
 
@@ -742,4 +746,15 @@ def orm_get_vacancies_published_today(refresh=False) -> str:
 
     orm_set_obj_in_cache("vacancies_published_today", text, timeout=60*30)  # store object in cache for 30 minutes
 
+    if create_news_item:
+        news_item = NewsItem()
+        news_item.title_link = ''
+        news_item.title = UI_message_new_vacancies_published_today
+        news_item.text = text
+        news_item.save()
+
     return text
+
+
+
+

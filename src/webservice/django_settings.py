@@ -26,3 +26,6 @@ DATABASES = {
 INSTALLED_APPS = [
     'src.backoffice.apps.BackofficeConfig'
 ]
+
+TIME_ZONE = 'CET'
+USE_TZ = True
