@@ -930,22 +930,24 @@ def debug4_command_handler(update, context, telegram_user_id, telegram_user):
     if not telegram_user.is_admin:
         return
 
-    from time import sleep
+    orm_get_vacancies_published_today(refresh=True, create_news_item=True)
 
-    logger.info("sleep 0 ms")
-    for i in range(100):
-        orm_get_telegram_user(telegram_user_id)
-        # sleep(0.10)
-
-    logger.info("sleep 50 ms")
-    for i in range(100):
-        orm_get_telegram_user(telegram_user_id)
-        sleep(0.05)
-
-    logger.info("sleep 100 ms")
-    for i in range(100):
-        orm_get_telegram_user(telegram_user_id)
-        sleep(0.10)
+    # from time import sleep
+    #
+    # logger.info("sleep 0 ms")
+    # for i in range(100):
+    #     orm_get_telegram_user(telegram_user_id)
+    #     # sleep(0.10)
+    #
+    # logger.info("sleep 50 ms")
+    # for i in range(100):
+    #     orm_get_telegram_user(telegram_user_id)
+    #     sleep(0.05)
+    #
+    # logger.info("sleep 100 ms")
+    # for i in range(100):
+    #     orm_get_telegram_user(telegram_user_id)
+    #     sleep(0.10)
 
 
 @log_user_input
@@ -1113,7 +1115,7 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
 
         context.bot.send_message(
             chat_id=chat_id,
-            text="messaggio dall'operatore: " + message_text,
+            text=UI_message_from_operator + message_text,
             parse_mode='HTML'
         )
 
@@ -1247,9 +1249,11 @@ def generic_message_handler(update, context, telegram_user_id, telegram_user):
 @benchmark_decorator
 def daily_jobs(context: CallbackContext):
 
+    logger.info("daily_jobs(): starting...")
 
+    orm_get_vacancies_published_today(refresh=True, create_news_item=True)
 
-    pass
+    return
 
 
 def check_for_user_block(method):

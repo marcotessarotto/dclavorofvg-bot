@@ -747,11 +747,25 @@ def orm_get_vacancies_published_today(refresh=False, create_news_item=False) -> 
     orm_set_obj_in_cache("vacancies_published_today", text, timeout=60*30)  # store object in cache for 30 minutes
 
     if create_news_item:
+
+        categories = orm_get_categories()
+
+        cat_to_use = None
+
+        for cat in categories:
+            print(cat)
+            if UI_CATEGORY_FOR_VACANCIES in cat.name:
+                cat_to_use = cat
+                break
+
         news_item = NewsItem()
-        news_item.title_link = ''
         news_item.title = UI_message_new_vacancies_published_today
         news_item.text = text
+        news_item.disable_web_page_preview = True
+
         news_item.save()
+
+        news_item.categories.add(cat_to_use)
 
     return text
 

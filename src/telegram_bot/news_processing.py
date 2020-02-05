@@ -323,7 +323,8 @@ def send_news_to_telegram_user(
                 chat_id=telegram_user.user_id,
                 text=html_news_content,
                 reply_markup=reply_markup,
-                parse_mode='HTML'
+                parse_mode='HTML',
+                disable_web_page_preview=news_item.disable_web_page_preview
             )
 
         return
@@ -398,7 +399,8 @@ def send_news_to_telegram_user(
                     chat_id=telegram_user_id,
                     text=html_news_content,
                     reply_markup=reply_markup,
-                    parse_mode='HTML'
+                    parse_mode='HTML',
+                    disable_web_page_preview=news_item.disable_web_page_preview
                 )
             else:
 
@@ -411,7 +413,8 @@ def send_news_to_telegram_user(
                 chat_id=telegram_user_id,
                 text=html_news_content,
                 reply_markup=reply_markup,
-                parse_mode='HTML'
+                parse_mode='HTML',
+                disable_web_page_preview=news_item.disable_web_page_preview
             )
 
             # file1 is defined but it is not an image, send it as a document
@@ -422,7 +425,8 @@ def send_news_to_telegram_user(
             chat_id=telegram_user.user_id,
             text=html_news_content,
             reply_markup=reply_markup,
-            parse_mode='HTML'
+            parse_mode='HTML',
+            disable_web_page_preview=news_item.disable_web_page_preview
         )
 
     if news_item.file2 is not None:

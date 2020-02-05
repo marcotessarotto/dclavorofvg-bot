@@ -142,6 +142,8 @@ UI_SHOW_PROFESSIONAL_PROFILES_COMMAND = "profili_professionali"
 
 UI_VACANCIES_PUBLISHED_TODAY = "nuove_offerte_lavoro"
 
+UI_CATEGORY_FOR_VACANCIES = "Offerte di lavoro"
+
 UI_message_category = "categoria "
 
 UI_message_disabled_account = "Il tuo account è stato disabilitato dagli amministratori del bot."
@@ -265,6 +267,8 @@ UI_message_user_declared_educational_level = 'titolo di studio comunicato: {0}, 
 UI_message_user_no_declared_age = 'età non comunicata, puoi usare il comando /eta per impostarla\n'
 
 UI_message_user_declared_no_educational_level = 'titolo di studio non comunicato, puoi usare il comando /titolo_di_studio per impostarlo\n'
+
+UI_message_from_operator = "messaggio dall'operatore: "
 
 UI_news = "notizia"
 UI_news_plural = "notizie"

@@ -426,6 +426,8 @@ class NewsItem(models.Model):
 
     search_vector = SearchVectorField(null=True, editable=False)
 
+    disable_web_page_preview = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='data inserimento')
     updated_at = models.DateTimeField(auto_now=True)
 
