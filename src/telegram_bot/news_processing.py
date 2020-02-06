@@ -203,6 +203,9 @@ def send_news_to_telegram_user(
     if telegram_user.has_user_blocked_bot:
         return
 
+    if telegram_user.user_id < 0:  # do not send news item to a group
+        return
+
     logger.info(
         f"send_news_to_telegram_user - news_item={news_item.id}, telegram_user={telegram_user.user_id}")
 
