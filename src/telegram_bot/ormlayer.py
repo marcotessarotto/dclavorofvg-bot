@@ -758,8 +758,10 @@ def orm_get_vacancies_published_today(refresh=False, create_news_item=False) -> 
                 cat_to_use = cat
                 break
 
+        d = django_timezone.now().strftime(DATE_FORMAT_STR)
+
         news_item = NewsItem()
-        news_item.title = UI_message_new_vacancies_published_today
+        news_item.title = UI_message_new_vacancies_published_today.format(d)
         news_item.text = text
         news_item.disable_web_page_preview = True
 
