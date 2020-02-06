@@ -53,11 +53,14 @@ bot_default_help_msg = """Ti aiuto a ricevere notizie ed offerte di lavoro perso
 
 COMANDI del bot:
 
-<b>/scegli , /categorie</b> per scegliere le categorie di notizie che vuoi ricevere
 
-<b>/privacy</b> lo hai usato per accettare il regolamento privacy
+<b>/scegli</b> per scegliere le categorie di notizie che vuoi ricevere
 
-<b>/rimanda_ultime_notizie</b> rimanda le notizie degli ultimi 10 giorni
+<b>/privacy</b> lo hai usato per accettare il regolamento privacy 
+<b>/eta</b> per cambiare l'età comunicata
+<b>/titolo_di_studio</b> per cambiare il titolo di studio comunicato
+
+<b>/rimanda_ultime_notizie</b> rimanda le ultime 10 notizie
 
 <b>/cerca</b> nelle notizie degli ultimi 10 giorni
 
@@ -67,7 +70,7 @@ COMANDI del bot:
 
 <b>/audio_on</b> per abilitare la lettura dei titoli delle notizie. <b>/audio_off</b> per disabilitare la lettura.
 
-<b>/categorie_professionali</b> mostra le frequenze delle parole chiave delle categorie professionali nelle offerte di lavoro pubblicate su https://offertelavoro.regione.fvg.it
+<b>/categorie_professionali</b> mostra le frequenze delle parole chiave delle categorie professionali nelle offerte di lavoro pubblicate sul portale https://offertelavoro.regione.fvg.it
 
 Per mostrare nuovamente questo messaggio digita /help o /aiuto
 """
@@ -343,7 +346,7 @@ DATE_FORMAT_STR = '%d-%m-%Y'
 '''
 aiuto - ti mostro i comandi disponibili
 scegli  - scegli le categorie di notizie che vuoi ricevere
-rimanda_ultime_notizie - ti rimando le notizie degli ultimi 10 giorni
+rimanda_ultime_notizie - ti rimando le ultime 10 notizie
 cerca - cerca un testo nelle notizie degli ultimi 10 giorni
 nuove_offerte_lavoro - le nuove offerte di lavoro pubblicate oggi 
 statistiche_notizie - quante notizie inviate negli ultimi 10 giorni, per categoria

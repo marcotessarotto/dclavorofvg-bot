@@ -203,6 +203,14 @@ def show_latest_vacancies(update, context, message_text, current_context: Curren
     )
 
 
+def choose_news_categories(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+    update.message.reply_text(
+        f"puoi decidere le categorie delle notizie che vuoi ricevere con il comando /scegli",
+        disable_web_page_preview=True,
+        parse_mode='HTML'
+    )
+
+
 def vacancy_issues(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
     # 1 - identify vacancy code: i.e. C957-28472
     # regexp_ \w\d\d\d-\d{5,6}
@@ -285,6 +293,7 @@ _suggested_actions_dict["VACANCY_ISSUE"] = vacancy_issues
 _suggested_actions_dict["HOW_TO_SUBMIT_TO_VACANCY"] = vacancy_issues
 _suggested_actions_dict["SEARCH_ENGINE"] = search_engine
 _suggested_actions_dict["SHOW_LATEST_VACANCIES"] = show_latest_vacancies
+_suggested_actions_dict["BOT_CHOOSE_NEWS_CATEGORIES"] = choose_news_categories
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
