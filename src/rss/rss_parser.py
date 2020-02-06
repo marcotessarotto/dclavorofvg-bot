@@ -49,7 +49,7 @@ def get_feed_entries_from_url(url):
         updated_parsed = item["updated_parsed"]
         # print(updated_parsed)
 
-        updated_parsed_dt = datetime.fromtimestamp(mktime(updated_parsed))
+        updated_parsed_dt = datetime.datetime.fromtimestamp(mktime(updated_parsed))
 
         if updated_parsed_dt < ten_days_ago:
             logger.info(f"rss item too old: {updated_parsed_dt} - {rss_id}")
