@@ -10,10 +10,6 @@ import django
 
 from src.telegram_bot.log_utils import rss_logger as logger
 
-
-# try:
-#     from ..backoffice.definitions import RSS_FEED
-# except:
 from src.backoffice.definitions import RSS_FEED
 
 
