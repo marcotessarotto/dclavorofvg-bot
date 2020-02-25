@@ -5,6 +5,7 @@ from src.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences,
 
 from src.telegram_bot.log_utils import main_logger as logger
 from src.telegram_bot.solr.solr_client import solr_get_vacancy
+from src.backoffice.definitions import *
 
 # from django.utils.timezone import now
 
@@ -194,10 +195,19 @@ def search_engine(update, context, message_text, current_context: CurrentUserCon
     )
 
 
+def search_for_vacancy(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
+    update.message.reply_text(
+        f'se cerchi le offerte di lavoro pubblicate oggi, usa il comando /{UI_VACANCIES_PUBLISHED_TODAY}',
+        disable_web_page_preview=True,
+        parse_mode='HTML'
+    )
+
+
 def show_latest_vacancies(update, context, message_text, current_context: CurrentUserContext, row, confidence_perc, *args, **kwargs):
 
     update.message.reply_text(
-        f"per consultare le offerte di lavoro pubblicate dai Centri per l'Impiego visita https://offertelavoro.regione.fvg.it ",
+        f"per consultare le offerte di lavoro pubblicate dai Centri per l'Impiego visita https://offertelavoro.regione.fvg.it "
+        f" oppure per vedere le offerte di lavoro pubblicate oggi, usa il comando /{UI_VACANCIES_PUBLISHED_TODAY}",
         disable_web_page_preview=True,
         parse_mode='HTML'
     )
@@ -294,6 +304,8 @@ _suggested_actions_dict["HOW_TO_SUBMIT_TO_VACANCY"] = vacancy_issues
 _suggested_actions_dict["SEARCH_ENGINE"] = search_engine
 _suggested_actions_dict["SHOW_LATEST_VACANCIES"] = show_latest_vacancies
 _suggested_actions_dict["BOT_CHOOSE_NEWS_CATEGORIES"] = choose_news_categories
+_suggested_actions_dict["SEARCH_FOR_VACANCY"] = search_for_vacancy
+
 
 # http://www.regione.fvg.it/rafvg/cms/RAFVG/formazione-lavoro/lavoro/FOGLIA61/
 
