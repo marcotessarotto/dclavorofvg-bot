@@ -765,6 +765,9 @@ def orm_get_vacancies_published_today(refresh=False, create_news_item=False) -> 
         news_item.text = text
         news_item.disable_web_page_preview = True
 
+        from django.utils import timezone
+        news_item.start_publication = timezone.now()
+
         news_item.save()
 
         news_item.categories.add(cat_to_use)
