@@ -352,6 +352,14 @@ def orm_lookup_category_by_custom_command(custom_telegram_command):
         return queryset[0]
 
 
+def orm_lookup_category_by_name(category_name):
+    queryset = Category.objects.filter(name=category_name)
+    if len(queryset) == 0:
+        return None
+    else:
+        return queryset[0]
+
+
 def orm_get_category_group(group_name: str) -> CategoriesGroup:
     """
 
@@ -545,6 +553,16 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
     if len(queryset) == 0:
         return None
 
+    def very_simple_classifier(text: str):
+
+        text = text.lower()
+
+        if TARGETED_PLACEMENT.lower() in text:
+            retcat = orm_lookup_category_by_name(TARGETED_PLACEMENT)
+            return retcat
+
+        return None
+
     for rss_feed_item in queryset:
 
         # if rss_feed_item.category is None:
@@ -557,6 +575,12 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
         news_item.title = rss_feed_item.rss_title
         news_item.text = str(html_content)[:2048]  # 2048 is size of html_content field in model RssFeedItem
         news_item.save()
+
+        cat = very_simple_classifier(news_item.text)
+
+        if cat:
+            news_item.categories.add(cat)
+            news_item.save()
 
         # news_item.categories.add(rss_feed_item.category)  # news_item needs to have a value for field "id" before this many-to-many relationship can be used.
         # news_item.save()
