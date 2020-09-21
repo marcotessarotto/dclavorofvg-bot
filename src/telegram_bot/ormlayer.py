@@ -777,7 +777,7 @@ def orm_get_vacancies_published_today(refresh=False, create_news_item=False) -> 
         cat_to_use = None
 
         for cat in categories:
-            print(cat)
+            # print(cat)
             if UI_CATEGORY_FOR_VACANCIES in cat.name:
                 cat_to_use = cat
                 break
