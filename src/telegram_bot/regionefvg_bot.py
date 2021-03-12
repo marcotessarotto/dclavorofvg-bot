@@ -492,7 +492,7 @@ def show_news_command_handler(update, context, telegram_user_id, telegram_user):
     """show a specific news item (identified by id)"""
 
     str_id = update.message.text.replace('/' + UI_SHOW_NEWS, '')
-    if str_id is '':
+    if str_id == '':
         return
 
     news_id = int(str_id)
@@ -513,7 +513,7 @@ def read_news_item_command_handler(update, context, telegram_user_id, telegram_u
     """read a specific news item (identified by id)"""
 
     str_id = update.message.text.replace('/' + UI_READ_NEWS, '')
-    if str_id is '':
+    if str_id == '':
         return
 
     news_id = int(str_id)
