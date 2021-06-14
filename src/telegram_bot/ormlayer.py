@@ -553,20 +553,51 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
     if len(queryset) == 0:
         return None
 
+    def check_if_words_are_present(search_str, list_of_words):
+        search_str = search_str.split()
+        for s in search_str:
+            if s not in list_of_words:
+                return False
+
+        return True
+
     def very_simple_classifier(text: str):
 
         text = text.lower()
 
-        if TARGETED_PLACEMENT.lower() in text:
+        # words = text.split()
+        words = text
+
+        if check_if_words_are_present(TARGETED_PLACEMENT.lower(), words):
             retcat = orm_lookup_category_by_name(TARGETED_PLACEMENT)
             return retcat
 
-        if '68/99' in text or 'L.68/99' in text:
+        if check_if_words_are_present('68/99', words):
             retcat = orm_lookup_category_by_name(TARGETED_PLACEMENT)
             return retcat
 
-        if 'avviamento a selezione presso amministrazione pubblica' in text.lower():
-            retcat = orm_lookup_category_by_name('Offerte di lavoro')
+        if check_if_words_are_present('eures', words):
+            retcat = orm_lookup_category_by_name(JOB_OFFERS_ABROAD)
+            return retcat
+
+        if check_if_words_are_present('mobilità professionale europa', words):
+            retcat = orm_lookup_category_by_name(JOB_OFFERS_ABROAD)
+            return retcat
+
+        if check_if_words_are_present('corso di formazione'.lower(), words):
+            retcat = orm_lookup_category_by_name(TRAINING_COURSE)
+            return retcat
+
+        if check_if_words_are_present('inserimento lavorativo'.lower(), words):
+            retcat = orm_lookup_category_by_name(TRAINING_COURSE)
+            return retcat
+
+        if check_if_words_are_present('progetto pipol'.lower(), words):
+            retcat = orm_lookup_category_by_name(TRAINING_COURSE)
+            return retcat
+
+        if check_if_words_are_present('avviamento a selezione presso amministrazione pubblica'.lower(), words):
+            retcat = orm_lookup_category_by_name(NOTICES)
             return retcat
 
         return None
@@ -584,7 +615,11 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
         news_item.text = str(html_content)[:2048]  # 2048 is size of html_content field in model RssFeedItem
         news_item.save()
 
-        cat = very_simple_classifier(news_item.text)
+        cat = very_simple_classifier(news_item.title)
+        if cat is None:
+            cat = very_simple_classifier(news_item.text)
+            if cat is None:
+                cat = orm_lookup_category_by_name(GENERAL_CATEGORY)
 
         if cat:
             news_item.categories.add(cat)

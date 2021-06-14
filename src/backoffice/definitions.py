@@ -98,6 +98,12 @@ CURRENT_CONTEXT = 'CURRENT_CONTEXT'
 SHOW_SUPPORTED_AI_QUESTIONS = "SHOW_SUPPORTED_AI_QUESTIONS"
 
 TARGETED_PLACEMENT = 'Collocamento mirato'
+JOB_VACANCIES = 'Offerte di lavoro'
+TRAINING_COURSE = 'Studio/formazione e corsi'
+JOB_OFFERS_ABROAD = "Mobilità all'estero"
+NOTICES = "Concorsi, bandi e avvisi"
+GENERAL_CATEGORY = "Lavoro"
+
 
 # param_show_match_category_news = "news_mostra_match_categoria"
 
