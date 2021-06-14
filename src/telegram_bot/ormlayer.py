@@ -561,7 +561,7 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
             retcat = orm_lookup_category_by_name(TARGETED_PLACEMENT)
             return retcat
 
-        if '68/99' in text:
+        if '68/99' in text or 'L.68/99' in text:
             retcat = orm_lookup_category_by_name(TARGETED_PLACEMENT)
             return retcat
 
