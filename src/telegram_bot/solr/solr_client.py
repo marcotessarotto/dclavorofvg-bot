@@ -165,6 +165,7 @@ def solr_vacancies_published_today():
 
     res = solr.query('bot_core', {
         'q': f'dataInizioValidita:"{today_date}"',
+        'rows':'1000',
     })
 
     documents = res.data['response']['docs']
