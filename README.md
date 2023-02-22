@@ -6,9 +6,8 @@ this project is being developed on Linux Debian 10
 
 *project requirements:*
 
-- python 3.7, postgresql
-- Django 2.2
-- psycopg-binary
+- python 3.1, mysqlclient
+- Django 4.1.2
 - python-telegram-bot 12
 
  
@@ -21,7 +20,7 @@ There are two main applications:
 
 Before running the applications:
 
-- create a database and a user in local postgresql instance
+- create a database and a user in local mariadb instance
 - create file src/gfvgbo/secrets.py containing:
 
 DB_NAME="database name"
