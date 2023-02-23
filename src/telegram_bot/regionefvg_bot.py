@@ -4,6 +4,7 @@ import re
 
 from django.utils import timezone as django_timezone
 from more_itertools import take
+from telegram.constants import ChatAction
 
 # note: when execution starts from this file, the next import implies that src.telegram_bot.__init__.py is executed (after the import)
 
@@ -31,11 +32,11 @@ from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disa
 from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
-from telegram.ext import  ConversationHandler, CommandHandler, MessageHandler, \
-    CallbackQueryHandler, CallbackContext, AIORateLimiter, ApplicationBuilder
+from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, \
+    CallbackQueryHandler, CallbackContext, AIORateLimiter, ApplicationBuilder, filters
 
 from telegram.error import (TelegramError, BadRequest,
-                            TimedOut, ChatMigrated, NetworkError)
+                            TimedOut, ChatMigrated, NetworkError, Forbidden)
 
 import datetime
 import time
@@ -68,7 +69,6 @@ def send_message_to_log_group(text, disable_notification=False):
         return
 
     try:
-
         global_bot_instance.send_message(
             chat_id=BOT_LOGS_CHAT_ID,
             text=text,
@@ -491,7 +491,7 @@ def callback_handler(update, context):
 def show_news_command_handler(update, context, telegram_user_id, telegram_user):
     """show a specific news item (identified by id)"""
 
-    str_id = update.message.text.replace('/' + UI_SHOW_NEWS, '')
+    str_id = update.message.text.replace(f'/{UI_SHOW_NEWS}', '')
     if str_id == '':
         return
 
@@ -512,7 +512,7 @@ def show_news_command_handler(update, context, telegram_user_id, telegram_user):
 def read_news_item_command_handler(update, context, telegram_user_id, telegram_user):
     """read a specific news item (identified by id)"""
 
-    str_id = update.message.text.replace('/' + UI_READ_NEWS, '')
+    str_id = update.message.text.replace(f'/{UI_READ_NEWS}', '')
     if str_id == '':
         return
 
@@ -550,19 +550,18 @@ def inline_keyboard(user):
 
     for cat in all_categories:
 
-        if cat.emoji is not None:
-            label = cat.name + ' ' + cat.emoji
-        else:
-            label = cat.name
-
+        label = f'{cat.name} {cat.emoji}' if cat.emoji is not None else cat.name
         if cat in user_categories_set:
             label = u'\U00002705' + ' ' + label.upper()
         else:
             label = u'\U0000274C' + ' ' + label
 
-        keyboard.append([InlineKeyboardButton(
-            text=label,
-            callback_data='choice ' + cat.key)]
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    text=label, callback_data=f'choice {cat.key}'
+                )
+            ]
         )
 
     # add close button
@@ -958,7 +957,7 @@ def debug_msgs_command_handler(update, context, telegram_user_id, telegram_user)
 
     cmd = update.message.text[1:]
 
-    telegram_user.debug_msgs = True if cmd == UI_DEBUG_MSGS_ON else False
+    telegram_user.debug_msgs = cmd == UI_DEBUG_MSGS_ON
 
     orm_update_telegram_user(telegram_user)
 
@@ -1103,7 +1102,7 @@ def comment_handler(update, context, telegram_user_id, telegram_user):
     logger.info(f"comment_handler: reply_to_message.text message={replay_to_message_text[:40]}....")
     logger.info(f"comment_handler: message.text message={update.message.text}")
 
-    # if we a receive a reply from BOT_LOGS_CHAT_ID, this is considered a message from one administrator to a user
+    # if we receive a reply from BOT_LOGS_CHAT_ID, this is considered a message from one administrator to a user
     if telegram_user_id == BOT_LOGS_CHAT_ID:
         logger.info("message from admin on logs group - ok")
 
@@ -1188,8 +1187,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 
     current_user_context = orm_get_current_user_context(telegram_user.user_id)
 
-    vacancy_code = get_valid_vacancy_code_from_str(message_text)
-    if vacancy_code:
+    if vacancy_code := get_valid_vacancy_code_from_str(message_text):
         logger.info(
             f"respond_to_user: user has specified a valid vacancy code: {vacancy_code}. modify current_user_context")
         current_user_context = orm_set_current_user_context(telegram_user.user_id, orm_find_ai_context('VACANCY'),
@@ -1222,6 +1220,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 @standard_user_checks
 @run_async
 def generic_message_handler(update, context, telegram_user_id, telegram_user):
+    message_text = None
     try:
         message_text = update.message.text
     except AttributeError:
@@ -1261,7 +1260,7 @@ def check_for_user_block(method):
     def wrapped(self, *args, **kwargs):
         try:
             return method(self, *args, **kwargs)
-        except Unauthorized as error:
+        except Forbidden as error:
             chat_id = kwargs.get('chat_id', None)
             # remove chat_id from conversation list
             if chat_id:
@@ -1339,7 +1338,7 @@ def error_callback(update, error):
 
     try:
         raise error
-    except Unauthorized:
+    except Forbidden:
         # remove update.message.chat_id from conversation list
         # logger.error(error)
         logger.error("Unauthorized")
@@ -1434,13 +1433,13 @@ def main():
             CommandHandler(UI_START_COMMAND_ALT, start_command_handler)
         ],
         states={
-            CALLBACK_PRIVACY: [MessageHandler(Filters.text, callback_privacy)],
-            CALLBACK_AGE: [MessageHandler(Filters.text, callback_age)],
-            CALLBACK_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_education_level)],
-            CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_custom_education_level)]
+            CALLBACK_PRIVACY: [MessageHandler(filters.TEXT, callback_privacy)],
+            CALLBACK_AGE: [MessageHandler(filters.TEXT, callback_age)],
+            CALLBACK_EDUCATIONAL_LEVEL: [MessageHandler(filters.TEXT, callback_education_level)],
+            CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(filters.TEXT, callback_custom_education_level)]
         },
         fallbacks=[
-            MessageHandler(Filters.all, fallback_conversation_handler)
+            MessageHandler(filters.ALL, fallback_conversation_handler)
         ]
     )
     application.add_handler(conv_handler)
@@ -1450,10 +1449,10 @@ def main():
             CommandHandler(UI_SEARCH_COMMAND, search_command_handler),
         ],
         states={
-            CALLBACK_SEARCH_PARAMS: [MessageHandler(Filters.text, callback_search_params)],
+            CALLBACK_SEARCH_PARAMS: [MessageHandler(filters.TEXT, callback_search_params)],
         },
         fallbacks=[
-            MessageHandler(Filters.all, fallback_conversation_handler)
+            MessageHandler(filters.ALL, fallback_conversation_handler)
         ]
     )
     application.add_handler(search_conversation_handler)
@@ -1463,10 +1462,10 @@ def main():
             CommandHandler(UI_SEARCH_VACANCIES_COMMAND, search_vacancies_command_handler),
         ],
         states={
-            CALLBACK_SEARCH_PARAMS: [MessageHandler(Filters.text, callback_search_vacancies_params)],
+            CALLBACK_SEARCH_PARAMS: [MessageHandler(filters.TEXT, callback_search_vacancies_params)],
         },
         fallbacks=[
-            MessageHandler(Filters.all, fallback_conversation_handler)
+            MessageHandler(filters.ALL, fallback_conversation_handler)
         ]
     )
     application.add_handler(search_vacancies_conversation_handler)
@@ -1476,10 +1475,10 @@ def main():
             CommandHandler(UI_SET_AGE_COMMAND, set_age_command_handler)
             ],
         states={
-            CALLBACK_SET_AGE: [MessageHandler(Filters.text, callback_age_simple)]
+            CALLBACK_SET_AGE: [MessageHandler(filters.TEXT, callback_age_simple)]
         },
         fallbacks=[
-            MessageHandler(Filters.all, fallback_conversation_handler)
+            MessageHandler(filters.ALL, fallback_conversation_handler)
         ]
     )
     application.add_handler(set_age_conversation_handler)
@@ -1489,11 +1488,11 @@ def main():
             CommandHandler(UI_SET_EDUCATION_LEVEL_COMMAND, ask_educational_level)
             ],
         states={
-            CALLBACK_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_education_level_simple)],
-            CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(Filters.text, callback_custom_education_level)]
+            CALLBACK_EDUCATIONAL_LEVEL: [MessageHandler(filters.TEXT, callback_education_level_simple)],
+            CALLBACK_CUSTOM_EDUCATIONAL_LEVEL: [MessageHandler(filters.TEXT, callback_custom_education_level)]
         },
         fallbacks=[
-            MessageHandler(Filters.all, fallback_conversation_handler)
+            MessageHandler(filters.ALL, fallback_conversation_handler)
         ]
     )
     application.add_handler(set_education_level_conversation_handler)
@@ -1520,13 +1519,13 @@ def main():
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
     application.add_handler(
         MessageHandler(
-            Filters.regex(f'^(/{UI_SHOW_NEWS}' + '[\\d]+)$'),
+            filters.Regex(f'^(/{UI_SHOW_NEWS}' + '[\\d]+)$'),
             show_news_command_handler,
         )
     )
     application.add_handler(
         MessageHandler(
-            Filters.regex(f'^(/{UI_READ_NEWS}' + '[\\d]+)$'),
+            filters.Regex(f'^(/{UI_READ_NEWS}' + '[\\d]+)$'),
             read_news_item_command_handler,
         )
     )
@@ -1557,10 +1556,10 @@ def main():
     application.add_handler(CommandHandler(UI_VACANCIES_PUBLISHED_TODAY, show_vacancies_published_today_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
-    application.add_handler(MessageHandler(Filters.command, custom_command_handler))
+    application.add_handler(MessageHandler(filters.COMMAND, custom_command_handler))
 
-    application.add_handler(MessageHandler(Filters.reply, comment_handler))
-    application.add_handler(MessageHandler(Filters.text, generic_message_handler))
+    application.add_handler(MessageHandler(filters.REPLY, comment_handler))
+    application.add_handler(MessageHandler(filters.TEXT, generic_message_handler))
 
     # start updater
     application.run_polling()
@@ -1576,7 +1575,6 @@ def main():
     #     my_bot.__del__()
     # except Exception as e:
     #     logger.error(e)
-
 
 
 if __name__ == '__main__':
