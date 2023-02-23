@@ -13,10 +13,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 
-from .secrets import *
+from .mysecrets import *
 
 """
-example secrets.py file:
+example mysecrets.py file:
 
 DB_NAME="........"
 DB_USERNAME="........"
