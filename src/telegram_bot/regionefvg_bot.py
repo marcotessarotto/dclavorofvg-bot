@@ -12,7 +12,7 @@ from src.telegram_bot.log_utils import main_logger as logger, log_user_input, de
 from src.telegram_bot.category_utils import _get_category_status, _set_all_categories
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
-    ChatAction, ReplyKeyboardRemove
+     ReplyKeyboardRemove
 
 from src.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
@@ -31,10 +31,10 @@ from src.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disa
 from src.backoffice.definitions import *
 from src.backoffice.models import EDUCATIONAL_LEVELS
 
-from telegram.ext import messagequeue as mq, Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, \
-    CallbackQueryHandler, run_async, CallbackContext
+from telegram.ext import  ConversationHandler, CommandHandler, MessageHandler, \
+    CallbackQueryHandler, CallbackContext, AIORateLimiter, ApplicationBuilder
 
-from telegram.error import (TelegramError, Unauthorized, BadRequest,
+from telegram.error import (TelegramError, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 
 import datetime
@@ -43,15 +43,15 @@ import time
 # set in main method
 from src.webservice.naive_sentence_similarity_client import naive_sentence_similarity_web_client
 
-try:
-    from src.gfvgbo.secrets import SENTRY_SDK_CODE
-
-    if SENTRY_SDK_CODE:  # SENTRY_SDK_CODE is defined in secrets.py
-        import sentry_sdk
-
-        sentry_sdk.init(SENTRY_SDK_CODE)
-except NameError:
-    pass
+# try:
+#     from src.gfvgbo.mysecrets import SENTRY_SDK_CODE
+#
+#     if SENTRY_SDK_CODE:  # SENTRY_SDK_CODE is defined in secrets.py
+#         import sentry_sdk
+#
+#         sentry_sdk.init(SENTRY_SDK_CODE)
+# except NameError:
+#     pass
 
 global_bot_instance: Bot = None
 
@@ -1276,59 +1276,59 @@ def check_for_user_block(method):
     return wrapped
 
 
-class MQBot(Bot):
-    """A subclass of Bot which delegates send method handling to MQ"""
-
-    def __init__(self, *args, is_queued_def=True, mqueue=None, **kwargs):
-        super(MQBot, self).__init__(*args, **kwargs)
-        # below 2 attributes should be provided for decorator usage
-        self._is_messages_queued_default = is_queued_def
-        self._msg_queue = mqueue or mq.MessageQueue()
-
-    def __del__(self):
-        try:
-            logger.info("MQBot - __del__")
-            self._msg_queue.stop()
-        except Exception as error:
-            logger.error(f"error in MQBot.__del__ : {error}")
-            pass
-
-    @mq.queuedmessage
-    @check_for_user_block
-    def send_animation(self, chat_id, *args, **kwargs):
-        return super(MQBot, self).send_animation(chat_id, *args, **kwargs)
-
-    @mq.queuedmessage
-    @check_for_user_block
-    def send_audio(self, chat_id, *args, **kwargs):
-        return super(MQBot, self).send_audio(chat_id, *args, **kwargs)
-
-    @mq.queuedmessage
-    @check_for_user_block
-    def send_document(self, chat_id, *args, **kwargs):
-        return super(MQBot, self).send_document(chat_id, *args, **kwargs)
-
-    @mq.queuedmessage
-    @check_for_user_block
-    def send_photo(self, chat_id, *args, **kwargs):
-        return super(MQBot, self).send_photo(chat_id, *args, **kwargs)
-
-    @mq.queuedmessage
-    @check_for_user_block
-    def send_video(self, chat_id, *args, **kwargs):
-        return super(MQBot, self).send_video(chat_id, *args, **kwargs)
-
-    @mq.queuedmessage
-    @check_for_user_block
-    def send_voice(self, chat_id, *args, **kwargs):
-        return super(MQBot, self).send_voice(chat_id, *args, **kwargs)
-
-    @mq.queuedmessage
-    @check_for_user_block
-    def send_message(self, chat_id, *args, **kwargs):
-        """Wrapped method would accept new `queued` and `isgroup`
-        OPTIONAL arguments"""
-        return super(MQBot, self).send_message(chat_id, *args, **kwargs)
+# class MQBot(Bot):
+#     """A subclass of Bot which delegates send method handling to MQ"""
+#
+#     def __init__(self, *args, is_queued_def=True, mqueue=None, **kwargs):
+#         super(MQBot, self).__init__(*args, **kwargs)
+#         # below 2 attributes should be provided for decorator usage
+#         self._is_messages_queued_default = is_queued_def
+#         self._msg_queue = mqueue or mq.MessageQueue()
+#
+#     def __del__(self):
+#         try:
+#             logger.info("MQBot - __del__")
+#             self._msg_queue.stop()
+#         except Exception as error:
+#             logger.error(f"error in MQBot.__del__ : {error}")
+#             pass
+#
+#     @mq.queuedmessage
+#     @check_for_user_block
+#     def send_animation(self, chat_id, *args, **kwargs):
+#         return super(MQBot, self).send_animation(chat_id, *args, **kwargs)
+#
+#     @mq.queuedmessage
+#     @check_for_user_block
+#     def send_audio(self, chat_id, *args, **kwargs):
+#         return super(MQBot, self).send_audio(chat_id, *args, **kwargs)
+#
+#     @mq.queuedmessage
+#     @check_for_user_block
+#     def send_document(self, chat_id, *args, **kwargs):
+#         return super(MQBot, self).send_document(chat_id, *args, **kwargs)
+#
+#     @mq.queuedmessage
+#     @check_for_user_block
+#     def send_photo(self, chat_id, *args, **kwargs):
+#         return super(MQBot, self).send_photo(chat_id, *args, **kwargs)
+#
+#     @mq.queuedmessage
+#     @check_for_user_block
+#     def send_video(self, chat_id, *args, **kwargs):
+#         return super(MQBot, self).send_video(chat_id, *args, **kwargs)
+#
+#     @mq.queuedmessage
+#     @check_for_user_block
+#     def send_voice(self, chat_id, *args, **kwargs):
+#         return super(MQBot, self).send_voice(chat_id, *args, **kwargs)
+#
+#     @mq.queuedmessage
+#     @check_for_user_block
+#     def send_message(self, chat_id, *args, **kwargs):
+#         """Wrapped method would accept new `queued` and `isgroup`
+#         OPTIONAL arguments"""
+#         return super(MQBot, self).send_message(chat_id, *args, **kwargs)
 
 
 # catch exceptions caused by MQBot methods without check_for_user_block decorator
@@ -1372,7 +1372,7 @@ def error_callback(update, error):
 def main():
     logger.info("starting bot...")
 
-    from telegram.utils.request import Request
+    # from telegram.utils.request import Request
 
     from pathlib import Path
     token_file = Path('token.txt')
@@ -1382,23 +1382,28 @@ def main():
 
     token = os.environ.get('TOKEN') or open(token_file).read().strip()
 
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Transition-guide-to-Version-20.0
+
+    application = ApplicationBuilder().token(token).rate_limiter(AIORateLimiter()).build()
+
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Avoiding-flood-limits
-    q = mq.MessageQueue(all_burst_limit=29, all_time_limit_ms=1017)  # 5% safety margin in messaging flood limits
+    # q = mq.MessageQueue(all_burst_limit=29, all_time_limit_ms=1017)  # 5% safety margin in messaging flood limits
     # set connection pool size for bot
-    request = Request(con_pool_size=8)
-    my_bot = MQBot(token, request=request, mqueue=q)
+    # request = Request(con_pool_size=8)
+    # my_bot = MQBot(token, request=request, mqueue=q)
 
     global global_bot_instance
-    global_bot_instance = my_bot
+    global_bot_instance = application
 
-    updater = Updater(bot=my_bot, use_context=True)
-    dp = updater.dispatcher
+    ## updater = Updater(bot=my_bot, use_context=True)
+    ## dp = updater.dispatcher
 
     # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Exception-Handling
     # error_callback catches exceptions caused by MQBot methods without check_for_user_block decorator
-    dp.add_error_handler(error_callback)
+    ## dp.add_error_handler(error_callback)
 
-    job_queue = updater.job_queue
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions-%E2%80%93-JobQueue
+    job_queue = application.job_queue
 
     now_tz_aware = django_timezone.now()
     if now_tz_aware.minute == 0:
@@ -1411,11 +1416,13 @@ def main():
     td = datetime.timedelta(minutes=minutes)
 
     logger.info(f"news check period: {NEWS_CHECK_PERIOD} s")
+    # https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions-%E2%80%93-JobQueue#tutorial
     job_minute = job_queue.run_repeating(news_dispatcher, interval=NEWS_CHECK_PERIOD, first=td)  # callback_minute
 
     send_message_to_log_group(f"bot started! {now_tz_aware}\nnext news check in {td} minutes",
                               disable_notification=True)
 
+    # specify time to run daily jobs (absolute time)
     t = datetime.time(hour=13, minute=20, second=0, microsecond=0)
     job_queue.run_daily(daily_jobs, time=t)
 
@@ -1436,7 +1443,7 @@ def main():
             MessageHandler(Filters.all, fallback_conversation_handler)
         ]
     )
-    dp.add_handler(conv_handler)
+    application.add_handler(conv_handler)
 
     search_conversation_handler = ConversationHandler(
         entry_points=[
@@ -1449,7 +1456,7 @@ def main():
             MessageHandler(Filters.all, fallback_conversation_handler)
         ]
     )
-    dp.add_handler(search_conversation_handler)
+    application.add_handler(search_conversation_handler)
 
     search_vacancies_conversation_handler = ConversationHandler(
         entry_points=[
@@ -1462,7 +1469,7 @@ def main():
             MessageHandler(Filters.all, fallback_conversation_handler)
         ]
     )
-    dp.add_handler(search_vacancies_conversation_handler)
+    application.add_handler(search_vacancies_conversation_handler)
 
     set_age_conversation_handler = ConversationHandler(
         entry_points=[
@@ -1475,7 +1482,7 @@ def main():
             MessageHandler(Filters.all, fallback_conversation_handler)
         ]
     )
-    dp.add_handler(set_age_conversation_handler)
+    application.add_handler(set_age_conversation_handler)
 
     set_education_level_conversation_handler = ConversationHandler(
         entry_points=[
@@ -1489,80 +1496,87 @@ def main():
             MessageHandler(Filters.all, fallback_conversation_handler)
         ]
     )
-    dp.add_handler(set_education_level_conversation_handler)
+    application.add_handler(set_education_level_conversation_handler)
 
     # Handler to serve categories, feedbacks and comments inline keboards
-    dp.add_handler(CallbackQueryHandler(callback_handler))
+    application.add_handler(CallbackQueryHandler(callback_handler))
 
     # Other handlers
-    dp.add_handler(CommandHandler(UI_HELP_COMMAND, help_command_handler))
+    application.add_handler(CommandHandler(UI_HELP_COMMAND, help_command_handler))
     if UI_HELP_COMMAND_ALT is not None:
-        dp.add_handler(CommandHandler(UI_HELP_COMMAND_ALT, help_command_handler))
+        application.add_handler(CommandHandler(UI_HELP_COMMAND_ALT, help_command_handler))
 
-    dp.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
+    application.add_handler(CommandHandler(UI_UNDO_PRIVACY_COMMAND, undo_privacy_command_handler))
 
     # These are 'standard' commands (add all categories / remove all categories)
-    dp.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, set_all_categories_command_handler))
-    dp.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, set_no_categories_command_handler))
+    application.add_handler(CommandHandler(UI_ALL_CATEGORIES_COMMAND, set_all_categories_command_handler))
+    application.add_handler(CommandHandler(UI_NO_CATEGORIES_COMMAND, set_no_categories_command_handler))
 
-    dp.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
+    application.add_handler(CommandHandler(UI_ME_COMMAND, me_command_handler))
 
-    dp.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news_command_handler))
+    application.add_handler(CommandHandler(UI_RESEND_LAST_NEWS_COMMAND, resend_last_processed_news_command_handler))
 
-    dp.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
+    application.add_handler(CommandHandler(UI_CHOOSE_CATEGORIES_COMMAND, choose_news_categories_command_handler))
     # dp.add_handler(CommandHandler(UI_SHOW_NEWS, show_news_command_handler))
-    dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_SHOW_NEWS + '[\\d]+)$'), show_news_command_handler))
-    dp.add_handler(MessageHandler(Filters.regex('^(/' + UI_READ_NEWS + '[\\d]+)$'), read_news_item_command_handler))
+    application.add_handler(
+        MessageHandler(
+            Filters.regex(f'^(/{UI_SHOW_NEWS}' + '[\\d]+)$'),
+            show_news_command_handler,
+        )
+    )
+    application.add_handler(
+        MessageHandler(
+            Filters.regex(f'^(/{UI_READ_NEWS}' + '[\\d]+)$'),
+            read_news_item_command_handler,
+        )
+    )
 
-    dp.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
+    application.add_handler(CommandHandler(UI_CATEGORIES_HELP, help_categories_command_handler))
 
-    dp.add_handler(CommandHandler(UI_FORCE_SEND_NEWS_COMMAND, force_send_news_command_handler))
-    dp.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
-    dp.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
-    dp.add_handler(CommandHandler(UI_DEBUG4_COMMAND, debug4_command_handler))
+    application.add_handler(CommandHandler(UI_FORCE_SEND_NEWS_COMMAND, force_send_news_command_handler))
+    application.add_handler(CommandHandler(UI_DEBUG2_COMMAND, debug2_command_handler))
+    application.add_handler(CommandHandler(UI_DEBUG3_COMMAND, debug3_command_handler))
+    application.add_handler(CommandHandler(UI_DEBUG4_COMMAND, debug4_command_handler))
 
-    dp.add_handler(CommandHandler(UI_DEBUG_MSGS_ON, debug_msgs_command_handler))
-    dp.add_handler(CommandHandler(UI_DEBUG_MSGS_OFF, debug_msgs_command_handler))
+    application.add_handler(CommandHandler(UI_DEBUG_MSGS_ON, debug_msgs_command_handler))
+    application.add_handler(CommandHandler(UI_DEBUG_MSGS_OFF, debug_msgs_command_handler))
 
-    dp.add_handler(CommandHandler(UI_PING_COMMAND, ping_command_handler))
-    dp.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, admin_send_command_handler))
-    dp.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))
+    application.add_handler(CommandHandler(UI_PING_COMMAND, ping_command_handler))
+    application.add_handler(CommandHandler(UI_SEND_NEWS_COMMAND, admin_send_command_handler))
+    application.add_handler(CommandHandler(UI_CLEANUP_COMMAND, cleanup_command_handler))
 
-    dp.add_handler(CommandHandler(UI_STATS_COMMAND, stats_command_handler))
+    application.add_handler(CommandHandler(UI_STATS_COMMAND, stats_command_handler))
 
-    dp.add_handler(CommandHandler(UI_AUDIO_ON_COMMAND, audio_on_command_handler))
-    dp.add_handler(CommandHandler(UI_AUDIO_OFF_COMMAND, audio_off_command_handler))
+    application.add_handler(CommandHandler(UI_AUDIO_ON_COMMAND, audio_on_command_handler))
+    application.add_handler(CommandHandler(UI_AUDIO_OFF_COMMAND, audio_off_command_handler))
 
-    dp.add_handler(
+    application.add_handler(
         CommandHandler(UI_SHOW_PROFESSIONAL_CATEGORIES_COMMAND, show_professional_categories_command_handler))
-    dp.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_PROFILES_COMMAND, show_professional_profiles_command_handler))
+    application.add_handler(CommandHandler(UI_SHOW_PROFESSIONAL_PROFILES_COMMAND, show_professional_profiles_command_handler))
 
-    dp.add_handler(CommandHandler(UI_VACANCIES_PUBLISHED_TODAY, show_vacancies_published_today_command_handler))
+    application.add_handler(CommandHandler(UI_VACANCIES_PUBLISHED_TODAY, show_vacancies_published_today_command_handler))
 
     # catch all unknown commands (including custom commands associated to categories)
-    dp.add_handler(MessageHandler(Filters.command, custom_command_handler))
+    application.add_handler(MessageHandler(Filters.command, custom_command_handler))
 
-    dp.add_handler(MessageHandler(Filters.reply, comment_handler))
-    dp.add_handler(MessageHandler(Filters.text, generic_message_handler))
+    application.add_handler(MessageHandler(Filters.reply, comment_handler))
+    application.add_handler(MessageHandler(Filters.text, generic_message_handler))
 
     # start updater
-    updater.start_polling()
+    application.run_polling()
 
-    # Stop the bot if you have pressed Ctrl + C or the process has received SIGINT, SIGTERM or SIGABRT
-    updater.idle()
+    # # Stop the bot if you have pressed Ctrl + C or the process has received SIGINT, SIGTERM or SIGABRT
+    # updater.idle()
+    #
+    # logger.info("terminating bot")
+    #
+    # try:
+    #     request.stop()
+    #     q.stop()
+    #     my_bot.__del__()
+    # except Exception as e:
+    #     logger.error(e)
 
-    logger.info("terminating bot")
-
-    try:
-        request.stop()
-        q.stop()
-        my_bot.__del__()
-    except Exception as e:
-        logger.error(e)
-
-    # https://stackoverflow.com/a/40525942/974287
-    logger.info("before os._exit")
-    os._exit(0)
 
 
 if __name__ == '__main__':
