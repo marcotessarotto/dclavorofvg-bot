@@ -962,7 +962,7 @@ async def ping_command_handler(update, context, telegram_user_id, telegram_user)
     if not telegram_user.is_admin:
         return
 
-    system_services = ['gunicorn', 'rssparser', 'postgresql']
+    system_services = ['gunicorn', 'rssparser', 'mariadb']
 
     import subprocess
 

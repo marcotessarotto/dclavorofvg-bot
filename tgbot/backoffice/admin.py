@@ -14,9 +14,9 @@ from django.http import HttpResponse
 from .models import *
 
 try:
-    from tgbot.gfvgbo.secrets import BOT_NAME
+    from tgbot.gfvgbo.mysecrets import BOT_NAME
 except:
-    from gfvgbo.secrets import BOT_NAME
+    from gfvgbo.mysecrets import BOT_NAME
 
 
 admin.site.site_header = f'backoffice {BOT_NAME}'

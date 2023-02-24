@@ -1,12 +1,12 @@
 # from datetime import timedelta, datetime, tzinfo
 import datetime
 
-from django.contrib.postgres.indexes import GinIndex
+# from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.db.models import Max
-from django.contrib.postgres.search import SearchVectorField, SearchVector
+# from django.contrib.postgres.search import SearchVectorField, SearchVector
 
 from .definitions import *
 
@@ -421,7 +421,7 @@ class NewsItem(models.Model):
     lang = models.CharField(max_length=3, choices=LANGUAGES, default='it',
                             verbose_name="lingua")
 
-    search_vector = SearchVectorField(null=True, editable=False)
+    # search_vector = SearchVectorField(null=True, editable=False)
 
     disable_web_page_preview = models.BooleanField(default=False)
 
@@ -432,9 +432,9 @@ class NewsItem(models.Model):
         verbose_name = UI_news
         verbose_name_plural = UI_news_plural
         app_label = APP_LABEL
-        indexes = [
-            GinIndex(fields=['search_vector']),  # Generalized Inverted Index
-        ]
+        # indexes = [
+        #     GinIndex(fields=['search_vector']),  # Generalized Inverted Index
+        # ]
 
     def __str__(self):
         return f'news #{self.id} ({self.title})'
