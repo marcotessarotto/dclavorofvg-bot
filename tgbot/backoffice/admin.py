@@ -30,7 +30,7 @@ class ExportCsvMixin:
         field_names = [field.name for field in meta.fields]
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        response['Content-Disposition'] = f'attachment; filename={meta}.csv'
         writer = csv.writer(response)
 
         writer.writerow(field_names)
@@ -54,11 +54,10 @@ class ExportAllTelegramUserData:
 
         field_names_complete = field_names.copy()
 
-        for cat in categories:
-            field_names_complete.append(f"{cat.key} ({cat.name})")
+        field_names_complete.extend(f"{cat.key} ({cat.name})" for cat in categories)
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        response['Content-Disposition'] = f'attachment; filename={meta}.csv'
         writer = csv.writer(response)
 
         writer.writerow(field_names_complete)
@@ -77,9 +76,9 @@ class ExportAllTelegramUserData:
             if education_level_pos:
                 row_values[education_level_pos] = [r[1] for r in EDUCATIONAL_LEVELS if r[0] == row_values[education_level_pos]][0]
 
-            for cat in categories:
-                row_values.append("1" if cat in obj.categories.all() else "0")
-
+            row_values.extend(
+                "1" if cat in obj.categories.all() else "0" for cat in categories
+            )
             row = writer.writerow(row_values)
 
         return response
@@ -158,10 +157,7 @@ class CategoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     ordering = ('key',)
 
     def add_default_categories(self, request):
-        # fill_categories aggiunge le categorie di default soltanto se non ci sono Category
-        result = Category.fill_categories()
-
-        if result:
+        if result := Category.fill_categories():
             self.message_user(request, "le categorie di default sono state aggiunte")
         else:
             self.message_user(request, "non ho fatto nulla, ci sono già categorie presenti")
@@ -192,6 +188,7 @@ class TextToSpeechWordSubstitutionAdmin(admin.ModelAdmin):
 
 class NewsItemAdminForm(forms.ModelForm):
     text = forms.CharField(widget=CKEditorWidget())
+
     class Meta:
         model = NewsItem
         fields = '__all__'
@@ -229,7 +226,7 @@ class CommentAdmin(admin.ModelAdmin, ExportCsvMixin):
     search_fields = ('news__id', 'user__user_id',)
 
     def news_id(self, obj):
-        return "id=" + str(obj.news.id)
+        return f"id={obj.news.id}"
 
 
 @admin.register(FeedbackToNewsItem)
@@ -238,7 +235,7 @@ class FeedbackToNewsItemAdmin(admin.ModelAdmin, ExportCsvMixin):
     search_fields = ('news__id', 'user__user_id',)
 
     def news_id(self, obj):
-        return "id=" + str(obj.news.id)
+        return f"id={obj.news.id}"
 
 
 admin.site.register(NewsFile)
@@ -289,10 +286,8 @@ class SystemParameterAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
     def add_default_system_parameters(self, request):
-        # fill_categories aggiunge le categorie di default soltanto se non ci sono Category
-        result = SystemParameter.update_system_parameters()
 
-        if result:
+        if result := SystemParameter.update_system_parameters():
             self.message_user(request, "i parametri di sistema di default sono stati aggiornati")
         else:
             self.message_user(request, "non ho fatto nulla, ci sono già dei parametri di sistema ")
