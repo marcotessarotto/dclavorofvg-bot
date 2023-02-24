@@ -1,5 +1,5 @@
 # naive_sentence_similarity
-from tgbot.telegram_bot.log_utils import benchmark_decorator
+from telegram_bot.log_utils import benchmark_decorator
 
 print(__file__)
 
@@ -18,11 +18,11 @@ from nltk import word_tokenize
 
 from treetaggerwrapper import TreeTagger
 
-# from tgbot.telegram_bot.log_utils import ws_logger as logger, log_user_input, debug_update
+# from telegram_bot.log_utils import ws_logger as logger, log_user_input, debug_update
 
-# from tgbot.backoffice.models import *
+# from backoffice.models import *
 
-from tgbot.telegram_bot.ormlayer import orm_get_nss_reference_sentences, orm_get_obj_from_cache, orm_set_obj_in_cache
+from telegram_bot.ormlayer import orm_get_nss_reference_sentences, orm_get_obj_from_cache, orm_set_obj_in_cache
 
 # useful materials:
 # https://nlpforhackers.io/wordnet-sentence-similarity/

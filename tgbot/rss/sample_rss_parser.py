@@ -3,7 +3,7 @@ import datetime
 import feedparser
 from bs4 import BeautifulSoup
 
-from tgbot.rss.scraping_utils import get_content_from_regionefvg_news, process_node
+from rss.scraping_utils import get_content_from_regionefvg_news, process_node
 
 s = '''<div class="foglia-box-content">
 <p>Sono diverse le nuove 

@@ -3,14 +3,14 @@ import mimetypes
 
 import time
 
-from tgbot.telegram_bot.log_utils import news_logger as logger, benchmark_decorator
+from telegram_bot.log_utils import news_logger as logger, benchmark_decorator
 
-from tgbot.gfvgbo.settings import MEDIA_ROOT
+from gfvgbo.settings import MEDIA_ROOT
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import CallbackContext
 
-from tgbot.backoffice.definitions import (
+from backoffice.definitions import (
     DATE_FORMAT_STR,
     UI_message_show_complete_news_item,
     UI_broadcast_message,
@@ -23,16 +23,16 @@ from tgbot.backoffice.definitions import (
     UI_message_read_news_item, UI_message_this_is_audio_version_of_news_item, SHOW_READ_COMMAND_IN_NEWS_BODY,
     CURRENT_CONTEXT, UI_message_news_item_is_useful, UI_message_news_item_is_not_useful)
 
-from tgbot.backoffice.models import NewsItem, TelegramUser
+from backoffice.models import NewsItem, TelegramUser
 
-from tgbot.telegram_bot.ormlayer import orm_get_fresh_news_to_send, orm_get_system_parameter, orm_get_all_telegram_users, \
+from telegram_bot.ormlayer import orm_get_fresh_news_to_send, orm_get_system_parameter, orm_get_all_telegram_users, \
     orm_log_news_sent_to_user, orm_inc_telegram_user_number_received_news_items, orm_get_news_item, \
     orm_has_user_seen_news_item, orm_find_ai_action, orm_find_ai_context, orm_update_telegram_user, \
     orm_set_current_user_context
-from tgbot.telegram_bot.print_utils import my_print
+from telegram_bot.print_utils import my_print
 
 # dictionary of file_id cache, used when uploading files to telegram server
-from tgbot.telegram_bot.text_to_speech_utils import text_to_speech
+from telegram_bot.text_to_speech_utils import text_to_speech
 
 file_id_cache_dict = {}
 

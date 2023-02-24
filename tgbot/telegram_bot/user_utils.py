@@ -1,9 +1,9 @@
 from functools import wraps
 
-from tgbot.backoffice.definitions import UI_message_accept_privacy_rules_to_continue, UI_message_disabled_account, \
+from backoffice.definitions import UI_message_accept_privacy_rules_to_continue, UI_message_disabled_account, \
     BOT_LOGS_CHAT_ID
-from tgbot.backoffice.models import TelegramUser
-from tgbot.telegram_bot.ormlayer import orm_get_telegram_user, orm_add_telegram_user, orm_get_telegram_log_group
+from backoffice.models import TelegramUser
+from telegram_bot.ormlayer import orm_get_telegram_user, orm_add_telegram_user, orm_get_telegram_log_group
 
 
 def basic_user_checks(update, context):

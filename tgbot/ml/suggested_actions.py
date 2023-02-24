@@ -1,11 +1,11 @@
-from tgbot.backoffice.definitions import SHOW_SUPPORTED_AI_QUESTIONS
-from tgbot.backoffice.models import AiAction, UI_bot_help_message
-from tgbot.ml.matching_utils import search_vacancies, get_valid_vacancy_document_from_str, get_valid_vacancy_code_from_str
-from tgbot.telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences, orm_get_system_parameter
+from backoffice.definitions import SHOW_SUPPORTED_AI_QUESTIONS
+from backoffice.models import AiAction, UI_bot_help_message
+from ml.matching_utils import search_vacancies, get_valid_vacancy_document_from_str, get_valid_vacancy_code_from_str
+from telegram_bot.ormlayer import CurrentUserContext, orm_get_all_sentences, orm_get_system_parameter
 
-from tgbot.telegram_bot.log_utils import main_logger as logger
-from tgbot.telegram_bot.solr.solr_client import solr_get_vacancy
-from tgbot.backoffice.definitions import *
+from telegram_bot.log_utils import main_logger as logger
+from telegram_bot.solr.solr_client import solr_get_vacancy
+from backoffice.definitions import *
 
 # from django.utils.timezone import now
 

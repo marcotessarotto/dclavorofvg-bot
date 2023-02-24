@@ -1,7 +1,7 @@
 
 # Importa il file di impostazioni tgbot/gfvgbo/settings.py
 from django.conf import settings
-from tgbot.gfvgbo.mysecrets import *
+from gfvgbo.mysecrets import *
 
 import os
 
@@ -23,7 +23,7 @@ DATABASES = {
 }
 
 INSTALLED_APPS = [
-    'tgbot.backoffice.apps.BackofficeConfig'
+    'backoffice.apps.BackofficeConfig'
 ]
 
 TIME_ZONE = 'CET'

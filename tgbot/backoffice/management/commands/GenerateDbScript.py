@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand
 
-from tgbot.gfvgbo import settings
+from gfvgbo import settings
 
 
 class Command(BaseCommand):

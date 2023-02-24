@@ -1,10 +1,10 @@
 from gtts import gTTS
 import os
 
-from tgbot.backoffice.models import NewsItem, UI_news, TextToSpeechWordSubstitution
-from tgbot.gfvgbo.settings import AUDIO_ROOT
+from backoffice.models import NewsItem, UI_news, TextToSpeechWordSubstitution
+from gfvgbo.settings import AUDIO_ROOT
 
-from tgbot.telegram_bot.log_utils import main_logger as logger, benchmark_decorator
+from telegram_bot.log_utils import main_logger as logger, benchmark_decorator
 
 # Cloud Text-to-Speech API: Quotas & limits
 # https://cloud.google.com/text-to-speech/quotas

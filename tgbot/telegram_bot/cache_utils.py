@@ -1,6 +1,6 @@
 from django.core.cache import cache
 
-from tgbot.backoffice.models import NewsItem
+from backoffice.models import NewsItem
 
 use_cache = True
 

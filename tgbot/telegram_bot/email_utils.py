@@ -1,10 +1,10 @@
 import smtplib
 from socket import gaierror
 
-from tgbot.backoffice.definitions import DEFAULT_EMAIL_TEMPLATE
-from tgbot.gfvgbo.secrets import SMTP_SERVER, SMTP_USER, SMTP_PASSWORD, EMAIL_SENDER
+from backoffice.definitions import DEFAULT_EMAIL_TEMPLATE
+from gfvgbo.secrets import SMTP_SERVER, SMTP_USER, SMTP_PASSWORD, EMAIL_SENDER
 
-from tgbot.telegram_bot.log_utils import email_logger as logger
+from telegram_bot.log_utils import email_logger as logger
 
 SMTP_PORT = 25
 

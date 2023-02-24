@@ -14,7 +14,7 @@ from django.http import HttpResponse
 from .models import *
 
 try:
-    from tgbot.gfvgbo.mysecrets import BOT_NAME
+    from gfvgbo.mysecrets import BOT_NAME
 except:
     from gfvgbo.mysecrets import BOT_NAME
 

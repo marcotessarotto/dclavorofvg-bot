@@ -1,7 +1,7 @@
 import json
 import requests
 
-from tgbot.gfvgbo.secrets import NSS_HOST, NSS_PORT
+from gfvgbo.secrets import NSS_HOST, NSS_PORT
 
 
 def naive_sentence_similarity_web_client(sentence, host=NSS_HOST, port=NSS_PORT):

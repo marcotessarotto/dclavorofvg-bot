@@ -1,7 +1,7 @@
 import datetime
 from haystack import indexes
 
-from tgbot.backoffice.models import NewsItem
+from backoffice.models import NewsItem
 
 # https://django-haystack.readthedocs.io/en/master/searchindex_api.html#quick-start
 

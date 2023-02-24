@@ -1,6 +1,6 @@
 import re
 
-from tgbot.telegram_bot.solr.solr_client import solr_get_vacancy
+from telegram_bot.solr.solr_client import solr_get_vacancy
 
 # from django.utils.timezone import now
 from django.utils import timezone as django_timezone

@@ -1,0 +1,25 @@
+Django
+django-model-utils
+mysqlclient
+gunicorn
+python-codicefiscale~=0.5
+jinja2
+django-jinja
+pytz~=2022.6
+django-widget-tweaks
+requests~=2.28.1
+scikit-learn
+nltk
+cherrypy
+python-telegram-bot[all]
+beautifulsoup4
+feedparser==6.0.0b1
+# psycopg2-binary
+gTTS
+# SolrClient
+treetaggerwrapper
+# sentry-sdk==0.13.5
+django-ckeditor
+xapian-haystack
+django-haystack
+django-redis

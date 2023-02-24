@@ -6,8 +6,8 @@ from pytz import timezone as pytz_timezone, utc as pytz_utc
 # https://www.electricmonk.nl/log/2017/08/06/understanding-pythons-logging-module/
 from functools import wraps
 
-from tgbot.backoffice.definitions import EXT_DEBUG_MSG
-from tgbot.telegram_bot.print_utils import my_print
+from backoffice.definitions import EXT_DEBUG_MSG
+from telegram_bot.print_utils import my_print
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -87,7 +87,7 @@ def log_user_input(func):  # https://github.com/python-telegram-bot/python-teleg
         except AttributeError:
             text = "?"
 
-        from tgbot.backoffice.models import LogUserInteraction
+        from backoffice.models import LogUserInteraction
         cfu = LogUserInteraction()
         cfu.coming_from_user = True
         cfu.text = text

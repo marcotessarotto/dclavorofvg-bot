@@ -3,9 +3,9 @@ from SolrClient import SolrClient
 # from django.utils.timezone import now
 from django.utils import timezone as django_timezone
 
-from tgbot.telegram_bot.ormlayer import orm_get_obj_from_cache, orm_set_obj_in_cache
+from telegram_bot.ormlayer import orm_get_obj_from_cache, orm_set_obj_in_cache
 
-from tgbot.gfvgbo.secrets import SOLR_HOST, SOLR_PORT
+from gfvgbo.secrets import SOLR_HOST, SOLR_PORT
 
 # solr = SolrClient(f"http://{SOLR_HOST}:{SOLR_PORT}/solr")
 

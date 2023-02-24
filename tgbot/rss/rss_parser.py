@@ -1,4 +1,4 @@
-from tgbot.telegram_bot.ormlayer import *
+from telegram_bot.ormlayer import *
 
 from datetime import timedelta
 from time import mktime
@@ -8,15 +8,15 @@ import feedparser
 import os
 import django
 
-from tgbot.telegram_bot.log_utils import rss_logger as logger
+from telegram_bot.log_utils import rss_logger as logger
 
-from tgbot.backoffice.definitions import RSS_FEED
+from backoffice.definitions import RSS_FEED
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "django_settings")
 django.setup()
 
-from tgbot.backoffice.models import SystemParameter
+from backoffice.models import SystemParameter
 
 
 def _orm_get_system_parameter(param_name):

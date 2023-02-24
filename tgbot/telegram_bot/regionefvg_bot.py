@@ -6,31 +6,31 @@ from django.utils import timezone as django_timezone
 from more_itertools import take
 from telegram.constants import ChatAction
 
-# note: when execution starts from this file, the next import implies that tgbot.telegram_bot.__init__.py is executed (after the import)
+# note: when execution starts from this file, the next import implies that telegram_bot.__init__.py is executed (after the import)
 
-from tgbot.telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
+from telegram_bot.log_utils import main_logger as logger, log_user_input, debug_update
 
-from tgbot.telegram_bot.category_utils import _get_category_status, _set_all_categories
+from telegram_bot.category_utils import _get_category_status, _set_all_categories
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, KeyboardButton, ReplyKeyboardMarkup, Bot, \
      ReplyKeyboardRemove
 
-from tgbot.telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
+from telegram_bot.news_processing import news_dispatcher, send_news_to_telegram_user, _lookup_file_id_in_message, \
     _get_file_id_for_file_path, intersection, show_news_by_id, send_news_as_audio_file
 
-from tgbot.telegram_bot.ormlayer import *
+from telegram_bot.ormlayer import *
 
-from tgbot.telegram_bot.solr.solr_client import solr_get_professional_categories, solr_get_professional_categories_today, \
+from telegram_bot.solr.solr_client import solr_get_professional_categories, solr_get_professional_categories_today, \
     solr_get_professional_profile, solr_get_professional_profile_today, solr_search_vacancies
 
-from tgbot.ml.suggested_actions import perform_suggested_action, help_on_supported_ai_questions
-from tgbot.ml.matching_utils import get_valid_vacancy_code_from_str
+from ml.suggested_actions import perform_suggested_action, help_on_supported_ai_questions
+from ml.matching_utils import get_valid_vacancy_code_from_str
 
-from tgbot.telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
+from telegram_bot.user_utils import basic_user_checks, check_if_user_is_disabled, \
     standard_user_checks
 
-from tgbot.backoffice.definitions import *
-from tgbot.backoffice.models import EDUCATIONAL_LEVELS
+from backoffice.definitions import *
+from backoffice.models import EDUCATIONAL_LEVELS
 
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, \
     CallbackQueryHandler, CallbackContext, AIORateLimiter, ApplicationBuilder, filters
@@ -42,10 +42,10 @@ import datetime
 import time
 
 # set in main method
-from tgbot.webservice.naive_sentence_similarity_client import naive_sentence_similarity_web_client
+from webservice.naive_sentence_similarity_client import naive_sentence_similarity_web_client
 
 # try:
-#     from tgbot.gfvgbo.mysecrets import SENTRY_SDK_CODE
+#     from gfvgbo.mysecrets import SENTRY_SDK_CODE
 #
 #     if SENTRY_SDK_CODE:  # SENTRY_SDK_CODE is defined in secrets.py
 #         import sentry_sdk

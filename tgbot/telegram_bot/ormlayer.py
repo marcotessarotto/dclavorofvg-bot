@@ -7,13 +7,13 @@ import time
 from django.core.cache import cache
 from haystack.query import SearchQuerySet
 
-from tgbot.rss.scraping_utils import get_content_from_regionefvg_news
-from tgbot.telegram_bot.cache_utils import _update_user_in_cache, is_cache_enabled, _orm_get_news_item_cache, \
+from rss.scraping_utils import get_content_from_regionefvg_news
+from telegram_bot.cache_utils import _update_user_in_cache, is_cache_enabled, _orm_get_news_item_cache, \
     _orm_get_news_item, orm_set_obj_in_cache, orm_get_obj_from_cache
-from tgbot.telegram_bot.log_utils import orm_logger, benchmark_decorator
-from tgbot.backoffice.models import *
+from telegram_bot.log_utils import orm_logger, benchmark_decorator
+from backoffice.models import *
 
-from tgbot.telegram_bot.solr.solr_client import solr_vacancies_published_today
+from telegram_bot.solr.solr_client import solr_vacancies_published_today
 
 # https://docs.djangoproject.com/en/2.2/topics/cache/#the-low-level-cache-api
 
@@ -637,7 +637,7 @@ def orm_transform_unprocessed_rss_feed_items_in_news_items():
 
     admin_users = TelegramUser.objects.filter(is_admin=True).filter(email__isnull=False)
     for user in admin_users:
-        from tgbot.telegram_bot.email_utils import send_email
+        from telegram_bot.email_utils import send_email
         send_email(user.email, "bot ", f"RSS feed items transformed into news: {len(queryset)}")
 
 

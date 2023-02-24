@@ -1,9 +1,9 @@
 import cherrypy
 import json
 
-from tgbot.ml.nss_utils import find_most_similar_sentence
-from tgbot.telegram_bot.ormlayer import orm_get_system_parameter
-from tgbot.gfvgbo.secrets import NSS_HOST, NSS_PORT
+from ml.nss_utils import find_most_similar_sentence
+from telegram_bot.ormlayer import orm_get_system_parameter
+from gfvgbo.secrets import NSS_HOST, NSS_PORT
 
 
 class NaiveSentenceSimilarityWebservice(object):

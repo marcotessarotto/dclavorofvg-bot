@@ -1,7 +1,7 @@
 
-from tgbot.ml.nss_utils import test_nss, find_most_similar_sentence
+from ml.nss_utils import test_nss, find_most_similar_sentence
 
-from tgbot.backoffice.models import AiQAActivityLog, NaiveSentenceSimilarityDb
+from backoffice.models import AiQAActivityLog, NaiveSentenceSimilarityDb
 
 
 from sklearn.feature_extraction.text import TfidfVectorizer

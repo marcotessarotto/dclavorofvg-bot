@@ -1,8 +1,8 @@
-from tgbot.backoffice.definitions import UI_message_i_have_changed_your_categories, \
+from backoffice.definitions import UI_message_i_have_changed_your_categories, \
     UI_message_i_have_removed_all_your_categories
-from tgbot.telegram_bot.ormlayer import orm_get_telegram_user, orm_lookup_category_by_custom_command, \
+from telegram_bot.ormlayer import orm_get_telegram_user, orm_lookup_category_by_custom_command, \
     orm_get_category_group, orm_set_telegram_user_categories, orm_get_categories
-from tgbot.telegram_bot.user_utils import check_user_privacy_approval
+from telegram_bot.user_utils import check_user_privacy_approval
 
 
 def _get_category_status(update, context, custom_telegram_command):
