@@ -20,6 +20,15 @@ gTTS
 treetaggerwrapper
 # sentry-sdk==0.13.5
 django-ckeditor
+sphinx
 xapian-haystack
 django-haystack
 django-redis
+
+# dopo l'installazione di xapian-haystack:
+# cd venv
+
+# pico install_xapian.sh
+# prendere il contenuto da: https://raw.githubusercontent.com/notanumber/xapian-haystack/master/install_xapian.sh
+# ai due comandi make, aggiungere: -j4
+# sh install_xapian.sh 1.4.22

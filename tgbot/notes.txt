@@ -1,0 +1,20 @@
+# dopo l'installazione di xapian-haystack:
+
+
+cd venv
+
+pico install_xapian.sh
+# prendere il contenuto da: https://raw.githubusercontent.com/notanumber/xapian-haystack/master/install_xapian.sh
+# ai due comandi make, aggiungere il parametro: -j4
+
+sh install_xapian.sh 1.4.22
+# questo comando scarica, esegue il build e installa, nel venv, xapian 1.4.22
+
+# poi il solito:
+./manage.py migrate
+./manage.py makemigrations backoffice
+./manage.py migrate
+./manage.py runserver
+
+xapian viene invocato da haystack, che lo usa per creare l'indice dei documenti, che poi vengono usati per le ricerche.
+la prima invocazione si ha in runserver
