@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # 'django.contrib.postgres',
+    'haystack',
     'ckeditor',
 ]
 
@@ -107,6 +108,14 @@ DATABASES = {
                     'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
         # https://code.djangoproject.com/ticket/18392
     }
+}
+
+# https://django-haystack.readthedocs.io/en/master/tutorial.html#xapian
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'xapian_backend.XapianEngine',
+        'PATH': '/opt/media/dclavorofvgbot/xapian/xapian_index',
+    },
 }
 
 
