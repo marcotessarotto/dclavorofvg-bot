@@ -5,6 +5,7 @@ import time
 
 # from django.contrib.postgres.search import SearchVector, SearchQuery
 from django.core.cache import cache
+from haystack.query import SearchQuerySet
 
 from tgbot.rss.scraping_utils import get_content_from_regionefvg_news
 from tgbot.telegram_bot.cache_utils import _update_user_in_cache, is_cache_enabled, _orm_get_news_item_cache, \
@@ -416,33 +417,33 @@ def orm_get_knowledge_base_items():
     return news_query
 
 
-_news_title_search_vector = SearchVector('title')
+# _news_title_search_vector = SearchVector('title')
 
 
-def orm_news_title_fts(search: str):
-    """full text search on title field of news items"""
-    news_query = NewsItem.objects.annotate(
-      search=_news_title_search_vector
-    ).filter(
-      search=SearchQuery(search)
-    )
-    return news_query
+# def orm_news_title_fts(search: str):
+#     """full text search on title field of news items"""
+#     news_query = NewsItem.objects.annotate(
+#       search=_news_title_search_vector
+#     ).filter(
+#       search=SearchQuery(search)
+#     )
+#     return news_query
 
 
-_news_text_search_vector = SearchVector('text')
+# _news_text_search_vector = SearchVector('text')
 
 
-def orm_news_text_fts(search: str):
-    """full text search on text field of news items"""
-    news_query = NewsItem.objects.annotate(
-      search=_news_text_search_vector
-    ).filter(
-      search=SearchQuery(search)
-    )
-    return news_query
+# def orm_news_text_fts(search: str):
+#     """full text search on text field of news items"""
+#     news_query = NewsItem.objects.annotate(
+#       search=_news_text_search_vector
+#     ).filter(
+#       search=SearchQuery(search)
+#     )
+#     return news_query
 
 
-_news_search_vector = SearchVector('title', 'text', config=POSTGRES_FTS_LANGUAGE)
+# _news_search_vector = SearchVector('title', 'text', config=POSTGRES_FTS_LANGUAGE)
 
 
 def orm_news_fts(search: str, processed=True, last_days=10):
@@ -451,16 +452,18 @@ def orm_news_fts(search: str, processed=True, last_days=10):
     today = django_timezone.now()
     d = today - datetime.timedelta(days=last_days)
 
-    # https://www.paulox.net/2017/12/22/full-text-search-in-django-with-postgresql/#search-configuration
-    news_query = NewsItem.objects.annotate(
-      search=_news_search_vector
-    ).filter(
-        processed=processed
-    ).filter(
-        processed_timestamp__gte=d
-    ).filter(
-      search=SearchQuery(search, config=POSTGRES_FTS_LANGUAGE)
-    )
+    news_query = SearchQuerySet().filter(content=search)
+
+    # # https://www.paulox.net/2017/12/22/full-text-search-in-django-with-postgresql/#search-configuration
+    # news_query = NewsItem.objects.annotate(
+    #   search=_news_search_vector
+    # ).filter(
+    #     processed=processed
+    # ).filter(
+    #     processed_timestamp__gte=d
+    # ).filter(
+    #   search=SearchQuery(search, config=POSTGRES_FTS_LANGUAGE)
+    # )
     return news_query
 
 
