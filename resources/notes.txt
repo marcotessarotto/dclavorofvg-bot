@@ -1,6 +1,10 @@
 
 
 
+
+
+*******************************
+
 SOLR
 
 https://hub.docker.com/_/solr/
