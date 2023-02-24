@@ -124,9 +124,8 @@ def search_vacancies_command_handler(update, context, telegram_user_id, telegram
 
 @log_user_input
 @standard_user_checks
-@run_async
 @benchmark_decorator
-def callback_search_vacancies_params(update, context, telegram_user_id, telegram_user):
+async def callback_search_vacancies_params(update, context, telegram_user_id, telegram_user):
     search_params = update.message.text
 
     results = solr_search_vacancies(search_params)
@@ -161,9 +160,8 @@ def search_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
-@run_async
 @benchmark_decorator
-def callback_search_params(update, context, telegram_user_id, telegram_user):
+async def callback_search_params(update, context, telegram_user_id, telegram_user):
     search_params = update.message.text
 
     results = orm_news_fts(search_params)
@@ -452,7 +450,7 @@ def help_categories_command_handler(update, context):
     categories = orm_get_categories_valid_command()
     msg = UI_message_categories_selection
     for cat in categories:
-        msg = msg + f'<b>/{cat.custom_telegram_command}</b> {UI_arrow} categoria "{cat.name}"\n'
+        msg = f'{msg}<b>/{cat.custom_telegram_command}</b> {UI_arrow} categoria "{cat.name}"\n'
 
     update.message.reply_text(
         msg,
@@ -486,9 +484,8 @@ def callback_handler(update, context):
 
 @log_user_input
 @standard_user_checks
-@run_async
 @benchmark_decorator
-def show_news_command_handler(update, context, telegram_user_id, telegram_user):
+async def show_news_command_handler(update, context, telegram_user_id, telegram_user):
     """show a specific news item (identified by id)"""
 
     str_id = update.message.text.replace(f'/{UI_SHOW_NEWS}', '')
@@ -507,9 +504,8 @@ def show_news_command_handler(update, context, telegram_user_id, telegram_user):
 
 @log_user_input
 @standard_user_checks
-@run_async
 @benchmark_decorator
-def read_news_item_command_handler(update, context, telegram_user_id, telegram_user):
+async def read_news_item_command_handler(update, context, telegram_user_id, telegram_user):
     """read a specific news item (identified by id)"""
 
     str_id = update.message.text.replace(f'/{UI_READ_NEWS}', '')
@@ -693,9 +689,8 @@ def me_command_handler(update, context):
 
 @log_user_input
 @standard_user_checks
-@run_async
 @benchmark_decorator
-def resend_last_processed_news_command_handler(update, context, telegram_user_id, telegram_user):
+async def resend_last_processed_news_command_handler(update, context, telegram_user_id, telegram_user):
     logger.info("resend_last_processed_news")
 
     now = django_timezone.now()
@@ -787,7 +782,7 @@ def stats_command_handler(update, context, telegram_user_id, telegram_user):
 
     for k, v in dict.items():
         # logger.info("k=" + str(k) + " v=" + str(v))
-        text += str(k.name) + ': ' + str(v) + "\n"
+        text += f'{str(k.name)}: {str(v)}' + "\n"
 
     context.bot.send_message(
         chat_id=telegram_user.user_id,
@@ -903,8 +898,6 @@ def debug2_command_handler(update, context, telegram_user_id, telegram_user):
         parse_mode='HTML'
     )
 
-    pass
-
 
 @log_user_input
 @standard_user_checks
@@ -964,8 +957,7 @@ def debug_msgs_command_handler(update, context, telegram_user_id, telegram_user)
 
 @log_user_input
 @standard_user_checks
-@run_async
-def ping_command_handler(update, context, telegram_user_id, telegram_user):
+async def ping_command_handler(update, context, telegram_user_id, telegram_user):
     """get status of system services - admin command"""
     if not telegram_user.is_admin:
         return
@@ -1004,13 +996,10 @@ def cleanup_command_handler(update, context, telegram_user_id, telegram_user):
 
     NewsItemSentToUser.objects.all().delete()
 
-    pass
-
 
 @log_user_input
 @standard_user_checks
-@run_async
-def admin_send_command_handler(update, context, telegram_user_id, telegram_user):
+async def admin_send_command_handler(update, context, telegram_user_id, telegram_user):
     """create a news item - admin command"""
     # takes content after /news command as content of the news to send
 
@@ -1091,8 +1080,7 @@ def callback_comment(update, context, news_id):
 
 @log_user_input
 @standard_user_checks
-@run_async
-def comment_handler(update, context, telegram_user_id, telegram_user):
+async def comment_handler(update, context, telegram_user_id, telegram_user):
     """ save the comment provided by user """
 
     message_text = update.message.text
@@ -1218,8 +1206,7 @@ def respond_to_user(update, context, telegram_user_id, telegram_user, message_te
 
 @log_user_input
 @standard_user_checks
-@run_async
-def generic_message_handler(update, context, telegram_user_id, telegram_user):
+async def generic_message_handler(update, context, telegram_user_id, telegram_user):
     message_text = None
     try:
         message_text = update.message.text

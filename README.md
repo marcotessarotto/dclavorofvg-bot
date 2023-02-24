@@ -6,9 +6,9 @@ this project is being developed on Linux Debian 10
 
 *project requirements:*
 
-- python 3.1, mysqlclient
+- python 3.11, mysqlclient
 - Django 4.1.2
-- python-telegram-bot 12
+- python-telegram-bot 20
 
  
 There are two main applications:
